@@ -12,4 +12,5 @@ urlpatterns = [
     path("<int:pk>/", views.EmployeeDetailView.as_view(), name="employee_detail"),
     path("<int:pk>/edit/", views.EmployeeUpdateView.as_view(), name="employee_edit"),
     path("<int:pk>/card/", views.EmployeeQrCardView.as_view(), name="employee_card"),
+    path("<int:pk>/card/print/", views.EmployeeCardPrintView.as_view(), name="employee_card_print"),
 ]

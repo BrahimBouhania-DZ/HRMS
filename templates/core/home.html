@@ -1,17 +1,119 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load perms_tags %}
 {% block title %}{% trans "الرئيسية" %} — {{ APP_NAME }}{% endblock %}
 {% block content %}
-<h1>{% blocktrans with name=user.get_full_name|default:user.username %}مرحبًا، {{ name }}{% endblocktrans %}</h1>
+<div class="hero">
+    <span class="hero-blob b1" aria-hidden="true"></span>
+    <span class="hero-blob b2" aria-hidden="true"></span>
+    <span class="hero-blob b3" aria-hidden="true"></span>
+    <div class="hero-inner">
+        <h1>{% blocktrans with name=user.get_full_name|default:user.username %}مرحبًا، {{ name }}{% endblocktrans %} 👋</h1>
+        <p class="hero-sub">{% blocktrans with d=today %}نظرة سريعة على يوم {{ d }}{% endblocktrans %}</p>
+        <div class="hero-chips">
+            <span class="chip">{% trans "حاضر اليوم" %} <b>{{ kpis.present_today }}</b></span>
+            <span class="chip">{% trans "غائب" %} <b>{{ kpis.absent_today }}</b></span>
+            <span class="chip">{% trans "في إجازة" %} <b>{{ kpis.on_leave_today }}</b></span>
+            <span class="chip">{% trans "تأخير (د)" %} <b>{{ kpis.late_minutes_today }}</b></span>
+            <span class="chip">{% trans "طلبات معلقة" %} <b>{{ kpis.pending_leaves }}</b></span>
+        </div>
+    </div>
+</div>
 
 <div class="stats">
-    <div class="stat"><span class="stat-num">{{ kpis.employees_total }}</span><span class="stat-label">{% trans "موظف نشط" %}</span></div>
-    <div class="stat"><span class="stat-num">{{ kpis.present_today }}</span><span class="stat-label">{% trans "حاضر اليوم" %}</span></div>
-    <div class="stat"><span class="stat-num">{{ kpis.absent_today }}</span><span class="stat-label">{% trans "غائب اليوم" %}</span></div>
-    <div class="stat"><span class="stat-num">{{ kpis.on_leave_today }}</span><span class="stat-label">{% trans "في إجازة اليوم" %}</span></div>
-    <div class="stat"><span class="stat-num">{{ kpis.late_minutes_today }}</span><span class="stat-label">{% trans "دقيقة تأخير اليوم" %}</span></div>
-    <div class="stat"><span class="stat-num">{{ kpis.pending_leaves }}</span><span class="stat-label">{% trans "طلبات معلقة" %}</span></div>
+    <div class="stat-card">
+        <div class="stat-label">{% trans "موظف نشط" %}</div>
+        <div class="stat-value"><a href="{% url 'employees:employee_list' %}">{{ kpis.employees_total }}</a></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">{% trans "حاضر اليوم" %}</div>
+        <div class="stat-value">{{ kpis.present_today }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">{% trans "غائب اليوم" %}</div>
+        <div class="stat-value">{{ kpis.absent_today }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">{% trans "في إجازة اليوم" %}</div>
+        <div class="stat-value">{{ kpis.on_leave_today }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">{% trans "دقيقة تأخير اليوم" %}</div>
+        <div class="stat-value">{{ kpis.late_minutes_today }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">{% trans "طلبات معلقة" %}</div>
+        <div class="stat-value">{{ kpis.pending_leaves }}</div>
+    </div>
 </div>
+
+{% perm_check user "employee.view" as can_view_emp %}
+{% perm_check user "employee.create" as can_add_emp %}
+{% perm_check user "attendance.view" as can_view_att %}
+{% perm_check user "leave.request" as can_leave %}
+{% perm_check user "payroll.view" as can_payroll %}
+{% perm_check user "reports.view" as can_reports %}
+{% perm_check user "device.manage" as can_devices %}
+{% if can_view_emp or can_add_emp or can_view_att or can_leave or can_payroll or can_reports or can_devices %}
+<div class="card">
+    <div class="card-title"><h2>{% trans "إجراءات سريعة" %}</h2></div>
+    <div class="quick-actions">
+        <a class="qa-btn qa-gold" href="{% url 'attendance:my_qr_card' %}">
+            <span class="qa-ico" aria-hidden="true">🪪</span>
+            <span class="qa-lbl">{% trans "بطاقتي" %}</span>
+        </a>
+        {% if can_view_emp %}
+        <a class="qa-btn" href="{% url 'employees:employee_list' %}">
+            <span class="qa-ico" aria-hidden="true">👥</span>
+            <span class="qa-lbl">{% trans "الموظفون" %}</span>
+            <span class="badge qa-count">{{ kpis.employees_total }}</span>
+        </a>
+        {% endif %}
+        {% if can_add_emp %}
+        <a class="qa-btn qa-green" href="{% url 'employees:employee_create' %}">
+            <span class="qa-ico" aria-hidden="true">➕</span>
+            <span class="qa-lbl">{% trans "إضافة موظف" %}</span>
+        </a>
+        {% endif %}
+        {% if can_view_att %}
+        <a class="qa-btn" href="{% url 'attendance:attendance_day_list' %}">
+            <span class="qa-ico" aria-hidden="true">⏱️</span>
+            <span class="qa-lbl">{% trans "الحضور" %}</span>
+        </a>
+        {% endif %}
+        {% if can_leave %}
+        <a class="qa-btn qa-green" href="{% url 'leave:my_leave' %}">
+            <span class="qa-ico" aria-hidden="true">🏖️</span>
+            <span class="qa-lbl">{% trans "الإجازات" %}</span>
+        </a>
+        {% endif %}
+        {% if can_payroll %}
+        <a class="qa-btn" href="{% url 'payroll:run_list' %}">
+            <span class="qa-ico" aria-hidden="true">💰</span>
+            <span class="qa-lbl">{% trans "الرواتب" %}</span>
+        </a>
+        {% endif %}
+        {% if can_reports %}
+        <a class="qa-btn qa-gold" href="{% url 'reports:index' %}">
+            <span class="qa-ico" aria-hidden="true">📊</span>
+            <span class="qa-lbl">{% trans "التقارير" %}</span>
+        </a>
+        {% endif %}
+        {% if can_devices %}
+        <a class="qa-btn qa-red" href="{% url 'devices:list' %}">
+            <span class="qa-ico" aria-hidden="true">📡</span>
+            <span class="qa-lbl">{% trans "الأجهزة" %}</span>
+        </a>
+        {% endif %}
+        {% if user.is_staff %}
+        <a class="qa-btn qa-gold" href="{% url 'admin:index' %}">
+            <span class="qa-ico" aria-hidden="true">⚙️</span>
+            <span class="qa-lbl">{% trans "الإدارة" %}</span>
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
 
 <div class="dashboard-cols">
     <div class="card">

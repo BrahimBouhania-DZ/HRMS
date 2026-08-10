@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1250" height="900" viewBox="0 0 1250 900" font-family="'Segoe UI', Tahoma, 'Noto Sans Arabic', Arial, sans-serif">
+  <defs>
+    <linearGradient id="h2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0e2a47"/><stop offset="1" stop-color="#1f5f8b"/>
+    </linearGradient>
+    <linearGradient id="b2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f2f6fa"/>
+    </linearGradient>
+  </defs>
+  <rect width="1250" height="900" fill="#eef2f7"/>
+  <rect width="1250" height="64" fill="url(#h2)"/>
+  <text x="625" y="42" fill="#fff" font-size="26" font-weight="bold" text-anchor="middle">مخطط قاعدة البيانات — أهم النماذج والعلاقات</text>
+
+  <!-- جدول موظف مركزياً -->
+  <g transform="translate(440,96)">
+    <rect width="370" height="150" rx="10" fill="url(#b2)" stroke="#1f5f8b" stroke-width="2"/>
+    <rect width="370" height="34" rx="10" fill="url(#h2)"/>
+    <rect y="26" width="370" height="8" fill="url(#h2)"/>
+    <text x="185" y="23" fill="#fff" font-size="15" font-weight="bold" text-anchor="middle">Employee — الموظف</text>
+    <g font-size="12.5" fill="#33475f">
+      <text x="18" y="56">employee_code (رقم الوظيفي) ✱</text>
+      <text x="18" y="76">الاسم عربي/فرنسي/إنجليزي · الجنس</text>
+      <text x="18" y="96">hire_date · birth_date · الحالة</text>
+      <text x="18" y="116">branch · department · position · shift</text>
+      <text x="18" y="136">user (حساب دخول) · bank_account</text>
+    </g>
+  </g>
+
+  <!-- الهيكل التنظيمي -->
+  <g font-size="12.5">
+    <rect x="60" y="300" width="230" height="120" rx="10" fill="url(#b2)" stroke="#c5d3e2"/>
+    <rect x="60" y="300" width="230" height="30" rx="10" fill="#0e2a47"/>
+    <rect x="60" y="320" width="230" height="10" fill="#0e2a47"/>
+    <text x="175" y="320" fill="#fff" font-weight="bold" text-anchor="middle" font-size="14">Branch — الفرع</text>
+    <text x="75" y="350" fill="#33475f">code ✱ · الاسم · الدولة</text>
+    <text x="75" y="370" fill="#33475f">المدينة · المنطقة الزمنية</text>
+    <text x="75" y="392" fill="#8a99ad" font-size="11">1 ── * Department</text>
+    <text x="75" y="408" fill="#8a99ad" font-size="11">1 ── * QrDevice</text>
+
+    <rect x="320" y="300" width="230" height="120" rx="10" fill="url(#b2)" stroke="#c5d3e2"/>
+    <rect x="320" y="300" width="230" height="30" rx="10" fill="#0e2a47"/>
+    <rect x="320" y="320" width="230" height="10" fill="#0e2a47"/>
+    <text x="435" y="320" fill="#fff" font-weight="bold" text-anchor="middle" font-size="14">Department — القسم</text>
+    <text x="335" y="350" fill="#33475f">code ✱ · الاسم · parent</text>
+    <text x="335" y="370" fill="#33475f">manager (مدير القسم)</text>
+    <text x="335" y="392" fill="#8a99ad" font-size="11">1 ── * Position</text>
+    <text x="335" y="408" fill="#8a99ad" font-size="11">1 ── * Employee</text>
+
+    <rect x="580" y="300" width="230" height="120" rx="10" fill="url(#b2)" stroke="#c5d3e2"/>
+    <rect x="580" y="300" width="230" height="30" rx="10" fill="#0e2a47"/>
+    <rect x="580" y="320" width="230" height="10" fill="#0e2a47"/>
+    <text x="695" y="320" fill="#fff" font-weight="bold" text-anchor="middle" font-size="14">Position — المنصب</text>
+    <text x="595" y="350" fill="#33475f">code ✱ · الاسم · grade</text>
+    <text x="595" y="392" fill="#8a99ad" font-size="11">1 ── * Employee</text>
+
+    <rect x="840" y="300" width="230" height="120" rx="10" fill="url(#b2)" stroke="#c5d3e2"/>
+    <rect x="840" y="300" width="230" height="30" rx="10" fill="#0e2a47"/>
+    <rect x="840" y="320" width="230" height="10" fill="#0e2a47"/>
+    <text x="955" y="320" fill="#fff" font-weight="bold" text-anchor="middle" font-size="14">Shift — جدول الدوام</text>
+    <text x="855" y="350" fill="#33475f">code ✱ · البداية/النهاية</text>
+    <text x="855" y="370" fill="#33475f">مرن · سماحية التأخير</text>
+    <text x="855" y="392" fill="#8a99ad" font-size="11">1 ── * Employee</text>
+  </g>
+
+  <!-- علاقات الموظف -->
+  <g font-size="12" fill="#33475f">
+    <!-- QR -->
+    <rect x="60" y="470" width="240" height="110" rx="10" fill="url(#b2)" stroke="#d4af37" stroke-width="1.5"/>
+    <rect x="60" y="470" width="240" height="30" rx="10" fill="#8a6d00"/>
+    <rect x="60" y="490" width="240" height="10" fill="#8a6d00"/>
+    <text x="180" y="491" fill="#fff" font-weight="bold" text-anchor="middle" font-size="13">EmployeeQR — رمز QR</text>
+    <text x="75" y="518" fill="#33475f">secret ✱ · version · status</text>
+    <text x="75" y="537" fill="#33475f">activated/expires/revoked</text>
+    <text x="75" y="556" fill="#8a99ad" font-size="11">1 ── 1 (نسخة نشطة واحدة)</text>
+    <text x="75" y="572" fill="#8a99ad" font-size="11">payload مُوقّع HMAC-SHA256</text>
+
+    <!-- عقد -->
+    <rect x="340" y="470" width="240" height="110" rx="10" fill="url(#b2)" stroke="#c5d3e2"/>
+    <rect x="340" y="470" width="240" height="30" rx="10" fill="#0e2a47"/>
+    <rect x="340" y="490" width="240" height="10" fill="#0e2a47"/>
+    <text x="460" y="491" fill="#fff" font-weight="bold" text-anchor="middle" font-size="13">Contract — العقد</text>
+    <text x="355" y="518" fill="#33475f">contract_number ✱ · النوع</text>
+    <text x="355" y="537" fill="#33475f">الأجر الإجمالي/الأساسي/العلاوات</text>
+    <text x="355" y="556" fill="#8a99ad" font-size="11">1 ── * Employee</text>
+
+    <!-- حضور -->
+    <rect x="620" y="470" width="240" height="110" rx="10" fill="url(#b2)" stroke="#c5d3e2"/>
+    <rect x="620" y="470" width="240" height="30" rx="10" fill="#0e2a47"/>
+    <rect x="620" y="490" width="240" height="10" fill="#0e2a47"/>
+    <text x="740" y="491" fill="#fff" font-weight="bold" text-anchor="middle" font-size="13">AttendanceDay — يوم حضور</text>
+    <text x="635" y="518" fill="#33475f">work_date ✱ · state · shift</text>
+    <text x="635" y="537" fill="#33475f">check_in/out · عمل/تأخير/إضافي</text>
+    <text x="635" y="556" fill="#8a99ad" font-size="11">1 ── * Scan (كل مسحة QR)</text>
+    <text x="635" y="572" fill="#8a99ad" font-size="11">1 ── * Exception (إذن/مأمورية)</text>
+
+    <!-- إجازات -->
+    <rect x="900" y="470" width="290" height="110" rx="10" fill="url(#b2)" stroke="#c5d3e2"/>
+    <rect x="900" y="470" width="290" height="30" rx="10" fill="#0e2a47"/>
+    <rect x="900" y="490" width="290" height="10" fill="#0e2a47"/>
+    <text x="1045" y="491" fill="#fff" font-weight="bold" text-anchor="middle" font-size="13">LeaveRequest — طلب إجازة</text>
+    <text x="915" y="518" fill="#33475f">من/إلى · days · status · current_level</text>
+    <text x="915" y="537" fill="#8a99ad" font-size="11">1 ── * Approval (موافقات لكل مستوى)</text>
+    <text x="915" y="556" fill="#8a99ad" font-size="11">LeaveType 1 ── * Request / Balance</text>
+    <text x="915" y="572" fill="#8a99ad" font-size="11">رصيد: granted + carried − used</text>
+
+    <!-- رواتب -->
+    <rect x="300" y="660" width="280" height="150" rx="10" fill="url(#b2)" stroke="#d4af37" stroke-width="1.5"/>
+    <rect x="300" y="660" width="280" height="30" rx="10" fill="#8a6d00"/>
+    <rect x="300" y="680" width="280" height="10" fill="#8a6d00"/>
+    <text x="440" y="682" fill="#fff" font-weight="bold" text-anchor="middle" font-size="13">PayRun — دورة رواتب</text>
+    <text x="315" y="708" fill="#33475f">period_code ✱ + branch (فريد)</text>
+    <text x="315" y="727" fill="#33475f">status: draft→reviewing→approved→frozen</text>
+    <text x="315" y="746" fill="#8a99ad" font-size="11">1 ── * Payslip (قسيمة لكل موظف)</text>
+    <text x="315" y="763" fill="#8a99ad" font-size="11">1 ── * PayrollLine (عنصر أجر)</text>
+    <text x="315" y="780" fill="#8a99ad" font-size="11">PayElement 1 ── * Line (إضافة/خصم)</text>
+
+    <rect x="700" y="660" width="280" height="150" rx="10" fill="url(#b2)" stroke="#c5d3e2"/>
+    <rect x="700" y="660" width="280" height="30" rx="10" fill="#0e2a47"/>
+    <rect x="700" y="680" width="280" height="10" fill="#0e2a47"/>
+    <text x="840" y="682" fill="#fff" font-weight="bold" text-anchor="middle" font-size="13">Payslip — قسيمة الراتب</text>
+    <text x="715" y="708" fill="#33475f">basic · earnings · deductions · net</text>
+    <text x="715" y="727" fill="#33475f">attended/absent/leave days</text>
+    <text x="715" y="746" fill="#33475f">overtime · bank_export_ref · PDF</text>
+    <text x="715" y="763" fill="#8a99ad" font-size="11">الحساب: أساسي + إضافات − خصومات</text>
+    <text x="715" y="780" fill="#8a99ad" font-size="11">خصم الغياب = (أساسي/أيام) × أيام</text>
+  </g>
+
+  <!-- خطوط علاقات -->
+  <g stroke="#8aa0b6" stroke-width="1.5" fill="none">
+    <line x1="625" y1="246" x2="175" y2="300"/>
+    <line x1="625" y1="246" x2="435" y2="300"/>
+    <line x1="625" y1="246" x2="695" y2="300"/>
+    <line x1="625" y1="246" x2="955" y2="300"/>
+    <line x1="555" y1="246" x2="180" y2="470"/>
+    <line x1="625" y1="246" x2="460" y2="470"/>
+    <line x1="625" y1="246" x2="740" y2="470"/>
+    <line x1="625" y1="246" x2="1045" y2="470"/>
+    <line x1="625" y1="246" x2="440" y2="660"/>
+    <line x1="625" y1="246" x2="840" y2="660"/>
+  </g>
+
+  <text x="625" y="852" font-size="12" fill="#8a99ad" text-anchor="middle">✱ = فريد (Unique) — العلاقات من الموظف إلى كل الوحدات (مركز الثقل هو جدول Employee)</text>
+</svg>

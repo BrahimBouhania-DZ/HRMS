@@ -1,0 +1,125 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{{ LANGUAGE_DIR }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% trans "طباعة بطاقة" %} — {{ employee.employee_code }}</title>
+<style>
+    @page {
+        size: A4 portrait;
+        margin: 8mm;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+        font-family: 'Segoe UI', Tahoma, 'Noto Sans Arabic', Arial, sans-serif;
+        color: #12233b;
+    }
+
+    /* ===== ورقة A4 ===== */
+    .sheet {
+        position: relative;
+        width: 194mm;      /* 210 - 16 (هوامش @page) */
+        height: 281mm;     /* 297 - 16 */
+        margin: 0 auto;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* ===== خلفية رمز الشركة (علامة مائية قابلة للتعديل) ===== */
+    .watermark {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8mm;
+        opacity: calc(var(--wm-op, 8) / 100);
+    }
+    .watermark .wm-logo {
+        max-width: 60mm;
+        max-height: 45mm;
+        object-fit: contain;
+    }
+    .watermark .wm-name {
+        font-size: 9mm;
+        font-weight: 800;
+        letter-spacing: 1mm;
+        color: #0e2a47;
+        text-align: center;
+    }
+    .watermark .wm-tagline {
+        font-size: 4mm;
+        color: #144a69;
+        text-align: center;
+    }
+
+    /* ===== شبكة البطاقات: 2 × 2 ===== */
+    .cards {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(2, 85.6mm);
+        grid-template-rows: repeat(2, 54mm);
+        gap: 10mm 12mm;
+        justify-content: center;
+        align-content: center;
+        height: 100%;
+        width: 100%;
+    }
+
+    /* ===== علامات القص (تظهر عند الطباعة فقط) ===== */
+    .cut-v, .cut-h {
+        position: absolute;
+        z-index: 2;
+        border-style: dashed;
+        border-color: #b9c6d4;
+        pointer-events: none;
+    }
+    .cut-v {
+        top: 0; bottom: 0; inset-inline-start: 50%;
+        border-width: 0 0 0 0.3mm;
+        /* الخط نفسه: نرسمه بحد خفيف */
+    }
+    .cut-h {
+        left: 0; right: 0; top: 50%;
+        border-width: 0.3mm 0 0 0;
+    }
+
+    @media screen {
+        body { background: #eef2f7; padding: 12mm; }
+        .sheet { background: #fff; box-shadow: 0 6px 24px rgba(18, 35, 59, .15); border-radius: 3mm; }
+        .cut-v, .cut-h { border-color: #8aa0b6; }
+    }
+</style>
+</head>
+<body>
+<div class="sheet" style="--wm-op: {{ COMPANY.watermark_opacity|default:8 }};">{% if COMPANY and COMPANY.show_logo_watermark %}
+    <div class="watermark">
+        {% if COMPANY.logo %}
+        <img class="wm-logo" src="{{ COMPANY.logo.url }}" alt="">
+        {% endif %}
+        <div class="wm-name">{{ COMPANY.company_name_ar }}</div>
+        {% if COMPANY.tagline %}<div class="wm-tagline">{{ COMPANY.tagline }}</div>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="cards">
+        {% include "employees/_id_card.html" %}
+        {% include "employees/_id_card.html" %}
+        {% include "employees/_id_card.html" %}
+        {% include "employees/_id_card.html" %}
+    </div>
+
+    <div class="cut-v" aria-hidden="true"></div>
+    <div class="cut-h" aria-hidden="true"></div>
+</div>
+<script>
+    window.onload = function () { window.print(); };
+</script>
+</body>
+</html>

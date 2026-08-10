@@ -119,3 +119,29 @@ class EmployeeQrCardView(PermissionRequiredMixin, DetailView):
             regenerate_qr(self.object, issued_by=request.user)
             messages.success(request, _("تم توليد رمز QR جديد (نسخة محدثة)"))
         return redirect(reverse("employees:employee_card", kwargs={"pk": self.object.pk}))
+
+
+class EmployeeCardPrintView(PermissionRequiredMixin, DetailView):
+    """ورقة طباعة البطاقة — 4 بطاقات في صفحة A4 + خلفية رمز الشركة.
+
+    صلاحية العرض: employee.view (مثل بطاقة الموظف العادية).
+    الصفحة قائمة بذاتها (بدون base.html) لطباعة نظيفة، وتفتح نافذة الطباعة تلقائيًا.
+    """
+
+    permission_code = "employee.view"
+    model = Employee
+    template_name = "employees/employee_card_print.html"
+    context_object_name = "employee"
+
+    def get_queryset(self):
+        return employee_scope_queryset(self.request.user).select_related(
+            "branch", "department", "position", "shift"
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        employee = self.object
+        qr = get_active_qr(employee)
+        ctx["qr"] = qr
+        ctx["payload"] = get_qr_payload(employee)
+        return ctx

@@ -34,6 +34,7 @@ class Command(BaseCommand):
 
         call_command("seed_rbac")
         call_command("seed_leave", year=year)
+        call_command("seed_branding")
 
         if not no_admin:
             self._ensure_admin()

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1150" height="780" viewBox="0 0 1150 780" font-family="'Segoe UI', Tahoma, 'Noto Sans Arabic', Arial, sans-serif">
+  <defs>
+    <linearGradient id="hd" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0e2a47"/><stop offset="1" stop-color="#1f5f8b"/>
+    </linearGradient>
+    <linearGradient id="box" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f2f6fa"/>
+    </linearGradient>
+  </defs>
+  <rect width="1150" height="780" fill="#eef2f7"/>
+  <rect width="1150" height="64" fill="url(#hd)"/>
+  <text x="575" y="42" fill="#fff" font-size="26" font-weight="bold" text-anchor="middle">بنية نظام إدارة الموارد البشرية (HRMS) — Django</text>
+
+  <!-- الطبقة الأولى: العملاء -->
+  <text x="40" y="104" font-size="15" font-weight="bold" fill="#0e2a47">1) طبقة الواجهات (العملاء)</text>
+  <g>
+    <rect x="40" y="118" width="340" height="86" rx="10" fill="url(#box)" stroke="#c5d3e2"/>
+    <text x="210" y="146" font-size="15" font-weight="bold" fill="#0e2a47" text-anchor="middle">متصفح الموظف</text>
+    <text x="210" y="168" font-size="12" fill="#52677f" text-anchor="middle">بطاقتي QR · سجل حضوري · طلبات الإجازة</text>
+    <text x="210" y="188" font-size="12" fill="#52677f" text-anchor="middle">ملف شخصي · قسائم الرواتب</text>
+    <rect x="430" y="118" width="340" height="86" rx="10" fill="url(#box)" stroke="#c5d3e2"/>
+    <text x="600" y="146" font-size="15" font-weight="bold" fill="#0e2a47" text-anchor="middle">مسؤول HR / المدير</text>
+    <text x="600" y="168" font-size="12" fill="#52677f" text-anchor="middle">الفروع والموظفون · الحضور · الإجازات</text>
+    <text x="600" y="188" font-size="12" fill="#52677f" text-anchor="middle">الرواتب · التقارير · بطاقة موظف (طباعة)</text>
+    <rect x="820" y="118" width="290" height="86" rx="10" fill="url(#box)" stroke="#c5d3e2"/>
+    <text x="965" y="146" font-size="15" font-weight="bold" fill="#0e2a47" text-anchor="middle">قارئ QR ثابت / هاتف</text>
+    <text x="965" y="168" font-size="12" fill="#52677f" text-anchor="middle">مسح الرمز عند الدخول/الخروج</text>
+    <text x="965" y="188" font-size="12" fill="#52677f" text-anchor="middle">POST /api/v1/scan/</text>
+  </g>
+
+  <!-- سهم لأسفل -->
+  <line x1="575" y1="204" x2="575" y2="236" stroke="#8aa0b6" stroke-width="2" marker-end="url(#arr)"/>
+  <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8aa0b6"/></marker></defs>
+
+  <!-- الطبقة الثانية: Django -->
+  <text x="40" y="254" font-size="15" font-weight="bold" fill="#0e2a47">2) خادم التطبيق — Django 5</text>
+  <rect x="40" y="268" width="1070" height="360" rx="12" fill="#ffffff" stroke="#c5d3e2"/>
+
+  <!-- روابط -->
+  <g font-size="12" fill="#52677f" text-anchor="middle">
+    <rect x="60" y="284" width="220" height="52" rx="8" fill="#eaf1f8" stroke="#bcd2e6"/>
+    <text x="170" y="304" font-weight="bold" fill="#0e2a47">URLs (توجيه الطلبات)</text>
+    <text x="170" y="322">/employees/ · /attendance/ · /payroll/</text>
+    <rect x="300" y="284" width="220" height="52" rx="8" fill="#eaf1f8" stroke="#bcd2e6"/>
+    <text x="410" y="304" font-weight="bold" fill="#0e2a47">Views (عروض CBV)</text>
+    <text x="410" y="322">قائمة/ملف/بطاقة/إضافة/تعديل</text>
+    <rect x="540" y="284" width="220" height="52" rx="8" fill="#eaf1f8" stroke="#bcd2e6"/>
+    <text x="650" y="304" font-weight="bold" fill="#0e2a47">Services (منطق الأعمال)</text>
+    <text x="650" y="322">QR · إجازات · رواتب · حضور</text>
+    <rect x="780" y="284" width="220" height="52" rx="8" fill="#eaf1f8" stroke="#bcd2e6"/>
+    <text x="890" y="304" font-weight="bold" fill="#0e2a47">RBAC + Scopes</text>
+    <text x="890" y="322">صلاحيات · أدوار · نطاقات</text>
+    <rect x="1020" y="284" width="70" height="52" rx="8" fill="#eaf1f8" stroke="#bcd2e6"/>
+    <text x="1055" y="310">QR</text><text x="1055" y="326">Engine</text>
+  </g>
+
+  <!-- التطبيقات -->
+  <text x="60" y="372" font-size="13" font-weight="bold" fill="#0e2a47">تطبيقات المشروع (apps):</text>
+  <g font-size="13" text-anchor="middle">
+    <rect x="60" y="386" width="160" height="44" rx="8" fill="#0e2a47"/>
+    <text x="140" y="414" fill="#fff">org — الهيكل التنظيمي</text>
+    <rect x="240" y="386" width="160" height="44" rx="8" fill="#1f5f8b"/>
+    <text x="320" y="414" fill="#fff">employees — الموظفون</text>
+    <rect x="420" y="386" width="160" height="44" rx="8" fill="#0e2a47"/>
+    <text x="500" y="414" fill="#fff">attendance — الحضور</text>
+    <rect x="600" y="386" width="160" height="44" rx="8" fill="#1f5f8b"/>
+    <text x="680" y="414" fill="#fff">leave — الإجازات</text>
+    <rect x="780" y="386" width="160" height="44" rx="8" fill="#0e2a47"/>
+    <text x="860" y="414" fill="#fff">payroll — الرواتب</text>
+    <rect x="960" y="386" width="130" height="44" rx="8" fill="#1f5f8b"/>
+    <text x="1025" y="414" fill="#fff">reports</text>
+  </g>
+
+  <!-- وحدات مساندة -->
+  <g font-size="12" fill="#52677f" text-anchor="middle">
+    <rect x="60" y="450" width="200" height="42" rx="8" fill="#fbf3d9" stroke="#efdfa4"/>
+    <text x="160" y="468" font-weight="bold" fill="#8a6d00">notif — الإشعارات</text>
+    <text x="160" y="483">إشعارات داخلية فورية</text>
+    <rect x="290" y="450" width="200" height="42" rx="8" fill="#fbf3d9" stroke="#efdfa4"/>
+    <text x="390" y="468" font-weight="bold" fill="#8a6d00">devices — الأجهزة</text>
+    <text x="390" y="483">قارئات QR مرتبطة بفروع</text>
+    <rect x="520" y="450" width="200" height="42" rx="8" fill="#fbf3d9" stroke="#efdfa4"/>
+    <text x="620" y="468" font-weight="bold" fill="#8a6d00">auth_app — RBAC</text>
+    <text x="620" y="483">مستخدمون/أدوار/صلاحيات</text>
+    <rect x="750" y="450" width="200" height="42" rx="8" fill="#fbf3d9" stroke="#efdfa4"/>
+    <text x="850" y="468" font-weight="bold" fill="#8a6d00">core — نواة مشتركة</text>
+    <text x="850" y="483">لوحة رئيسية · بحث · أوامر seed</text>
+  </g>
+
+  <!-- قوالب و QR -->
+  <g font-size="12" fill="#52677f">
+    <rect x="60" y="512" width="1070" height="56" rx="8" fill="#f6f9fb" stroke="#d7e2ec"/>
+    <text x="80" y="536" font-weight="bold" fill="#0e2a47">القوالب (Templates)</text>
+    <text x="80" y="555">HTML + CSS — دعم كامل للعربية RTL · بطاقة موظف بطول 85.6×54mm جاهزة للطباعة عبر CSS @page</text>
+    <text x="720" y="536" font-weight="bold" fill="#0e2a47">نظام QR الموقّع</text>
+    <text x="720" y="555">HMAC-SHA256 + Obfuscation — كل رمز مُوقّع بسرّ الخادم ولا يمكن تزويره</text>
+  </g>
+
+  <!-- أمان -->
+  <rect x="60" y="580" width="1070" height="40" rx="8" fill="#eaf1f8" stroke="#bcd2e6"/>
+  <text x="80" y="606" font-size="13" font-weight="bold" fill="#0e2a47">الأمان:</text>
+  <text x="180" y="606" font-size="12" fill="#52677f">تفويض لكل عرض (PermissionRequiredMixin) · Scope لكل مستخدم · CSRF · معاملة البيانات النقدية عبر Decimal · لا تُرفع الأسرار</text>
+
+  <!-- سهم -->
+  <line x1="575" y1="628" x2="575" y2="668" stroke="#8aa0b6" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- الطبقة الثالثة: البيانات -->
+  <text x="40" y="690" font-size="15" font-weight="bold" fill="#0e2a47">3) طبقة البيانات</text>
+  <g font-size="13" text-anchor="middle">
+    <rect x="40" y="704" width="330" height="58" rx="10" fill="#0e2a47"/>
+    <text x="205" y="728" fill="#fff" font-weight="bold">PostgreSQL (إنتاج)</text>
+    <text x="205" y="748" fill="#cfe0ee">أو SQLite (تطوير)</text>
+    <rect x="410" y="704" width="330" height="58" rx="10" fill="#1f5f8b"/>
+    <text x="575" y="728" fill="#fff" font-weight="bold">الوسائط media/ والملفات الثابتة</text>
+    <text x="575" y="748" fill="#cfe0ee">صور الموظفين · مستندات · قسائم PDF</text>
+    <rect x="780" y="704" width="330" height="58" rx="10" fill="#0e2a47"/>
+    <text x="945" y="728" fill="#fff" font-weight="bold">Nginx + Gunicorn</text>
+    <text x="945" y="748" fill="#cfe0ee">النشر على الشبكة المحلية (LAN)</text>
+  </g>
+</svg>

@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1150" height="860" viewBox="0 0 1150 860" font-family="'Segoe UI', Tahoma, 'Noto Sans Arabic', Arial, sans-serif">
+  <defs>
+    <linearGradient id="h3" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0e2a47"/><stop offset="1" stop-color="#1f5f8b"/>
+    </linearGradient>
+    <linearGradient id="b3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f2f6fa"/>
+    </linearGradient>
+  </defs>
+  <rect width="1150" height="860" fill="#eef2f7"/>
+  <rect width="1150" height="64" fill="url(#h3)"/>
+  <text x="575" y="42" fill="#fff" font-size="26" font-weight="bold" text-anchor="middle">دورة مسح رمز QR — من البطاقة إلى سجل الحضور</text>
+
+  <g font-size="13">
+    <!-- 1 -->
+    <rect x="50" y="110" width="300" height="120" rx="12" fill="url(#b3)" stroke="#c5d3e2"/>
+    <text x="200" y="140" fill="#0e2a47" font-weight="bold" text-anchor="middle" font-size="15">1) إصدار البطاقة</text>
+    <text x="200" y="164" fill="#52677f" text-anchor="middle">HR يصدر رمزًا لكل موظف</text>
+    <text x="200" y="184" fill="#52677f" text-anchor="middle">payload = base64{eid,v,ts} + HMAC</text>
+    <text x="200" y="204" fill="#52677f" text-anchor="middle">بطاقة قابلة للطباعة باسمه ورقمه</text>
+
+    <line x1="350" y1="170" x2="410" y2="170" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a3)"/>
+    <defs><marker id="a3" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8aa0b6"/></marker></defs>
+
+    <!-- 2 -->
+    <rect x="410" y="110" width="300" height="120" rx="12" fill="url(#b3)" stroke="#c5d3e2"/>
+    <text x="560" y="140" fill="#0e2a47" font-weight="bold" text-anchor="middle" font-size="15">2) المسح عند البوابة</text>
+    <text x="560" y="164" fill="#52677f" text-anchor="middle">قارئ ثابت / هاتف → POST /api/v1/scan/</text>
+    <text x="560" y="184" fill="#52677f" text-anchor="middle">يُرسل: الرمز + device API key</text>
+    <text x="560" y="204" fill="#52677f" text-anchor="middle">تُسجَّل كل مسحة (AttendanceScan)</text>
+
+    <line x1="710" y1="170" x2="770" y2="170" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a3)"/>
+
+    <!-- 3 -->
+    <rect x="770" y="110" width="330" height="120" rx="12" fill="url(#b3)" stroke="#d4af37" stroke-width="1.5"/>
+    <text x="935" y="140" fill="#8a6d00" font-weight="bold" text-anchor="middle" font-size="15">3) التحقق المزدوج</text>
+    <text x="935" y="164" fill="#52677f" text-anchor="middle">أ. التوقيع: HMAC == SECRET_KEY؟</text>
+    <text x="935" y="184" fill="#52677f" text-anchor="middle">ب. النسخة: QR نشط + إصدار سليم</text>
+    <text x="935" y="204" fill="#52677f" text-anchor="middle">الرمز المزوّر/المنتهي يُرفض (404/403)</text>
+  </g>
+
+  <!-- سهم للأسفل -->
+  <line x1="575" y1="230" x2="575" y2="286" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a3)"/>
+
+  <g font-size="13">
+    <rect x="50" y="290" width="330" height="130" rx="12" fill="url(#b3)" stroke="#c5d3e2"/>
+    <rect x="50" y="290" width="330" height="34" rx="12" fill="#0e2a47"/>
+    <rect x="50" y="314" width="330" height="10" fill="#0e2a47"/>
+    <text x="215" y="313" fill="#fff" font-weight="bold" text-anchor="middle" font-size="14">قرار المسحة (decide_and_record_scan)</text>
+    <text x="70" y="348" fill="#33475f">المسحة الأولى باليوم</text>
+    <text x="240" y="348" fill="#1f8a4c" font-weight="bold">✓ دخول (CHECK_IN)</text>
+    <text x="70" y="372" fill="#33475f">المسحة الثانية بعد 8 ساعات</text>
+    <text x="240" y="372" fill="#1f8a4c" font-weight="bold">✓ خروج (CHECK_OUT)</text>
+    <text x="70" y="396" fill="#33475f">تكرار سريع (خلال ثوانٍ)</text>
+    <text x="240" y="396" fill="#c0392b" font-weight="bold">✗ مرفوض (REJECTED)</text>
+    <text x="70" y="412" fill="#33475f">مسحة زائدة بعد الخروج</text>
+    <text x="240" y="412" fill="#b57900" font-weight="bold">⚠ تحذير (WARNING)</text>
+
+    <!-- سهم -->
+    <line x1="380" y1="355" x2="440" y2="355" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a3)"/>
+
+    <rect x="440" y="290" width="330" height="130" rx="12" fill="url(#b3)" stroke="#c5d3e2"/>
+    <rect x="440" y="290" width="330" height="34" rx="12" fill="#0e2a47"/>
+    <rect x="440" y="314" width="330" height="10" fill="#0e2a47"/>
+    <text x="605" y="313" fill="#fff" font-weight="bold" text-anchor="middle" font-size="14">تحديث يوم الحضور (AttendanceDay)</text>
+    <text x="460" y="348" fill="#33475f">check_in / check_out</text>
+    <text x="460" y="372" fill="#33475f">worked_minutes = فرق الوقت</text>
+    <text x="460" y="396" fill="#33475f">late_minutes (بعد السماحية)</text>
+    <text x="460" y="412" fill="#33475f">state: حاضر / متأخر / إجازة</text>
+
+    <!-- سهم -->
+    <line x1="770" y1="355" x2="830" y2="355" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a3)"/>
+
+    <rect x="830" y="290" width="270" height="130" rx="12" fill="url(#b3)" stroke="#c5d3e2"/>
+    <rect x="830" y="290" width="270" height="34" rx="12" fill="#0e2a47"/>
+    <rect x="830" y="314" width="270" height="10" fill="#0e2a47"/>
+    <text x="965" y="313" fill="#fff" font-weight="bold" text-anchor="middle" font-size="14">معالجة الاستثناءات</text>
+    <text x="850" y="348" fill="#33475f">إذن / مأمورية / تعويض</text>
+    <text x="850" y="372" fill="#33475f">توافق مع الرصيد ومواعيد</text>
+    <text x="850" y="396" fill="#33475f">حالة أيام الإجازة → LEAVE</text>
+    <text x="850" y="412" fill="#33475f">نهاية الأسبوع → WEEKEND</text>
+  </g>
+
+  <!-- سهم -->
+  <line x1="575" y1="420" x2="575" y2="476" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a3)"/>
+
+  <!-- الأثر على الرواتب -->
+  <g font-size="13">
+    <rect x="50" y="480" width="1050" height="150" rx="12" fill="url(#b3)" stroke="#d4af37" stroke-width="1.5"/>
+    <rect x="50" y="480" width="1050" height="36" rx="12" fill="#8a6d00"/>
+    <rect x="50" y="506" width="1050" height="10" fill="#8a6d00"/>
+    <text x="575" y="505" fill="#fff" font-weight="bold" text-anchor="middle" font-size="15">أثر سجلات الحضور على دورة الرواتب الشهرية</text>
+
+    <rect x="80" y="530" width="300" height="84" rx="10" fill="#eaf1f8" stroke="#bcd2e6"/>
+    <text x="230" y="556" fill="#0e2a47" font-weight="bold" text-anchor="middle">أيام الحضور</text>
+    <text x="230" y="576" fill="#52677f" text-anchor="middle">attended_days → تُحسب عناصر</text>
+    <text x="230" y="596" fill="#52677f" text-anchor="middle">المرتبطة بالحضور تلقائيًا</text>
+
+    <rect x="420" y="530" width="300" height="84" rx="10" fill="#eaf1f8" stroke="#bcd2e6"/>
+    <text x="570" y="556" fill="#0e2a47" font-weight="bold" text-anchor="middle">أيام الغياب</text>
+    <text x="570" y="576" fill="#52677f" text-anchor="middle">خصم الغياب = (الأساسي ÷</text>
+    <text x="570" y="596" fill="#52677f" text-anchor="middle">أيام العمل) × أيام الغياب</text>
+
+    <rect x="760" y="530" width="320" height="84" rx="10" fill="#eaf1f8" stroke="#bcd2e6"/>
+    <text x="920" y="556" fill="#0e2a47" font-weight="bold" text-anchor="middle">الإجازات والعطل</text>
+    <text x="920" y="576" fill="#52677f" text-anchor="middle">أيام LEAVE بدون خصم (مدفوعة)</text>
+    <text x="920" y="596" fill="#52677f" text-anchor="middle">العطل الرسمية بدون خصم</text>
+  </g>
+
+  <line x1="575" y1="630" x2="575" y2="686" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a3)"/>
+
+  <!-- المخرجات -->
+  <g font-size="13">
+    <rect x="50" y="690" width="320" height="120" rx="12" fill="url(#b3)" stroke="#c5d3e2"/>
+    <text x="210" y="720" fill="#0e2a47" font-weight="bold" text-anchor="middle" font-size="15">الإشعارات الفورية</text>
+    <text x="210" y="744" fill="#52677f" text-anchor="middle">تنبيه تأخير/تجاوز للمشرف</text>
+    <text x="210" y="764" fill="#52677f" text-anchor="middle">إشعارات نتائج الإجازات</text>
+    <text x="210" y="784" fill="#52677f" text-anchor="middle">سجل مسحات كامل للتدقيق</text>
+
+    <rect x="415" y="690" width="320" height="120" rx="12" fill="url(#b3)" stroke="#c5d3e2"/>
+    <text x="575" y="720" fill="#0e2a47" font-weight="bold" text-anchor="middle" font-size="15">التقارير</text>
+    <text x="575" y="744" fill="#52677f" text-anchor="middle">قوائم الموظفين والتواجد</text>
+    <text x="575" y="764" fill="#52677f" text-anchor="middle">تصدير PDF (WeasyPrint RTL)</text>
+    <text x="575" y="784" fill="#52677f" text-anchor="middle">تصدير Excel (openpyxl)</text>
+
+    <rect x="780" y="690" width="320" height="120" rx="12" fill="url(#b3)" stroke="#d4af37" stroke-width="1.5"/>
+    <text x="940" y="720" fill="#8a6d00" font-weight="bold" text-anchor="middle" font-size="15">قسيمة الراتب</text>
+    <text x="940" y="744" fill="#52677f" text-anchor="middle">net = أساسي + إضافات − خصومات</text>
+    <text x="940" y="764" fill="#52677f" text-anchor="middle">تصدير بنك (FR-PAY-008)</text>
+    <text x="940" y="784" fill="#52677f" text-anchor="middle">PDF لكل قسيمة</text>
+  </g>
+</svg>

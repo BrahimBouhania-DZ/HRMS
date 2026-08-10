@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_("HRMS") }}{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+    <a class="admin-brand" href="{% url 'admin:index' %}">
+        {% if COMPANY and COMPANY.logo %}
+        <img src="{{ COMPANY.logo.url }}" alt="logo" class="admin-logo">
+        {% else %}
+        <span class="admin-logo admin-logo-text">HR</span>
+        {% endif %}
+        <span class="admin-brand-text">
+            {% if COMPANY %}{{ COMPANY.company_name_ar }}{% else %}{{ site_header|default:_("Django administration") }}{% endif %}
+        </span>
+    </a>
+</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'admin/custom_admin.css' %}">
+{% endblock %}
+
+{% block footer %}
+<div id="footer" class="admin-footer">
+    <p>HRMS — نظام إدارة الموارد البشرية · © 2026</p>
+</div>
+{% endblock %}

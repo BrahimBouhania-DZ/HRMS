@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1150" height="800" viewBox="0 0 1150 800" font-family="'Segoe UI', Tahoma, 'Noto Sans Arabic', Arial, sans-serif">
+  <defs>
+    <linearGradient id="h4" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#0e2a47"/><stop offset="1" stop-color="#1f5f8b"/>
+    </linearGradient>
+    <linearGradient id="b4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f2f6fa"/>
+    </linearGradient>
+  </defs>
+  <rect width="1150" height="800" fill="#eef2f7"/>
+  <rect width="1150" height="64" fill="url(#h4)"/>
+  <text x="575" y="42" fill="#fff" font-size="26" font-weight="bold" text-anchor="middle">دورة الرواتب الشهرية — من الإغلاق إلى الدفع</text>
+
+  <defs><marker id="a4" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8aa0b6"/></marker></defs>
+
+  <!-- المراحل -->
+  <g font-size="13">
+    <rect x="50" y="120" width="230" height="150" rx="12" fill="url(#b4)" stroke="#c5d3e2"/>
+    <rect x="50" y="120" width="230" height="36" rx="12" fill="#0e2a47"/>
+    <rect x="50" y="146" width="230" height="10" fill="#0e2a47"/>
+    <text x="165" y="145" fill="#fff" font-weight="bold" text-anchor="middle" font-size="15">DRAFT — مسودة</text>
+    <text x="70" y="180" fill="#52677f">generate_payrun(2026-07)</text>
+    <text x="70" y="200" fill="#52677f">يُنشئ قسيمة لكل موظف نشط</text>
+    <text x="70" y="220" fill="#52677f">أسطر: أساسي + عناصر أجر</text>
+    <text x="70" y="240" fill="#52677f">خصم غياب تلقائي</text>
+
+    <line x1="280" y1="195" x2="330" y2="195" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a4)"/>
+
+    <rect x="330" y="120" width="230" height="150" rx="12" fill="url(#b4)" stroke="#c5d3e2"/>
+    <rect x="330" y="120" width="230" height="36" rx="12" fill="#0e2a47"/>
+    <rect x="330" y="146" width="230" height="10" fill="#0e2a47"/>
+    <text x="445" y="145" fill="#fff" font-weight="bold" text-anchor="middle" font-size="15">REVIEWING — مراجعة</text>
+    <text x="350" y="180" fill="#52677f">review_payrun()</text>
+    <text x="350" y="200" fill="#52677f">مدير المراجعة يفحص القسائم</text>
+    <text x="350" y="220" fill="#52677f">مقارنة الحضور والغياب</text>
+    <text x="350" y="240" fill="#52677f">تصحيح الأسطر عند الحاجة</text>
+
+    <line x1="560" y1="195" x2="610" y2="195" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a4)"/>
+
+    <rect x="610" y="120" width="230" height="150" rx="12" fill="url(#b4)" stroke="#d4af37" stroke-width="1.5"/>
+    <rect x="610" y="120" width="230" height="36" rx="12" fill="#8a6d00"/>
+    <rect x="610" y="146" width="230" height="10" fill="#8a6d00"/>
+    <text x="725" y="145" fill="#fff" font-weight="bold" text-anchor="middle" font-size="15">APPROVED — اعتماد</text>
+    <text x="630" y="180" fill="#52677f">approve_payrun()</text>
+    <text x="630" y="200" fill="#52677f">يُثبّت الأرقام النهائية</text>
+    <text x="630" y="220" fill="#52677f">تسجيل المعتمد والوقت</text>
+    <text x="630" y="240" fill="#52677f">لا تغيير بعدها إلا بالتجميد</text>
+
+    <line x1="840" y1="195" x2="890" y2="195" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a4)"/>
+
+    <rect x="890" y="120" width="210" height="150" rx="12" fill="url(#b4)" stroke="#c5d3e2"/>
+    <rect x="890" y="120" width="210" height="36" rx="12" fill="#0e2a47"/>
+    <rect x="890" y="146" width="210" height="10" fill="#0e2a47"/>
+    <text x="995" y="145" fill="#fff" font-weight="bold" text-anchor="middle" font-size="15">FROZEN — تجميد</text>
+    <text x="905" y="180" fill="#52677f">freeze_payrun()</text>
+    <text x="905" y="200" fill="#52677f">إغلاق نهائي للفترة</text>
+    <text x="905" y="220" fill="#52677f">أي تعديل لاحق ممنوع</text>
+    <text x="905" y="240" fill="#52677f">BR-PAY-001</text>
+  </g>
+
+  <line x1="575" y1="270" x2="575" y2="330" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a4)"/>
+
+  <!-- مكونات القسيمة -->
+  <g font-size="13">
+    <rect x="50" y="335" width="1050" height="140" rx="12" fill="url(#b4)" stroke="#c5d3e2"/>
+    <rect x="50" y="335" width="1050" height="36" rx="12" fill="#0e2a47"/>
+    <rect x="50" y="361" width="1050" height="10" fill="#0e2a47"/>
+    <text x="575" y="360" fill="#fff" font-weight="bold" text-anchor="middle" font-size="15">مكونات القسيمة (Payslip)</text>
+
+    <rect x="80" y="385" width="300" height="76" rx="10" fill="#eaf1f8" stroke="#bcd2e6"/>
+    <text x="230" y="412" fill="#0e2a47" font-weight="bold" text-anchor="middle">الإضافات (+)</text>
+    <text x="230" y="432" fill="#52677f" text-anchor="middle">الأساسي + بدل نقل/مأكل</text>
+    <text x="230" y="450" fill="#52677f">+ عناصر حسب الحضور</text>
+
+    <rect x="420" y="385" width="300" height="76" rx="10" fill="#fdf1f1" stroke="#e6c2c2"/>
+    <text x="570" y="412" fill="#c0392b" font-weight="bold" text-anchor="middle">الخصومات (−)</text>
+    <text x="570" y="432" fill="#52677f" text-anchor="middle">اشتراك الضمان الاجتماعي (نسبة)</text>
+    <text x="570" y="450" fill="#52677f">− خصم الغياب = أساسي÷أيام × أيام</text>
+
+    <rect x="760" y="385" width="320" height="76" rx="10" fill="#fbf3d9" stroke="#efdfa4"/>
+    <text x="920" y="412" fill="#8a6d00" font-weight="bold" text-anchor="middle">الصافي = إضافات − خصومات</text>
+    <text x="920" y="434" fill="#52677f" text-anchor="middle">حسابات نقدية بـ Decimal (بدون أخطاء)</text>
+    <text x="920" y="452" fill="#52677f" text-anchor="middle">يُرفق أيام الحضور/الغياب/الإجازات</text>
+  </g>
+
+  <line x1="575" y1="475" x2="575" y2="530" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a4)"/>
+
+  <!-- المخرجات -->
+  <g font-size="13">
+    <rect x="50" y="535" width="330" height="130" rx="12" fill="url(#b4)" stroke="#c5d3e2"/>
+    <text x="215" y="565" fill="#0e2a47" font-weight="bold" text-anchor="middle" font-size="15">قوائم الدفع البنكي</text>
+    <text x="215" y="589" fill="#52677f" text-anchor="middle">bank_rows(): رمز + اسم +</text>
+    <text x="215" y="609" fill="#52677f" text-anchor="middle">حساب بنكي + صافي (FR-PAY-008)</text>
+    <text x="215" y="629" fill="#52677f" text-anchor="middle">يُستبعد من لا حساب له</text>
+
+    <rect x="410" y="535" width="330" height="130" rx="12" fill="url(#b4)" stroke="#c5d3e2"/>
+    <text x="575" y="565" fill="#0e2a47" font-weight="bold" text-anchor="middle" font-size="15">قسائم PDF للموظفين</text>
+    <text x="575" y="589" fill="#52677f" text-anchor="middle">WeasyPrint + دعم RTL العربي</text>
+    <text x="575" y="609" fill="#52677f" text-anchor="middle">pdf_path مخزن في القسيمة</text>
+    <text x="575" y="629" fill="#52677f" text-anchor="middle">قابلة للطباعة أو الإرسال</text>
+
+    <rect x="770" y="535" width="330" height="130" rx="12" fill="url(#b4)" stroke="#d4af37" stroke-width="1.5"/>
+    <text x="935" y="565" fill="#8a6d00" font-weight="bold" text-anchor="middle" font-size="15">تدقيق وامتثال</text>
+    <text x="935" y="589" fill="#52677f" text-anchor="middle">total_earnings / deductions / net</text>
+    <text x="935" y="609" fill="#52677f" text-anchor="middle">approved_by + approved_at</text>
+    <text x="935" y="629" fill="#52677f" text-anchor="middle">لا إعادة فتح بعد التجميد</text>
+  </g>
+
+  <line x1="575" y1="665" x2="575" y2="710" stroke="#8aa0b6" stroke-width="2" marker-end="url(#a4)"/>
+
+  <rect x="50" y="715" width="1050" height="52" rx="12" fill="#eaf1f8" stroke="#bcd2e6"/>
+  <text x="80" y="745" font-size="14" font-weight="bold" fill="#0e2a47">أوامر التشغيل:</text>
+  <text x="240" y="745" font-size="13" fill="#52677f">python manage.py seed_demo --payrun   ⟵   ينشئ دورة 2026-07 معتمدة تلقائيًا (generate → review → approve)</text>
+</svg>
