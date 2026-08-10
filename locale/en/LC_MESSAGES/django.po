@@ -1,0 +1,2098 @@
+# HRMS — translations.
+# Copyright (C) 2026 HRMS
+# This file is distributed under the same license as the PACKAGE package.
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: HRMS 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-08-09 15:09+0100\n"
+"PO-Revision-Date: 2026-08-09 15:30+0100\n"
+"Last-Translator: HRMS Team\n"
+"Language-Team: English <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "نص QR"
+msgstr "QR text"
+
+msgid "حقل payload مطلوب"
+msgstr "The payload field is required"
+
+msgid "نهاية الفترة يجب أن تكون بعد بدايتها"
+msgstr "The end of the period must be after its start"
+
+msgid "حاضر"
+msgstr "Present"
+
+msgid "غائب"
+msgstr "Absent"
+
+msgid "إجازة"
+msgstr "Leave"
+
+msgid "مأمورية"
+msgstr "Mission"
+
+msgid "استثناء"
+msgstr "Exception"
+
+msgid "عطلة"
+msgstr "Holiday"
+
+msgid "الموظف"
+msgstr "Employee"
+
+msgid "تاريخ العمل"
+msgstr "Work date"
+
+msgid "جدول الدوام"
+msgstr "Shift schedule"
+
+msgid "الفرع"
+msgstr "Branch"
+
+msgid "الحالة"
+msgstr "Status"
+
+msgid "دخول"
+msgstr "Check-in"
+
+msgid "خروج"
+msgstr "Check-out"
+
+msgid "دقائق العمل"
+msgstr "Work minutes"
+
+msgid "دقائق التأخير"
+msgstr "Late minutes"
+
+msgid "دقائق الخروج المبكر"
+msgstr "Early departure minutes"
+
+msgid "دقائق إضافية"
+msgstr "Overtime minutes"
+
+msgid "مُصحّح"
+msgstr "Corrected"
+
+msgid "يوم حضور"
+msgstr "Attendance day"
+
+msgid "أيام الحضور"
+msgstr "Attendance days"
+
+msgid "هاتف"
+msgstr "Phone"
+
+msgid "قارئ ثابت"
+msgstr "Fixed reader"
+
+msgid "يدوي"
+msgstr "Manual"
+
+msgid "مرفوض"
+msgstr "Rejected"
+
+msgid "تحذير"
+msgstr "Warning"
+
+msgid "يوم الحضور"
+msgstr "Attendance day"
+
+msgid "زمن المسح"
+msgstr "Scan time"
+
+msgid "المصدر"
+msgstr "Source"
+
+msgid "الجهاز"
+msgstr "Device"
+
+msgid "عنوان IP"
+msgstr "IP address"
+
+msgid "القرار"
+msgstr "Decision"
+
+msgid "إصدار QR"
+msgstr "QR version"
+
+msgid "السبب/النتيجة"
+msgstr "Reason/Result"
+
+msgid "عملية مسح"
+msgstr "Scan operation"
+
+msgid "عمليات المسح"
+msgstr "Scan operations"
+
+msgid "إذن"
+msgstr "Permission"
+
+msgid "تعويض"
+msgstr "Compensation"
+
+msgid "تصحيح"
+msgstr "Correction"
+
+msgid "قيد الانتظار"
+msgstr "Pending"
+
+msgid "معتمد"
+msgstr "Approved"
+
+msgid "النوع"
+msgstr "Type"
+
+msgid "من"
+msgstr "From"
+
+msgid "إلى"
+msgstr "To"
+
+msgid "الساعات"
+msgstr "Hours"
+
+msgid "السبب"
+msgstr "Reason"
+
+msgid "الطالب"
+msgstr "Requester"
+
+msgid "المعتمد"
+msgstr "Approver"
+
+msgid "استثناء حضور"
+msgstr "Attendance exception"
+
+msgid "استثناءات الحضور"
+msgstr "Attendance exceptions"
+
+msgid "مسح متكرر خلال نافذة الأمان"
+msgstr "Repeated scan within the security window"
+
+msgid "مسح إضافي بعد الخروج"
+msgstr "Additional scan after check-out"
+
+msgid "توقيع غير صالح (تزوير محتمل)"
+msgstr "Invalid signature (possible forgery)"
+
+msgid "موظف غير معروف"
+msgstr "Unknown employee"
+
+msgid "حساب الموظف غير نشط"
+msgstr "Employee account is inactive"
+
+msgid "لا يوجد QR نشط للموظف"
+msgstr "No active QR for the employee"
+
+msgid "إصدار QR قديم (أُعيد توليده)"
+msgstr "Old QR version (regenerated)"
+
+msgid "رمز CSRF مفقود"
+msgstr "Missing CSRF token"
+
+msgid "رمز CSRF غير صالح"
+msgstr "Invalid CSRF token"
+
+msgid "رمز CSRF غير متطابق"
+msgstr "CSRF token mismatch"
+
+msgid "payload مطلوب"
+msgstr "Payload is required"
+
+msgid "مصادقة الجهاز أو المستخدم مطلوبة"
+msgstr "Device or user authentication required"
+
+msgid "لا تملك صلاحية المسح"
+msgstr "You do not have scan permission"
+
+msgid "QR مرفوض"
+msgstr "QR rejected"
+
+msgid "هذا الرمز لا يخص حسابك"
+msgstr "This code does not belong to your account"
+
+msgid "حسابك غير مرتبط بملف موظف"
+msgstr "Your account is not linked to an employee record"
+
+msgid "لا تملك صلاحية إدارة QR"
+msgstr "You do not have QR management permission"
+
+msgid "تم توليد رمز QR جديد (نسخة محدثة)"
+msgstr "A new QR code was generated (updated version)"
+
+msgid "تم تصحيح يوم الحضور"
+msgstr "Attendance day corrected"
+
+msgid "أُرسل طلب الاستثناء للمراجعة"
+msgstr "Exception request submitted for review"
+
+msgid "تم اعتماد الاستثناء"
+msgstr "Exception approved"
+
+msgid "تم رفض الاستثناء"
+msgstr "Exception rejected"
+
+msgid "إجراء غير معروف"
+msgstr "Unknown action"
+
+msgid "اسم المستخدم أو كلمة المرور غير صحيحة"
+msgstr "Username or password is incorrect"
+
+msgid "هذا الحساب غير نشط"
+msgstr "This account is inactive"
+
+msgid "الحساب مقفل مؤقتًا، حاول لاحقًا"
+msgstr "Account temporarily locked, try again later"
+
+msgid "اسم المستخدم إلزامي"
+msgstr "Username is required"
+
+msgid "العربية"
+msgstr "Arabic"
+
+msgid "Français"
+msgstr "Français"
+
+msgid "English"
+msgstr "English"
+
+msgid "البريد الإلكتروني"
+msgstr "Email"
+
+msgid "MFA مفعّل"
+msgstr "MFA enabled"
+
+msgid "سر MFA"
+msgstr "MFA secret"
+
+msgid "اللغة"
+msgstr "Language"
+
+msgid "المنطقة الزمنية"
+msgstr "Timezone"
+
+msgid "محاولات فاشلة"
+msgstr "Failed attempts"
+
+msgid "مقفل حتى"
+msgstr "Locked until"
+
+msgid "آخر تغيير لكلمة المرور"
+msgstr "Last password change"
+
+msgid "مستخدم"
+msgstr "User"
+
+msgid "المستخدمون"
+msgstr "Users"
+
+msgid "الرمز"
+msgstr "Code"
+
+msgid "الاسم (عربي)"
+msgstr "Name (Arabic)"
+
+msgid "الاسم (فرنسي)"
+msgstr "Name (French)"
+
+msgid "الاسم (إنجليزي)"
+msgstr "Name (English)"
+
+msgid "الوصف"
+msgstr "Description"
+
+msgid "دور مدمج"
+msgstr "Built-in role"
+
+msgid "دور أب (ميراث)"
+msgstr "Parent role (inheritance)"
+
+msgid "دور"
+msgstr "Role"
+
+msgid "الأدوار"
+msgstr "Roles"
+
+msgid "الكود"
+msgstr "Code"
+
+msgid "الوحدة"
+msgstr "Module"
+
+msgid "صلاحية"
+msgstr "Permission"
+
+msgid "الصلاحيات"
+msgstr "Permissions"
+
+msgid "صلاحية دور"
+msgstr "Role permission"
+
+msgid "صلاحيات الأدوار"
+msgstr "Role permissions"
+
+msgid "نطاق الفرع"
+msgstr "Branch scope"
+
+msgid "ساري من"
+msgstr "Valid from"
+
+msgid "ساري حتى"
+msgstr "Valid until"
+
+msgid "تعيين دور"
+msgstr "Role assignment"
+
+msgid "تعيينات الأدوار"
+msgstr "Role assignments"
+
+msgid "منح"
+msgstr "Grant"
+
+msgid "منع"
+msgstr "Deny"
+
+msgid "الإجراء"
+msgstr "Action"
+
+msgid "استثناء صلاحية"
+msgstr "Permission exception"
+
+msgid "استثناءات الصلاحيات"
+msgstr "Permission exceptions"
+
+msgid "تم تسجيل الدخول بنجاح"
+msgstr "Logged in successfully"
+
+msgid "تم قفل الحساب مؤقتًا لعدة محاولات فاشلة"
+msgstr "Account temporarily locked for several failed attempts"
+
+msgid "تم تسجيل الخروج"
+msgstr "Logged out"
+
+msgid "أُنشئ في"
+msgstr "Created at"
+
+msgid "حُدّث في"
+msgstr "Updated at"
+
+msgid "أنشأه"
+msgstr "Created by"
+
+msgid "حدّثه"
+msgstr "Updated by"
+
+msgid "نشط"
+msgstr "Active"
+
+msgid "معطّل"
+msgstr "Disabled"
+
+msgid "صيانة"
+msgstr "Maintenance"
+
+msgid "رمز الجهاز"
+msgstr "Device code"
+
+msgid "هاش مفتاح API"
+msgstr "API key hash"
+
+msgid "الموقع"
+msgstr "Location"
+
+msgid "آخر اتصال"
+msgstr "Last connection"
+
+msgid "قارئ QR"
+msgstr "QR reader"
+
+msgid "قارئات QR"
+msgstr "QR readers"
+
+msgid "التفاصيل"
+msgstr "Details"
+
+msgid "سجل جهاز"
+msgstr "Device log"
+
+msgid "سجلات الأجهزة"
+msgstr "Device logs"
+
+msgid "تسجيل الجهاز"
+msgstr "Device registration"
+
+#, python-format
+msgid "تغيير الحالة من %(old)s إلى %(new)s"
+msgstr "Status changed from %(old)s to %(new)s"
+
+#, python-format
+msgid "تم تسجيل الجهاز %(code)s."
+msgstr "Device %(code)s registered."
+
+msgid "حالة غير صالحة"
+msgstr "Invalid status"
+
+#, python-format
+msgid "أصبح الجهاز %(status)s."
+msgstr "The device is now %(status)s."
+
+msgid "تحت التجربة"
+msgstr "Probation"
+
+msgid "موقوف"
+msgstr "Suspended"
+
+msgid "منتهي"
+msgstr "Expired"
+
+msgid "مستقيل"
+msgstr "Resigned"
+
+msgid "متقاعد"
+msgstr "Retired"
+
+msgid "رقم الموظف"
+msgstr "Employee number"
+
+msgid "حساب المستخدم"
+msgstr "User account"
+
+msgid "اللقب (عربي)"
+msgstr "Surname (Arabic)"
+
+msgid "اللقب (فرنسي)"
+msgstr "Surname (French)"
+
+msgid "اللقب (إنجليزي)"
+msgstr "Surname (English)"
+
+msgid "الجنس"
+msgstr "Gender"
+
+msgid "ذكر"
+msgstr "Male"
+
+msgid "أنثى"
+msgstr "Female"
+
+msgid "تاريخ الميلاد"
+msgstr "Date of birth"
+
+msgid "تاريخ التوظيف"
+msgstr "Hire date"
+
+msgid "الهاتف"
+msgstr "Phone"
+
+msgid "العنوان"
+msgstr "Address"
+
+msgid "الحساب البنكي"
+msgstr "Bank account"
+
+msgid "لتصدير البنك (FR-PAY-008)"
+msgstr "For bank export (FR-PAY-008)"
+
+msgid "الصورة"
+msgstr "Photo"
+
+msgid "الحالة الوظيفية"
+msgstr "Employment status"
+
+msgid "القسم"
+msgstr "Department"
+
+msgid "المنصب"
+msgstr "Position"
+
+msgid "موظف"
+msgstr "Employee"
+
+msgid "الموظفون"
+msgstr "Employees"
+
+msgid "الحالي"
+msgstr "Current"
+
+msgid "سجل توظيفي"
+msgstr "Employment record"
+
+msgid "السجل الوظيفي"
+msgstr "Employment history"
+
+msgid "عقد دائم"
+msgstr "Permanent contract"
+
+msgid "عقد محدد المدة"
+msgstr "Fixed-term contract"
+
+msgid "تدريب"
+msgstr "Internship"
+
+msgid "رقم العقد"
+msgstr "Contract number"
+
+msgid "نوع العقد"
+msgstr "Contract type"
+
+msgid "بداية العقد"
+msgstr "Contract start"
+
+msgid "نهاية العقد"
+msgstr "Contract end"
+
+msgid "الأجر الإجمالي"
+msgstr "Gross salary"
+
+msgid "الأجر الأساسي"
+msgstr "Base salary"
+
+msgid "العلاوات"
+msgstr "Allowances"
+
+msgid "العملة"
+msgstr "Currency"
+
+msgid "عقد"
+msgstr "Contract"
+
+msgid "العقود"
+msgstr "Contracts"
+
+msgid "نوع المستند"
+msgstr "Document type"
+
+msgid "الملف"
+msgstr "File"
+
+msgid "تاريخ الإصدار"
+msgstr "Issue date"
+
+msgid "تاريخ الانتهاء"
+msgstr "Expiry date"
+
+msgid "مستند"
+msgstr "Document"
+
+msgid "المستندات"
+msgstr "Documents"
+
+msgid "مُلغى"
+msgstr "Cancelled"
+
+msgid "السر"
+msgstr "Secret"
+
+msgid "الإصدار"
+msgstr "Version"
+
+msgid "فُعّل في"
+msgstr "Activated at"
+
+msgid "ينتهي في"
+msgstr "Expires at"
+
+msgid "أُلغي في"
+msgstr "Cancelled at"
+
+msgid "ألغاه"
+msgstr "Cancelled by"
+
+msgid "رمز QR"
+msgstr "QR code"
+
+msgid "رموز QR"
+msgstr "QR codes"
+
+msgid "تمت إضافة الموظف"
+msgstr "Employee added"
+
+msgid "تم تحديث بيانات الموظف"
+msgstr "Employee data updated"
+
+msgid "نوع الإجازة"
+msgstr "Leave type"
+
+msgid "نهاية الإجازة يجب أن تكون بعد بدايتها"
+msgstr "Leave end date must be after its start date"
+
+msgid "مقدار التسوية (+/-)"
+msgstr "Adjustment amount (+/-)"
+
+msgid "أيام السنة"
+msgstr "Days per year"
+
+msgid "الترحيل مسموح"
+msgstr "Carryover allowed"
+
+msgid "أقصى ترحيل"
+msgstr "Max carryover"
+
+msgid "غير مدفوعة"
+msgstr "Unpaid"
+
+msgid "مستويات الموافقة"
+msgstr "Approval levels"
+
+msgid "تطبق على"
+msgstr "Applies to"
+
+msgid "الجميع"
+msgstr "Everyone"
+
+msgid "ذكور"
+msgstr "Males"
+
+msgid "إناث"
+msgstr "Females"
+
+msgid "نوع إجازة"
+msgstr "Leave type"
+
+msgid "أنواع الإجازات"
+msgstr "Leave types"
+
+msgid "السنة"
+msgstr "Year"
+
+msgid "ممنوح"
+msgstr "Granted"
+
+msgid "مستعمل"
+msgstr "Used"
+
+msgid "مُرحّل من السابق"
+msgstr "Carried over from previous"
+
+msgid "تسوية"
+msgstr "Adjustment"
+
+msgid "رصيد إجازة"
+msgstr "Leave balance"
+
+msgid "أرصدة الإجازات"
+msgstr "Leave balances"
+
+#, python-format
+msgid "%s — %s %s (متبقٍ %s)"
+msgstr "%s — %s %s (remaining %s)"
+
+msgid "مسودة"
+msgstr "Draft"
+
+msgid "معتمدة"
+msgstr "Approved"
+
+msgid "مرفوضة"
+msgstr "Rejected"
+
+msgid "ملغاة"
+msgstr "Cancelled"
+
+msgid "عدد الأيام"
+msgstr "Number of days"
+
+msgid "المستوى الحالي"
+msgstr "Current level"
+
+msgid "أُرسل في"
+msgstr "Submitted on"
+
+msgid "طلب إجازة"
+msgstr "Leave request"
+
+msgid "طلبات الإجازات"
+msgstr "Leave requests"
+
+msgid "اعتماد"
+msgstr "Approve"
+
+msgid "رفض"
+msgstr "Reject"
+
+msgid "تصعيد"
+msgstr "Escalate"
+
+msgid "الطلب"
+msgstr "The request"
+
+msgid "المستوى"
+msgstr "Level"
+
+msgid "ملاحظة"
+msgstr "Note"
+
+msgid "في"
+msgstr "At"
+
+msgid "موافقة إجازة"
+msgstr "Leave approval"
+
+msgid "موافقات الإجازات"
+msgstr "Leave approvals"
+
+msgid "التاريخ"
+msgstr "Date"
+
+msgid "تتكرر سنويًا"
+msgstr "Repeats annually"
+
+msgid "عطلة رسمية"
+msgstr "Public holiday"
+
+msgid "العطل الرسمية"
+msgstr "Public holidays"
+
+msgid "نوع الإجازة غير مفعّل"
+msgstr "Leave type is not enabled"
+
+msgid "الفترة لا تحتوي أي يوم عمل"
+msgstr "The period contains no working day"
+
+#, python-format
+msgid "الرصيد غير كافٍ (المتبقي %s يوم)"
+msgstr "Insufficient balance (remaining %s day)"
+
+msgid "الطلب ليس قيد الانتظار"
+msgstr "The request is not pending"
+
+msgid "هذا المستوى أُعتمد مسبقًا"
+msgstr "This level has already been approved"
+
+msgid "لا يمكن إلغاء طلب غير معلق"
+msgstr "Cannot cancel a request that is not pending"
+
+msgid "أُرسل طلب الإجازة للمراجعة"
+msgstr "Leave request submitted for review"
+
+msgid "لا يمكنك إلغاء طلب غير طلبك"
+msgstr "You cannot cancel a request that is not yours"
+
+msgid "أُلغي الطلب"
+msgstr "The request has been cancelled"
+
+msgid "تم اعتماد الطلب"
+msgstr "The request has been approved"
+
+msgid "تم رفض الطلب"
+msgstr "The request has been rejected"
+
+msgid "تمت التسوية"
+msgstr "The settlement has been completed"
+
+msgid "مقدار تسوية غير صالح"
+msgstr "Invalid settlement amount"
+
+msgid "أُضيف نوع الإجازة"
+msgstr "Leave type added"
+
+msgid "حُدّث نوع الإجازة"
+msgstr "Leave type updated"
+
+msgid "أُضيفت العطلة الرسمية"
+msgstr "Public holiday added"
+
+msgid "حُذفت العطلة"
+msgstr "Holiday deleted"
+
+msgid "طلب إجازة جديد"
+msgstr "New leave request"
+
+msgid "اعتماد إجازة"
+msgstr "Leave approval"
+
+msgid "رفض إجازة"
+msgstr "Leave rejection"
+
+msgid "إلغاء إجازة"
+msgstr "Leave cancellation"
+
+msgid "تنبيه حضور"
+msgstr "Attendance alert"
+
+msgid "نظام"
+msgstr "System"
+
+msgid "المستخدم"
+msgstr "User"
+
+msgid "النص"
+msgstr "Text"
+
+msgid "النموذج المرتبط"
+msgstr "Related model"
+
+msgid "المعرّف المرتبط"
+msgstr "Related ID"
+
+msgid "مقروء"
+msgstr "Read"
+
+msgid "إشعار"
+msgstr "Notification"
+
+msgid "الإشعارات"
+msgstr "Notifications"
+
+msgid "داخل التطبيق"
+msgstr "In-app"
+
+msgid "بريد"
+msgstr "Email"
+
+msgid "القناة"
+msgstr "Channel"
+
+msgid "مفعّل"
+msgstr "Enabled"
+
+msgid "تفضيل إشعار"
+msgstr "Notification preference"
+
+msgid "تفضيلات الإشعارات"
+msgstr "Notification preferences"
+
+msgid "نوع التنبيه"
+msgstr "Alert type"
+
+msgid "تاريخ الاستهداف"
+msgstr "Target date"
+
+msgid "الحمولة"
+msgstr "Payload"
+
+msgid "أُطلق في"
+msgstr "Fired at"
+
+msgid "تنبيه مؤجل"
+msgstr "Deferred alert"
+
+msgid "التنبيهات المؤجلة"
+msgstr "Deferred alerts"
+
+#, python-format
+msgid "طلب إجازة جديد من %(employee)s"
+msgstr "New leave request from %(employee)s"
+
+#, python-format
+msgid "%(type)s — %(from)s إلى %(to)s (%(days)s يوم)"
+msgstr "%(type)s — %(from)s to %(to)s (%(days)s day)"
+
+msgid "تم اعتماد إجازتك"
+msgstr "Your leave has been approved"
+
+#, python-format
+msgid "%(type)s — %(from)s إلى %(to)s"
+msgstr "%(type)s — %(from)s to %(to)s"
+
+msgid "تم رفض طلب إجازتك"
+msgstr "Your leave request has been rejected"
+
+msgid "أُلغي طلب إجازتك"
+msgstr "Your leave request has been cancelled"
+
+msgid "عُلمت جميع الإشعارات كمقروءة"
+msgstr "All notifications marked as read"
+
+msgid "رمز الفرع"
+msgstr "Branch code"
+
+msgid "الدولة"
+msgstr "Country"
+
+msgid "المدينة"
+msgstr "City"
+
+msgid "فرع"
+msgstr "Branch"
+
+msgid "الفروع"
+msgstr "Branches"
+
+msgid "رمز القسم"
+msgstr "Department code"
+
+msgid "القسم الأب"
+msgstr "Parent department"
+
+msgid "مدير القسم"
+msgstr "Department manager"
+
+msgid "قسم"
+msgstr "Department"
+
+msgid "الأقسام"
+msgstr "Departments"
+
+msgid "رمز المنصب"
+msgstr "Position code"
+
+msgid "الدرجة"
+msgstr "Grade"
+
+msgid "منصب"
+msgstr "Position"
+
+msgid "المناصب"
+msgstr "Positions"
+
+msgid "رمز الدوام"
+msgstr "Shift code"
+
+msgid "بداية الدوام"
+msgstr "Shift start"
+
+msgid "نهاية الدوام"
+msgstr "Shift end"
+
+msgid "دوام مرن"
+msgstr "Flexible shift"
+
+msgid "سماحية التأخير (دقيقة)"
+msgstr "Late tolerance (minutes)"
+
+msgid "جدول دوام"
+msgstr "Shift schedule"
+
+msgid "جداول الدوام"
+msgstr "Shift schedules"
+
+msgid "تمت إضافة الفرع"
+msgstr "Branch added"
+
+msgid "تم تحديث الفرع"
+msgstr "Branch updated"
+
+msgid "تمت إضافة القسم"
+msgstr "Department added"
+
+msgid "تم تحديث القسم"
+msgstr "Department updated"
+
+msgid "تمت إضافة المنصب"
+msgstr "Position added"
+
+msgid "تم تحديث المنصب"
+msgstr "Position updated"
+
+msgid "تمت إضافة جدول الدوام"
+msgstr "Shift schedule added"
+
+msgid "تم تحديث جدول الدوام"
+msgstr "Shift schedule updated"
+
+msgid "طريقة الحساب"
+msgstr "Calculation method"
+
+msgid "المبلغ"
+msgstr "Amount"
+
+msgid "النسبة %"
+msgstr "Percentage %"
+
+msgid "يطبق على الجميع"
+msgstr "Applies to everyone"
+
+msgid "فترة الرواتب (مثال: 2026-08)"
+msgstr "Payroll period (e.g., 2026-08)"
+
+msgid "صيغة الفترة غير صالحة — مثال: 2026-08"
+msgstr "Invalid period format — e.g., 2026-08"
+
+msgid "إضافة"
+msgstr "Allowance"
+
+msgid "خصم"
+msgstr "Deduction"
+
+msgid "مبلغ ثابت"
+msgstr "Fixed amount"
+
+msgid "نسبة من الأساسي"
+msgstr "Percentage of basic salary"
+
+msgid "حسب الحضور"
+msgstr "Based on attendance"
+
+msgid "عنصر أجر"
+msgstr "Salary item"
+
+msgid "عناصر الأجر"
+msgstr "Salary items"
+
+msgid "قيد المراجعة"
+msgstr "Under review"
+
+msgid "مجمّد"
+msgstr "Frozen"
+
+msgid "فترة الرواتب"
+msgstr "Payroll period"
+
+msgid "مثال: 2026-08"
+msgstr "Example: 2026-08"
+
+msgid "إجمالي الإضافات"
+msgstr "Total allowances"
+
+msgid "إجمالي الخصومات"
+msgstr "Total deductions"
+
+msgid "صافي الإجمالي"
+msgstr "Net total"
+
+msgid "أُنشئت في"
+msgstr "Created on"
+
+msgid "أنشأها"
+msgstr "Created by"
+
+msgid "اعتمدها"
+msgstr "Approved by"
+
+msgid "وقت الاعتماد"
+msgstr "Approval time"
+
+msgid "دورة رواتب"
+msgstr "Payroll cycle"
+
+msgid "دورات الرواتب"
+msgstr "Payroll cycles"
+
+msgid "الدورة"
+msgstr "Cycle"
+
+msgid "العنصر"
+msgstr "Element"
+
+msgid "سطر راتب"
+msgstr "Salary line"
+
+msgid "أسطر الرواتب"
+msgstr "Salary lines"
+
+msgid "الصافي"
+msgstr "Net"
+
+msgid "أيام الغياب"
+msgstr "Absence days"
+
+msgid "أيام الإجازة"
+msgstr "Leave days"
+
+msgid "ساعات إضافية"
+msgstr "Overtime hours"
+
+msgid "مرجع تصدير البنك"
+msgstr "Bank export reference"
+
+msgid "مسار PDF"
+msgstr "PDF path"
+
+msgid "قسيمة راتب"
+msgstr "Pay slip"
+
+msgid "قسائم الرواتب"
+msgstr "Pay slips"
+
+msgid "مدفوع"
+msgstr "Paid"
+
+msgid "تاريخ النهاية"
+msgstr "End date"
+
+msgid "إجمالي السنوات"
+msgstr "Total years"
+
+msgid "مكافأة الخدمة"
+msgstr "End of service gratuity"
+
+msgid "تعويض الإجازات المتبقية"
+msgstr "Compensation for remaining leave"
+
+msgid "بدل الإشعار"
+msgstr "Notice pay"
+
+msgid "الخصومات"
+msgstr "Deductions"
+
+msgid "نهاية خدمة"
+msgstr "End of service"
+
+msgid "نهايات الخدمة"
+msgstr "End of service records"
+
+#, python-format
+msgid "صيغة فترة غير صالحة: %(code)s (مثال: 2026-08)"
+msgstr "Invalid period format: %(code)s (example: 2026-08)"
+
+#, python-format
+msgid "توجد دورة رواتب مسبقًا للفترة %(period)s في %(branch)s"
+msgstr "A payroll cycle already exists for period %(period)s in %(branch)s"
+
+#, python-format
+msgid "خصم غياب %(days)s يوم"
+msgstr "Absence deduction of %(days)s day"
+
+msgid "لا موظفون نشطون في هذا الفرع للفترة المحددة"
+msgstr "No active employees in this branch for the specified period"
+
+msgid "لا يمكن المراجعة إلا من حالة المسودة"
+msgstr "Review is only possible from the draft status"
+
+msgid "الاعتماد يتم فقط بعد المراجعة"
+msgstr "Approval only happens after review"
+
+msgid "التجميد يتم فقط بعد الاعتماد"
+msgstr "Freezing only happens after approval"
+
+msgid "أُضيف عنصر الأجر بنجاح"
+msgstr "The salary element was added successfully"
+
+#, python-format
+msgid "أُنشئت دورة %(period)s (%(count)s قسيمة)"
+msgstr "Cycle %(period)s created (%(count)s slip)"
+
+#, python-format
+msgid "أصبحت الدورة: %(status)s"
+msgstr "The cycle became: %(status)s"
+
+msgid "غير مصرح لك بعرض هذه القسيمة"
+msgstr "You are not authorized to view this pay slip"
+
+msgid "القسيمة تُتاح بعد اعتماد الدورة"
+msgstr "The pay slip is available after cycle approval"
+
+msgid "حدّد تاريخ نهاية الخدمة"
+msgstr "Set the end of service date"
+
+#, python-format
+msgid "حُسبت نهاية الخدمة (الصافي: %(net)s)"
+msgstr "End of service calculated (net: %(net)s)"
+
+msgid "التصدير بعد اعتماد الدورة"
+msgstr "Export after cycle approval"
+
+msgid "الاسم"
+msgstr "Name"
+
+#, python-format
+msgid "تصدير بنك %(code)s"
+msgstr "Bank export %(code)s"
+
+msgid "تقرير"
+msgstr "Report"
+
+msgid "قائمة الموظفين"
+msgstr "Employee list"
+
+msgid "الحضور اليومي"
+msgstr "Daily attendance"
+
+msgid "تأخير"
+msgstr "Delay"
+
+msgid "الغياب"
+msgstr "Absence"
+
+msgid "التأخر"
+msgstr "Tardiness"
+
+msgid "عدد المرات"
+msgstr "Number of times"
+
+msgid "مجموع الدقائق"
+msgstr "Total minutes"
+
+msgid "مستحق"
+msgstr "Due"
+
+msgid "متبقي"
+msgstr "Remaining"
+
+msgid "أيام"
+msgstr "Days"
+
+msgid "سجل مسحات QR"
+msgstr "QR scan log"
+
+msgid "الوقت"
+msgstr "Time"
+
+msgid "النتيجة"
+msgstr "Result"
+
+msgid "المسحات المرفوضة"
+msgstr "Rejected scans"
+
+msgid "كشف الرواتب (ملخص)"
+msgstr "Payroll report (summary)"
+
+msgid "الفترة"
+msgstr "Period"
+
+msgid "الإضافات"
+msgstr "Allowances"
+
+msgid "REP-01 قائمة الموظفين"
+msgstr "REP-01 Employee list"
+
+msgid "REP-10 الحضور اليومي"
+msgstr "REP-10 Daily attendance"
+
+msgid "REP-12 الغياب"
+msgstr "REP-12 Absence"
+
+msgid "REP-13 التأخر"
+msgstr "REP-13 Tardiness"
+
+msgid "REP-20 أرصدة الإجازات"
+msgstr "REP-20 Leave balances"
+
+msgid "REP-21 طلبات الإجازات"
+msgstr "REP-21 Leave requests"
+
+msgid "REP-16 سجل مسحات QR"
+msgstr "REP-16 QR scan log"
+
+msgid "REP-17 المسحات المرفوضة"
+msgstr "REP-17 Rejected scans"
+
+msgid "REP-30 كشف الرواتب (ملخص)"
+msgstr "REP-30 Payroll report (summary)"
+
+msgid "غير مصرح"
+msgstr "Unauthorized"
+
+msgid "لا تملك الصلاحية الكافية للوصول إلى هذه الصفحة."
+msgstr "You do not have sufficient permissions to access this page."
+
+msgid "العودة للرئيسية"
+msgstr "Back to home"
+
+msgid "تفاصيل يوم الحضور"
+msgstr "Attendance day details"
+
+#, python-format
+msgid "تفاصيل اليوم — %(wd)s"
+msgstr "Day details — %(wd)s"
+
+msgid "العودة للسجل"
+msgstr "Back to the log"
+
+msgid "الموظف:"
+msgstr "Employee:"
+
+msgid "الحالة:"
+msgstr "Status:"
+
+msgid "الدخول:"
+msgstr "Check-in:"
+
+msgid "الخروج:"
+msgstr "Check-out:"
+
+msgid "دقائق العمل:"
+msgstr "Work minutes:"
+
+msgid "التأخير:"
+msgstr "Lateness:"
+
+msgid "خروج مبكر:"
+msgstr "Early exit:"
+
+msgid "إضافي:"
+msgstr "Extra:"
+
+msgid "مُصحّح يدويًا"
+msgstr "Manually corrected"
+
+msgid "الزمن"
+msgstr "Timestamp"
+
+msgid "لا عمليات مسح"
+msgstr "No scans"
+
+msgid "الاستثناءات المرتبطة"
+msgstr "Related exceptions"
+
+msgid "لا استثناءات"
+msgstr "No exceptions"
+
+msgid "تصحيح يوم الحضور"
+msgstr "Attendance day correction"
+
+#, python-format
+msgid "تصحيح يوم الحضور: %(day)s"
+msgstr "Attendance day correction: %(day)s"
+
+msgid "حفظ التصحيح"
+msgstr "Save correction"
+
+msgid "إلغاء"
+msgstr "Cancel"
+
+msgid "سجل الحضور"
+msgstr "Attendance log"
+
+msgid "بحث بالرمز أو الاسم"
+msgstr "Search by code or name"
+
+msgid "كل الحالات"
+msgstr "All statuses"
+
+msgid "تصفية"
+msgstr "Filter"
+
+msgid "الدوام"
+msgstr "Shift"
+
+msgid "الدخول"
+msgstr "Check-in"
+
+msgid "الخروج"
+msgstr "Check-out"
+
+msgid "العمل (د)"
+msgstr "Work (min)"
+
+msgid "تأخير (د)"
+msgstr "Delay (min)"
+
+msgid "إجراءات"
+msgstr "Actions"
+
+msgid "لا توجد سجلات حضور"
+msgstr "No attendance records"
+
+msgid "السابق"
+msgstr "Previous"
+
+#, python-format
+msgid "صفحة %(n)s / %(total)s"
+msgstr "Page %(n)s / %(total)s"
+
+msgid "التالي"
+msgstr "Next"
+
+msgid "طلب استثناء"
+msgstr "Exception request"
+
+msgid "طلب استثناء (إذن / مأمورية / تعويض)"
+msgstr "Exception request (permission / mission / compensation)"
+
+msgid "إرسال الطلب"
+msgstr "Submit request"
+
+msgid "الاستثناءات"
+msgstr "Exceptions"
+
+msgid "+ طلب استثناء"
+msgstr "+ Exception request"
+
+msgid "لا استثناءات بعد"
+msgstr "No exceptions yet"
+
+msgid "سجل حضوري"
+msgstr "My attendance record"
+
+msgid "بطاقتي"
+msgstr "My card"
+
+msgid "أيام حضور"
+msgstr "Attendance days"
+
+msgid "دقيقة عمل"
+msgstr "Work minute"
+
+msgid "دقيقة تأخير"
+msgstr "Late minute"
+
+msgid "لا توجد سجلات بعد"
+msgstr "No records yet"
+
+msgid "توليد رمز جديد يلغي الرمز الحالي فورًا. متابعة؟"
+msgstr "Generating a new code will immediately invalidate the current code. Continue?"
+
+#, python-format
+msgid ""
+"الرقم: <strong>%(employee.employee_code)s</strong> — القسم: <strong>%(dep)s</"
+"strong>"
+msgstr "Number: <strong>%(employee.employee_code)s</strong> — Department: <strong>%(dep)s</strong>"
+
+#, python-format
+msgid ""
+"الحالة الوظيفية: <strong>%(employee.get_employment_status_display)s</strong> "
+"— الفرع: <strong>%(br)s</strong>"
+msgstr "Employment status: <strong>%(employee.get_employment_status_display)s</strong> — Branch: <strong>%(br)s</strong>"
+
+msgid "رمز الحضور"
+msgstr "Attendance code"
+
+msgid "اعرض هذا الرمز للقارئ الثابت عند الدخول والخروج."
+msgstr "Show this code to the fixed reader when checking in and out."
+
+#, python-format
+msgid "الإصدار %(ver)s — فُعّل %(act)s"
+msgstr "Version %(ver)s — activated %(act)s"
+
+msgid "توليد رمز جديد"
+msgstr "Generate new code"
+
+msgid "لا يوجد رمز QR نشط لحسابك بعد."
+msgstr "You don't have an active QR code for your account yet."
+
+msgid "توليد رمز QR"
+msgstr "Generate QR code"
+
+msgid "تسجيل الدخول"
+msgstr "Log in"
+
+msgid "اسم المستخدم"
+msgstr "Username"
+
+msgid "كلمة المرور"
+msgstr "Password"
+
+msgid "الرئيسية"
+msgstr "Home"
+
+msgid "الحضور"
+msgstr "Attendance"
+
+msgid "الإجازات"
+msgstr "Leaves"
+
+msgid "التقارير"
+msgstr "Reports"
+
+msgid "الرواتب"
+msgstr "Salaries"
+
+msgid "الأجهزة"
+msgstr "Devices"
+
+msgid "بحث..."
+msgstr "Search..."
+
+msgid "الإدارة"
+msgstr "Administration"
+
+msgid "اختر اللغة"
+msgstr "Choose language"
+
+#, python-format
+msgid "تسجيل الخروج (%(user.get_full_name|default:user.username)s)"
+msgstr "Log out (%(user.get_full_name|default:user.username)s)"
+
+#, python-format
+msgid "مرحبًا، %(name)s"
+msgstr "Welcome, %(name)s"
+
+msgid "موظف نشط"
+msgstr "Active employee"
+
+msgid "حاضر اليوم"
+msgstr "Present today"
+
+msgid "غائب اليوم"
+msgstr "Absent today"
+
+msgid "في إجازة اليوم"
+msgstr "On leave today"
+
+msgid "دقيقة تأخير اليوم"
+msgstr "Late minutes today"
+
+msgid "طلبات معلقة"
+msgstr "Pending requests"
+
+msgid "طلبات الإجازة المعلقة"
+msgstr "Pending leave requests"
+
+#, python-format
+msgid "من %(r.from_date)s إلى %(r.to_date)s (%(r.days)s يوم)"
+msgstr "From %(r.from_date)s to %(r.to_date)s (%(r.days)s days)"
+
+msgid "لا طلبات معلقة."
+msgstr "No pending requests."
+
+msgid "أحدث أيام الحضور"
+msgstr "Recent attendance days"
+
+#, python-format
+msgid "تأخير %(d.late_minutes)s د"
+msgstr "%(d.late_minutes)s min late"
+
+msgid "لا سجلات حضور بعد."
+msgstr "No attendance records yet."
+
+msgid "البحث"
+msgstr "Search"
+
+#, python-format
+msgid "نتائج البحث عن \"%(q)s\""
+msgstr "Search results for \"%(q)s\""
+
+#, python-format
+msgid "الموظفون (%(count)s)"
+msgstr "Employees (%(count)s)"
+
+msgid "لا نتائج."
+msgstr "No results."
+
+#, python-format
+msgid "الأقسام (%(count)s)"
+msgstr "Departments (%(count)s)"
+
+#, python-format
+msgid "المناصب (%(count)s)"
+msgstr "Positions (%(count)s)"
+
+#, python-format
+msgid "الفروع (%(count)s)"
+msgstr "Branches (%(count)s)"
+
+#, python-format
+msgid "طلبات الإجازات (%(count)s)"
+msgstr "Leave requests (%(count)s)"
+
+msgid "اكتب كلمة في صندوق البحث أعلى الصفحة."
+msgstr "Type a word in the search box at the top of the page."
+
+#, python-format
+msgid "الجهاز %(device.device_code)s — %(APP_NAME)s"
+msgstr "Device %(device.device_code)s — %(APP_NAME)s"
+
+msgid "لم يتصل بعد"
+msgstr "Not connected yet"
+
+#, python-format
+msgid "الجهاز %(device.device_code)s"
+msgstr "Device %(device.device_code)s"
+
+msgid "مفتاح API (يُعرض مرة واحدة فقط):"
+msgstr "API key (shown only once):"
+
+msgid "تفعيل"
+msgstr "Activate"
+
+msgid "تعطيل"
+msgstr "Deactivate"
+
+msgid "سجل الجهاز"
+msgstr "Device log"
+
+msgid "لا سجلات."
+msgstr "No records."
+
+msgid "تسجيل قارئ"
+msgstr "Register reader"
+
+msgid "تسجيل قارئ QR"
+msgstr "Register QR reader"
+
+msgid "تسجيل"
+msgstr "Register"
+
+msgid "تسجيل جهاز"
+msgstr "Register device"
+
+msgid "لا توجد أجهزة مسجلة."
+msgstr "No registered devices."
+
+msgid "تعديل"
+msgstr "Edit"
+
+msgid "عودة"
+msgstr "Back"
+
+msgid "المعلومات الأساسية"
+msgstr "Basic information"
+
+msgid "البريد"
+msgstr "Email"
+
+msgid "المعلومات الوظيفية"
+msgstr "Job information"
+
+msgid "تعديل موظف"
+msgstr "Edit employee"
+
+msgid "موظف جديد"
+msgstr "New employee"
+
+#, python-format
+msgid "تعديل الموظف: %(object)s"
+msgstr "Edit employee: %(object)s"
+
+msgid "حفظ"
+msgstr "Save"
+
+msgid "بحث بالاسم أو الرقم..."
+msgstr "Search by name or number..."
+
+msgid "بحث"
+msgstr "Search"
+
+msgid "الرقم"
+msgstr "Number"
+
+msgid "عرض"
+msgstr "View"
+
+msgid "لا يوجد موظفون بعد"
+msgstr "No employees yet"
+
+#, python-format
+msgid "صفحة %(page_obj.number)s من %(page_obj.paginator.num_pages)s"
+msgstr "Page %(page_obj.number)s of %(page_obj.paginator.num_pages)s"
+
+msgid "الأرصدة"
+msgstr "Balances"
+
+msgid "الممنوح"
+msgstr "Granted"
+
+msgid "المستعمل"
+msgstr "Used"
+
+msgid "المُرحّل"
+msgstr "Carried over"
+
+msgid "التسوية"
+msgstr "Adjustment"
+
+msgid "المتبقي"
+msgstr "Remaining"
+
+msgid "لا أرصدة — تُنشأ تلقائيًا عند أول طلب"
+msgstr "No balances — created automatically upon the first request"
+
+msgid "تعديل نوع"
+msgstr "Edit type"
+
+msgid "نوع جديد"
+msgstr "New type"
+
+#, python-format
+msgid "تعديل نوع الإجازة: %(object)s"
+msgstr "Edit leave type: %(object)s"
+
+msgid "نوع إجازة جديد"
+msgstr "New leave type"
+
+msgid "+ نوع جديد"
+msgstr "+ New type"
+
+msgid "أيام/سنة"
+msgstr "Days/year"
+
+msgid "ترحيل"
+msgstr "Carry over"
+
+msgid "مستويات"
+msgstr "Levels"
+
+msgid "لا أنواع بعد"
+msgstr "No types yet"
+
+msgid "إجازاتي"
+msgstr "My leaves"
+
+msgid "+ طلب إجازة"
+msgstr "+ Leave request"
+
+#, python-format
+msgid "أرصدتي (%(y)s)"
+msgstr "My balances (%(y)s)"
+
+msgid "لا أرصدة بعد"
+msgstr "No balances yet"
+
+msgid "طلباتي"
+msgstr "My requests"
+
+msgid "الأيام"
+msgstr "Days"
+
+msgid "أُرسل"
+msgstr "Sent"
+
+msgid "إلغاء الطلب؟"
+msgstr "Cancel the request?"
+
+msgid "لا طلبات بعد"
+msgstr "No requests yet"
+
+msgid "عطلة رسمية جديدة"
+msgstr "New public holiday"
+
+msgid "+ عطلة"
+msgstr "+ Holiday"
+
+msgid "متكررة"
+msgstr "Recurring"
+
+msgid "حذف العطلة؟"
+msgstr "Delete the holiday?"
+
+msgid "حذف"
+msgstr "Delete"
+
+msgid "لا عطل رسمية بعد"
+msgstr "No public holidays yet"
+
+msgid "تفاصيل الطلب"
+msgstr "Request details"
+
+#, python-format
+msgid "طلب إجازة — %(request.employee)s"
+msgstr "Leave request — %(request.employee)s"
+
+msgid "قائمة الانتظار"
+msgstr "Approval queue"
+
+msgid "النوع:"
+msgstr "Type:"
+
+msgid "المدة:"
+msgstr "Duration:"
+
+#, python-format
+msgid "%(fd)s ← %(td)s (%(days)s يوم)"
+msgstr "%(fd)s ← %(td)s (%(days)s day)"
+
+msgid "السبب:"
+msgstr "Reason:"
+
+#, python-format
+msgid "المستوى الحالي: %(lvl)s / %(total)s"
+msgstr "Current level: %(lvl)s / %(total)s"
+
+msgid "سلسلة الموافقات"
+msgstr "Approval chain"
+
+msgid "لا موافقات بعد"
+msgstr "No approvals yet"
+
+msgid ""
+"تُحسب أيام العمل تلقائيًا عند الحفظ (دون عطل نهاية الأسبوع والعطل الرسمية)."
+msgstr "Working days are calculated automatically when saving (excluding weekends and public holidays)."
+
+#, python-format
+msgid "قيد الانتظار: %(c)s"
+msgstr "Pending: %(c)s"
+
+msgid "ملاحظة (اختياري)"
+msgstr "Note (optional)"
+
+msgid "لا طلبات"
+msgstr "No requests"
+
+msgid "مركز الإشعارات"
+msgstr "Notifications center"
+
+msgid "تعليم الكل كمقروء"
+msgstr "Mark all as read"
+
+#, python-format
+msgid "لديك %(c)s إشعار غير مقروء."
+msgstr "You have %(c)s unread notification(s)."
+
+msgid "قرأته"
+msgstr "Mark as read"
+
+msgid "لا توجد إشعارات بعد."
+msgstr "No notifications yet."
+
+#, python-format
+msgid "صفحة %(n)s من %(total)s"
+msgstr "Page %(n)s of %(total)s"
+
+msgid "حذف فرع"
+msgstr "Delete branch"
+
+msgid "تأكيد الحذف"
+msgstr "Confirm deletion"
+
+msgid "هل أنت متأكد من حذف الفرع"
+msgstr "Are you sure you want to delete the branch"
+
+msgid "نعم، احذف"
+msgstr "Yes, delete"
+
+msgid "تعديل فرع"
+msgstr "Edit branch"
+
+msgid "فرع جديد"
+msgstr "New branch"
+
+#, python-format
+msgid "تعديل الفرع: %(object)s"
+msgstr "Edit branch: %(object)s"
+
+msgid "إدارة الفروع"
+msgstr "Branch management"
+
+msgid "+ فرع جديد"
+msgstr "+ New branch"
+
+msgid "لا توجد فروع بعد"
+msgstr "No branches yet"
+
+msgid "حذف قسم"
+msgstr "Delete department"
+
+msgid "هل أنت متأكد من حذف القسم"
+msgstr "Are you sure you want to delete the department"
+
+msgid "هذا القسم يحتوي أقسامًا فرعية — يجب حذفها أولًا."
+msgstr "This department contains sub-departments — delete them first."
+
+msgid "تعديل قسم"
+msgstr "Edit department"
+
+msgid "قسم جديد"
+msgstr "New department"
+
+#, python-format
+msgid "تعديل القسم: %(object)s"
+msgstr "Edit department: %(object)s"
+
+msgid "+ قسم جديد"
+msgstr "+ New department"
+
+msgid "الأقسام الفرعية"
+msgstr "Sub-departments"
+
+msgid "لا توجد أقسام بعد"
+msgstr "No departments yet"
+
+msgid "تعديل منصب"
+msgstr "Edit position"
+
+msgid "منصب جديد"
+msgstr "New position"
+
+#, python-format
+msgid "تعديل المنصب: %(object)s"
+msgstr "Edit position: %(object)s"
+
+msgid "+ منصب جديد"
+msgstr "+ New position"
+
+msgid "المسمى"
+msgstr "Title"
+
+msgid "لا توجد مناصب بعد"
+msgstr "No positions yet"
+
+msgid "تعديل جدول دوام"
+msgstr "Edit shift schedule"
+
+msgid "جدول دوام جديد"
+msgstr "New shift schedule"
+
+#, python-format
+msgid "تعديل جدول الدوام: %(object)s"
+msgstr "Edit shift schedule: %(object)s"
+
+msgid "+ جدول دوام"
+msgstr "+ Shift schedule"
+
+msgid "البداية"
+msgstr "Start"
+
+msgid "النهاية"
+msgstr "End"
+
+msgid "مرن"
+msgstr "Flexible"
+
+msgid "سماحية التأخير"
+msgstr "Late tolerance"
+
+msgid "د"
+msgstr "min"
+
+msgid "لا توجد جداول دوام بعد"
+msgstr "No shift schedules yet"
+
+msgid "عنصر أجر جديد"
+msgstr "New pay item"
+
+msgid "عنصر جديد"
+msgstr "New item"
+
+msgid "المبلغ/النسبة"
+msgstr "Amount/Percentage"
+
+msgid "لا عناصر أجر بعد — أضف عنصرًا أولًا."
+msgstr "No pay items yet — add one first."
+
+msgid "نهاية خدمة جديدة"
+msgstr "New end of service"
+
+msgid "حساب نهاية خدمة"
+msgstr "End of service calculation"
+
+msgid "اختر"
+msgstr "Choose"
+
+msgid "تاريخ نهاية الخدمة"
+msgstr "End of service date"
+
+msgid "حساب (آلي)"
+msgstr "Calculate (automatic)"
+
+msgid "السنوات"
+msgstr "Years"
+
+msgid "المكافأة"
+msgstr "Bonus"
+
+msgid "تعويض الإجازات"
+msgstr "Leave compensation"
+
+msgid "لا سجلات نهاية خدمة."
+msgstr "No end of service records."
+
+msgid "قسائمي"
+msgstr "My payslips"
+
+msgid "الأساسي"
+msgstr "Basic salary"
+
+msgid "القسيمة"
+msgstr "Payslip"
+
+msgid "لا قسائم متاحة بعد."
+msgstr "No payslips available yet."
+
+#, python-format
+msgid "الدورة %(payrun.period_code)s"
+msgstr "Payrun %(payrun.period_code)s"
+
+#, python-format
+msgid "دورة %(payrun.period_code)s — %(payrun.branch)s"
+msgstr "Payrun %(payrun.period_code)s — %(payrun.branch)s"
+
+msgid "عدد القسائم"
+msgstr "Number of payslips"
+
+msgid "أُنشئت بواسطة"
+msgstr "Created by"
+
+msgid "اعتُمدت بواسطة"
+msgstr "Approved by"
+
+msgid "إرسال للمراجعة"
+msgstr "Submit for review"
+
+msgid "تجميد الفترة"
+msgstr "Freeze period"
+
+msgid "القسائم"
+msgstr "Payslips"
+
+msgid "بنك CSV"
+msgstr "CSV bank"
+
+msgid "بنك Excel"
+msgstr "Excel bank"
+
+#, python-format
+msgid "القسائم (%(n)s)"
+msgstr "Payslips (%(n)s)"
+
+msgid "إضافات"
+msgstr "Allowances"
+
+msgid "خصومات"
+msgstr "Deductions"
+
+msgid "حضور/غياب/إجازة"
+msgstr "Attendance/Absence/Leave"
+
+msgid "لا قسائم."
+msgstr "No payslips."
+
+msgid "توليد دورة جديدة"
+msgstr "Generate new payrun"
+
+msgid "توليد الدورة"
+msgstr "Generate payrun"
+
+msgid "أُنشئت"
+msgstr "Created"
+
+msgid "لا دورات رواتب بعد."
+msgstr "No payroll runs yet."
+
+#, python-format
+msgid "قسائم %(payrun.period_code)s"
+msgstr "Payslips %(payrun.period_code)s"
+
+#, python-format
+msgid "قسائم دورة %(payrun.period_code)s — %(payrun.branch)s"
+msgstr "Payslips of payrun %(payrun.period_code)s — %(payrun.branch)s"
+
+msgid "التقارير الأساسية"
+msgstr "Basic reports"
+
+msgid "التقرير"
+msgstr "Report"
+
+msgid "فتح"
+msgstr "Open"
+
+#, python-format
+msgid "%(title)s — %(APP_NAME)s"
+msgstr "%(title)s — %(APP_NAME)s"
+
+msgid "كل الفترات"
+msgstr "All periods"
+
+msgid "كل الفروع"
+msgstr "All branches"
+
+msgid "كل الأقسام"
+msgstr "All departments"
+
+msgid "كل الأنواع"
+msgstr "All types"
+
+msgid "كل الأجهزة"
+msgstr "All devices"
+
+msgid "كل القرارات"
+msgstr "All decisions"
+
+msgid "من (YYYY-MM-DD)"
+msgstr "From (YYYY-MM-DD)"
+
+msgid "إلى (YYYY-MM-DD)"
+msgstr "To (YYYY-MM-DD)"
+
+msgid "مسح"
+msgstr "Clear"
+
+msgid "تصدير CSV"
+msgstr "Export CSV"
+
+msgid "تصدير Excel"
+msgstr "Export Excel"
+
+msgid "تصدير PDF"
+msgstr "Export PDF"
+
+msgid "لا بيانات مطابقة."
+msgstr "No matching data."

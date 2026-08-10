@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "المناصب" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "المناصب" %}</h1>
+    <a class="btn btn-primary" href="{% url 'org:position_create' %}">{% trans "+ منصب جديد" %}</a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الرمز" %}</th>
+            <th>{% trans "المسمى" %}</th>
+            <th>{% trans "القسم" %}</th>
+            <th>{% trans "الدرجة" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pos in positions %}
+        <tr>
+            <td>{{ pos.code }}</td>
+            <td>{{ pos.name_ar }}</td>
+            <td>{{ pos.department.name_ar }}</td>
+            <td>{{ pos.grade|default:"—" }}</td>
+            <td class="actions">
+                <a class="btn btn-sm" href="{% url 'org:position_edit' pos.pk %}">{% trans "تعديل" %}</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="empty">{% trans "لا توجد مناصب بعد" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

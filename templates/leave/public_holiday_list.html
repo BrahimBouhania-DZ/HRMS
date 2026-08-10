@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "العطل الرسمية" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "العطل الرسمية" %}</h1>
+    <a class="btn btn-primary" href="{% url 'leave:public_holiday_create' %}">{% trans "+ عطلة" %}</a>
+</div>
+<table class="table">
+    <thead>
+        <tr><th>{% trans "التاريخ" %}</th><th>{% trans "الاسم" %}</th><th>{% trans "الفرع" %}</th><th>{% trans "متكررة" %}</th><th>{% trans "إجراءات" %}</th></tr>
+    </thead>
+    <tbody>
+        {% for h in holidays %}
+        <tr>
+            <td>{{ h.date|date:"Y-m-d" }}</td>
+            <td>{{ h.name_ar }}</td>
+            <td>{{ h.branch }}</td>
+            <td>{{ h.is_recurring|yesno:"نعم,لا" }}</td>
+            <td class="actions">
+                <form method="post" action="{% url 'leave:public_holiday_delete' h.pk %}" class="inline-form">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-danger" type="submit"
+                            onclick="return confirm('{% trans "حذف العطلة؟" %}')">{% trans "حذف" %}</button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="empty">{% trans "لا عطل رسمية بعد" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "عناصر الأجر" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "عناصر الأجر" %}</h1>
+    <a class="btn btn-primary" href="{% url 'payroll:element_create' %}">+ {% trans "عنصر جديد" %}</a>
+</div>
+<table class="table">
+    <thead>
+        <tr><th>{% trans "الرمز" %}</th><th>{% trans "الاسم" %}</th><th>{% trans "النوع" %}</th><th>{% trans "طريقة الحساب" %}</th><th>{% trans "المبلغ/النسبة" %}</th><th>{% trans "نشط" %}</th></tr>
+    </thead>
+    <tbody>
+        {% for e in elements %}
+        <tr>
+            <td>{{ e.code }}</td>
+            <td>{{ e.name_ar }}</td>
+            <td>{{ e.get_kind_display }}</td>
+            <td>{{ e.get_calculation_display }}</td>
+            <td>{% if e.calculation == 'percent_of_basic' %}{{ e.percent }}%{% else %}{{ e.amount }}{% endif %}</td>
+            <td>{% if e.is_active %}✔{% else %}✘{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty">{% trans "لا عناصر أجر بعد — أضف عنصرًا أولًا." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

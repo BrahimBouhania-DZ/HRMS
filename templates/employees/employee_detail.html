@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ employee }} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{{ employee.first_name_ar }} {{ employee.last_name_ar }}</h1>
+    <div class="toolbar">
+        <a class="btn btn-primary" href="{% url 'employees:employee_card' employee.pk %}">{% trans "بطاقة الموظف (QR)" %}</a>
+        <a class="btn" href="{% url 'employees:employee_edit' employee.pk %}">{% trans "تعديل" %}</a>
+        <a class="btn" href="{% url 'employees:employee_list' %}">{% trans "عودة" %}</a>
+    </div>
+</div>
+<div class="card-grid">
+    <section class="card">
+        <h2>{% trans "المعلومات الأساسية" %}</h2>
+        <dl class="dl">
+            <dt>{% trans "رقم الموظف" %}</dt><dd>{{ employee.employee_code }}</dd>
+            <dt>{% trans "الاسم (عربي)" %}</dt><dd>{{ employee.first_name_ar }} {{ employee.last_name_ar }}</dd>
+            <dt>{% trans "الاسم (فرنسي)" %}</dt><dd>{{ employee.first_name_fr|default:"—" }} {{ employee.last_name_fr|default:"" }}</dd>
+            <dt>{% trans "الجنس" %}</dt><dd>{{ employee.get_gender_display|default:"—" }}</dd>
+            <dt>{% trans "تاريخ الميلاد" %}</dt><dd>{{ employee.birth_date|date:"d/m/Y"|default:"—" }}</dd>
+            <dt>{% trans "الهاتف" %}</dt><dd>{{ employee.phone|default:"—" }}</dd>
+            <dt>{% trans "البريد" %}</dt><dd>{{ employee.email|default:"—" }}</dd>
+        </dl>
+    </section>
+    <section class="card">
+        <h2>{% trans "المعلومات الوظيفية" %}</h2>
+        <dl class="dl">
+            <dt>{% trans "الحالة" %}</dt><dd><span class="badge badge-{{ employee.employment_status }}">{{ employee.get_employment_status_display }}</span></dd>
+            <dt>{% trans "تاريخ التوظيف" %}</dt><dd>{{ employee.hire_date|date:"d/m/Y"|default:"—" }}</dd>
+            <dt>{% trans "الفرع" %}</dt><dd>{{ employee.branch.name_ar|default:"—" }}</dd>
+            <dt>{% trans "القسم" %}</dt><dd>{{ employee.department.name_ar|default:"—" }}</dd>
+            <dt>{% trans "المنصب" %}</dt><dd>{{ employee.position.name_ar|default:"—" }}</dd>
+            <dt>{% trans "جدول الدوام" %}</dt><dd>{{ employee.shift.name_ar|default:"—" }}</dd>
+        </dl>
+    </section>
+</div>
+{% endblock %}

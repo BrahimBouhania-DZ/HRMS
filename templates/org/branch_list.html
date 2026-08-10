@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "إدارة الفروع" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "الفروع" %}</h1>
+    <a class="btn btn-primary" href="{% url 'org:branch_create' %}">{% trans "+ فرع جديد" %}</a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الرمز" %}</th>
+            <th>{% trans "الاسم" %}</th>
+            <th>{% trans "الدولة" %}</th>
+            <th>{% trans "المدينة" %}</th>
+            <th>{% trans "المنطقة الزمنية" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for branch in branches %}
+        <tr>
+            <td>{{ branch.code }}</td>
+            <td>{{ branch.name_ar }}</td>
+            <td>{{ branch.country }}</td>
+            <td>{{ branch.city }}</td>
+            <td>{{ branch.timezone }}</td>
+            <td class="actions">
+                <a class="btn btn-sm" href="{% url 'org:branch_edit' branch.pk %}">{% trans "تعديل" %}</a>
+                <a class="btn btn-sm btn-danger" href="{% url 'org:branch_delete' branch.pk %}">{% trans "حذف" %}</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty">{% trans "لا توجد فروع بعد" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

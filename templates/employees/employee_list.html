@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "الموظفون" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "الموظفون" %}</h1>
+    <div class="toolbar">
+        <form method="get" class="search-form">
+            <input type="search" name="q" value="{{ q }}" placeholder="{% trans "بحث بالاسم أو الرقم..." %}">
+            <button type="submit" class="btn">{% trans "بحث" %}</button>
+        </form>
+        <a class="btn btn-primary" href="{% url 'employees:employee_create' %}">+ {% trans "موظف جديد" %}</a>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الرقم" %}</th>
+            <th>{% trans "الاسم" %}</th>
+            <th>{% trans "الفرع" %}</th>
+            <th>{% trans "القسم" %}</th>
+            <th>{% trans "المنصب" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for emp in employees %}
+        <tr>
+            <td>{{ emp.employee_code }}</td>
+            <td>{{ emp.first_name_ar }} {{ emp.last_name_ar }}</td>
+            <td>{{ emp.branch.name_ar|default:"—" }}</td>
+            <td>{{ emp.department.name_ar|default:"—" }}</td>
+            <td>{{ emp.position.name_ar|default:"—" }}</td>
+            <td><span class="badge badge-{{ emp.employment_status }}">{{ emp.get_employment_status_display }}</span></td>
+            <td class="actions">
+                <a class="btn btn-sm" href="{% url 'employees:employee_detail' emp.pk %}">{% trans "عرض" %}</a>
+                <a class="btn btn-sm" href="{% url 'employees:employee_edit' emp.pk %}">{% trans "تعديل" %}</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty">{% trans "لا يوجد موظفون بعد" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ q }}">« {% trans "السابق" %}</a>{% endif %}
+    <span>{% blocktrans %}صفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ q }}">{% trans "التالي" %} »</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

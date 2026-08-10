@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% blocktrans %}الدورة {{ payrun.period_code }}{% endblocktrans %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% blocktrans %}دورة {{ payrun.period_code }} — {{ payrun.branch }}{% endblocktrans %}</h1>
+    <span class="badge badge-{{ payrun.status }}">{{ payrun.get_status_display }}</span>
+</div>
+
+<table class="table kv">
+    <tr><th>{% trans "الإضافات" %}</th><td>{{ payrun.total_earnings }}</td><th>{% trans "الخصومات" %}</th><td>{{ payrun.total_deductions }}</td><th>{% trans "الصافي" %}</th><td><strong>{{ payrun.total_net }}</strong></td></tr>
+    <tr><th>{% trans "عدد القسائم" %}</th><td>{{ payslips|length }}</td><th>{% trans "أُنشئت بواسطة" %}</th><td>{{ payrun.generated_by|default:"—" }}</td><th>{% trans "اعتُمدت بواسطة" %}</th><td>{{ payrun.approved_by|default:"—" }}</td></tr>
+</table>
+
+{% if not finalized %}
+<div class="head-actions">
+    {% if payrun.status == 'draft' and can_review %}
+    <form method="post" action="{% url 'payroll:run_status' payrun.pk 'review' %}" class="inline-form">
+        {% csrf_token %}<button class="btn btn-sm btn-primary">{% trans "إرسال للمراجعة" %}</button>
+    </form>
+    {% endif %}
+    {% if payrun.status == 'reviewing' and can_approve %}
+    <form method="post" action="{% url 'payroll:run_status' payrun.pk 'approve' %}" class="inline-form">
+        {% csrf_token %}<button class="btn btn-sm btn-primary">{% trans "اعتماد" %}</button>
+    </form>
+    {% endif %}
+    {% if payrun.status == 'approved' and can_approve %}
+    <form method="post" action="{% url 'payroll:run_status' payrun.pk 'freeze' %}" class="inline-form">
+        {% csrf_token %}<button class="btn btn-sm btn-danger">{% trans "تجميد الفترة" %}</button>
+    </form>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if finalized %}
+<div class="head-actions">
+    <a class="btn btn-sm" href="{% url 'payroll:run_payslips' payrun.pk %}">{% trans "القسائم" %}</a>
+    {% if can_export %}
+    <a class="btn btn-sm" href="{% url 'payroll:bank_export' payrun.pk 'csv' %}">{% trans "بنك CSV" %}</a>
+    <a class="btn btn-sm" href="{% url 'payroll:bank_export' payrun.pk 'xlsx' %}">{% trans "بنك Excel" %}</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<h2>{% blocktrans with n=payslips|length %}القسائم ({{ n }}){% endblocktrans %}</h2>
+<table class="table">
+    <thead>
+        <tr><th>{% trans "الموظف" %}</th><th>{% trans "الأساسي" %}</th><th>{% trans "إضافات" %}</th><th>{% trans "خصومات" %}</th><th>{% trans "الصافي" %}</th><th>{% trans "حضور/غياب/إجازة" %}</th></tr>
+    </thead>
+    <tbody>
+        {% for p in payslips %}
+        <tr>
+            <td>{{ p.employee.employee_code }} — {{ p.employee }}</td>
+            <td>{{ p.basic_salary }}</td>
+            <td>{{ p.total_earnings }}</td>
+            <td>{{ p.total_deductions }}</td>
+            <td><strong>{{ p.net }}</strong></td>
+            <td>{{ p.attended_days }}/{{ p.absent_days }}/{{ p.leave_days }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty">{% trans "لا قسائم." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

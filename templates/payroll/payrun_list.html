@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "دورات الرواتب" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{% trans "دورات الرواتب" %}</h1></div>
+
+{% if can_generate %}
+<div class="card">
+    <h3>{% trans "توليد دورة جديدة" %}</h3>
+    <form method="post" action="{% url 'payroll:run_generate' %}" class="form">
+        {% csrf_token %}
+        <label>{% trans "فترة الرواتب (مثال: 2026-08)" %}</label>
+        <input type="text" name="period_code" placeholder="2026-08" required>
+        <label>{% trans "الفرع" %}</label>
+        <select name="branch" required>
+            <option value="">— {% trans "اختر" %} —</option>
+            {% for b in branches %}<option value="{{ b.pk }}">{{ b.name_ar }}</option>{% endfor %}
+        </select>
+        <button class="btn btn-primary" type="submit">{% trans "توليد الدورة" %}</button>
+    </form>
+</div>
+{% endif %}
+
+<table class="table">
+    <thead>
+        <tr><th>{% trans "الفترة" %}</th><th>{% trans "الفرع" %}</th><th>{% trans "الحالة" %}</th><th>{% trans "الإضافات" %}</th><th>{% trans "الخصومات" %}</th><th>{% trans "الصافي" %}</th><th>{% trans "أُنشئت" %}</th></tr>
+    </thead>
+    <tbody>
+        {% for r in payruns %}
+        <tr>
+            <td><a href="{% url 'payroll:run_detail' r.pk %}">{{ r.period_code }}</a></td>
+            <td>{{ r.branch }}</td>
+            <td><span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+            <td>{{ r.total_earnings }}</td>
+            <td>{{ r.total_deductions }}</td>
+            <td><strong>{{ r.total_net }}</strong></td>
+            <td>{{ r.generated_at|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty">{% trans "لا دورات رواتب بعد." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

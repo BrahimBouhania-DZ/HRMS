@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "حذف فرع" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="confirm-box">
+    <h1>{% trans "تأكيد الحذف" %}</h1>
+    <p>{% blocktrans %}هل أنت متأكد من حذف الفرع{% endblocktrans %} <strong>{{ object }}</strong>؟</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">{% trans "نعم، احذف" %}</button>
+        <a class="btn" href="{% url 'org:branch_list' %}">{% trans "إلغاء" %}</a>
+    </form>
+</div>
+{% endblock %}

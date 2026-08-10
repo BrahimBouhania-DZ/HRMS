@@ -1,0 +1,7 @@
+Django>=5.0,<6.0
+psycopg[binary]>=3.1  # الإنتاج (prod.py) — PostgreSQL
+Pillow>=10.0          # صور الموظفين + توليد صور QR
+qrcode>=7.4           # توليد صور QR (بطاقة الموظف)
+weasyprint>=69.0      # تصدير تقارير PDF (يدعم RTL العربي)
+openpyxl>=3.1         # تصدير تقارير Excel
+gunicorn>=21.2        # خادم الإنتاج (LAN)

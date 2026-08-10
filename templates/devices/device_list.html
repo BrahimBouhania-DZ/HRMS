@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "قارئات QR" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+{% trans "لم يتصل بعد" as never_connected %}
+<div class="page-head">
+    <h1>{% trans "قارئات QR" %}</h1>
+    <div class="head-actions">
+        <a class="btn btn-sm btn-primary" href="{% url 'devices:create' %}">{% trans "تسجيل جهاز" %}</a>
+    </div>
+</div>
+<table>
+    <thead>
+        <tr><th>{% trans "الرمز" %}</th><th>{% trans "الفرع" %}</th><th>{% trans "الموقع" %}</th><th>{% trans "الحالة" %}</th><th>{% trans "آخر اتصال" %}</th><th></th></tr>
+    </thead>
+    <tbody>
+        {% for d in devices %}
+        <tr>
+            <td>{{ d.device_code }}</td>
+            <td>{{ d.branch }}</td>
+            <td>{{ d.location|default:"—" }}</td>
+            <td><span class="badge badge-{{ d.status }}">{{ d.get_status_display }}</span></td>
+            <td>{{ d.last_seen|default:never_connected }}</td>
+            <td><a class="btn btn-sm" href="{% url 'devices:detail' d.pk %}">{% trans "التفاصيل" %}</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty">{% trans "لا توجد أجهزة مسجلة." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

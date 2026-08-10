@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "بطاقة الموظف" %} — {{ employee.employee_code }} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+{% trans "توليد رمز جديد يلغي الرمز الحالي فورًا. متابعة؟" as qr_regenerate_confirm %}
+<style>
+    .card-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .id-card {
+        width: 85.6mm; height: 54mm; max-width: 100%;
+        background: #fff; color: #12233b;
+        border: 1px solid #dbe4ee; border-radius: 4mm;
+        box-shadow: 0 6px 20px rgba(18, 35, 59, .12);
+        display: flex; flex-direction: column; overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    }
+    .id-card .card-head {
+        background: linear-gradient(135deg, #0e2a47, #1f5f8b);
+        color: #fff; padding: 5px 14px;
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 12px;
+    }
+    .id-card .card-head .brand { font-weight: 700; font-size: 13px; letter-spacing: .5px; }
+    .id-card .card-head .label { opacity: .9; }
+    .id-card .card-body {
+        flex: 1; display: flex; padding: 9px 14px; gap: 14px;
+    }
+    .id-card .info { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 5px; min-width: 0; }
+    .id-card .emp-name { font-size: 18px; font-weight: 700; line-height: 1.2; }
+    .id-card .emp-name-lat { font-size: 11.5px; color: #5a6b7f; }
+    .id-card .meta { font-size: 11px; color: #33475f; white-space: nowrap; }
+    .id-card .meta b { color: #12233b; }
+    .id-card .qr { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+    .id-card .qr img {
+        width: 33mm; height: 33mm;
+        border: 1px solid #e2e8f0; border-radius: 2mm; padding: 1mm;
+        background: #fff;
+    }
+    .id-card .qr .ver { font-size: 9px; color: #8a99ad; }
+    @media print {
+        @page { size: 85.6mm 54mm; margin: 0; }
+        body { background: #fff; }
+        .no-print { display: none !important; }
+        .id-card { box-shadow: none; border-color: #000; border-radius: 0; }
+    }
+</style>
+
+<div class="card-toolbar no-print">
+    <button class="btn btn-primary" type="button" onclick="window.print()">{% trans "طباعة البطاقة" %}</button>
+    <a class="btn" href="{% url 'employees:employee_detail' employee.pk %}">{% trans "ملف الموظف" %}</a>
+    <a class="btn" href="{% url 'employees:employee_list' %}">{% trans "قائمة الموظفين" %}</a>
+    {% if can_manage %}
+    <form method="post" class="inline-form">
+        {% csrf_token %}
+        <button class="btn btn-warning" type="submit"
+                onclick="return confirm('{{ qr_regenerate_confirm|escapejs }}')">
+            {% trans "توليد رمز جديد" %}
+        </button>
+    </form>
+    {% endif %}
+</div>
+
+<div class="id-card">
+    <div class="card-head">
+        <span class="brand">{{ APP_NAME }}</span>
+        <span class="label">{% trans "بطاقة موظف" %} — {{ employee.branch.name_ar|default:"" }}</span>
+    </div>
+    <div class="card-body">
+        <div class="info">
+            <div>
+                <div class="emp-name">{{ employee.first_name_ar }} {{ employee.last_name_ar }}</div>
+                {% if employee.first_name_fr or employee.last_name_fr %}
+                <div class="emp-name-lat">{{ employee.first_name_fr }} {{ employee.last_name_fr }}</div>
+                {% endif %}
+            </div>
+            <div class="meta">{% trans "رقم الموظف" %}: <b>{{ employee.employee_code }}</b></div>
+            <div class="meta">{% trans "القسم" %}: <b>{{ employee.department.name_ar|default:"—" }}</b></div>
+            <div class="meta">{% trans "المنصب" %}: <b>{{ employee.position.name_ar|default:"—" }}</b></div>
+        </div>
+        <div class="qr">
+            {% if payload %}
+            <img src="{% url 'attendance:qr_image' payload %}" alt="{% trans 'رمز QR' %}">
+            <span class="ver">{% blocktrans with ver=qr.version %}v{{ ver }}{% endblocktrans %}</span>
+            {% else %}
+            <p class="muted">{% trans "لا يوجد رمز QR نشط" %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if not payload and can_manage %}
+<p class="muted no-print">{% trans "لا يوجد رمز QR نشط لهذا الموظف بعد — اضغط «توليد رمز جديد» لإصداره." %}</p>
+{% endif %}
+{% endblock %}

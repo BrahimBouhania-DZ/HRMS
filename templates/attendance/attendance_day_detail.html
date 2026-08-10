@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "تفاصيل يوم الحضور" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% blocktrans with wd=day.work_date|date:"Y-m-d" %}تفاصيل اليوم — {{ wd }}{% endblocktrans %}</h1>
+    <a class="btn btn-sm" href="{% url 'attendance:attendance_day_list' %}">{% trans "العودة للسجل" %}</a>
+    <a class="btn btn-sm" href="{% url 'attendance:attendance_day_correct' day.pk %}">{% trans "تصحيح" %}</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>{% trans "الموظف:" %}</strong> {{ day.employee }}</p>
+        <p><strong>{% trans "الحالة:" %}</strong> <span class="badge badge-{{ day.state }}">{{ day.get_state_display }}</span></p>
+        <p><strong>{% trans "الدخول:" %}</strong> {{ day.check_in|date:"Y-m-d H:i"|default:"—" }}</p>
+        <p><strong>{% trans "الخروج:" %}</strong> {{ day.check_out|date:"Y-m-d H:i"|default:"—" }}</p>
+        <p><strong>{% trans "دقائق العمل:" %}</strong> {{ day.worked_minutes }}</p>
+        <p><strong>{% trans "التأخير:" %}</strong> {{ day.late_minutes }} د — <strong>{% trans "خروج مبكر:" %}</strong> {{ day.early_minutes }} د — <strong>{% trans "إضافي:" %}</strong> {{ day.overtime_minutes }} د</p>
+        {% if day.is_corrected %}<p class="muted">{% trans "مُصحّح يدويًا" %}</p>{% endif %}
+    </div>
+</div>
+
+<h2>{% trans "عمليات المسح" %}</h2>
+<table class="table">
+    <thead><tr><th>{% trans "الزمن" %}</th><th>{% trans "المصدر" %}</th><th>{% trans "القرار" %}</th><th>{% trans "النتيجة" %}</th><th>{% trans "الجهاز" %}</th></tr></thead>
+    <tbody>
+        {% for scan in scans %}
+        <tr>
+            <td>{{ scan.scanned_at|date:"Y-m-d H:i" }}</td>
+            <td>{{ scan.get_source_display }}</td>
+            <td><span class="badge badge-{{ scan.decision }}">{{ scan.get_decision_display }}</span></td>
+            <td>{{ scan.result_detail }}</td>
+            <td>{{ scan.device|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="empty">{% trans "لا عمليات مسح" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>{% trans "الاستثناءات المرتبطة" %}</h2>
+<table class="table">
+    <thead><tr><th>{% trans "النوع" %}</th><th>{% trans "من" %}</th><th>{% trans "إلى" %}</th><th>{% trans "الساعات" %}</th><th>{% trans "الحالة" %}</th></tr></thead>
+    <tbody>
+        {% for exc in exceptions %}
+        <tr>
+            <td>{{ exc.get_type_display }}</td>
+            <td>{{ exc.from_time|date:"Y-m-d H:i" }}</td>
+            <td>{{ exc.to_time|date:"Y-m-d H:i" }}</td>
+            <td>{{ exc.hours }}</td>
+            <td>{{ exc.get_status_display }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="empty">{% trans "لا استثناءات" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

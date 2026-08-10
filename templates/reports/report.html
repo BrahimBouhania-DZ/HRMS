@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% blocktrans %}{{ title }} — {{ APP_NAME }}{% endblocktrans %}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+
+<form method="get" class="filter-form">
+    {% if options.period_codes %}
+    <select name="period_code">
+        <option value="">{% trans "كل الفترات" %}</option>
+        {% for p in options.period_codes %}
+        <option value="{{ p }}" {% if filters.period_code == p %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    {% if options.branches %}
+    <select name="branch">
+        <option value="">{% trans "كل الفروع" %}</option>
+        {% for b in options.branches %}
+        <option value="{{ b.pk }}" {% if filters.branch == b.pk|stringformat:"s" %}selected{% endif %}>{{ b.name_ar }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    {% if options.departments %}
+    <select name="department">
+        <option value="">{% trans "كل الأقسام" %}</option>
+        {% for d in options.departments %}
+        <option value="{{ d.pk }}" {% if filters.department == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name_ar }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    {% if options.statuses %}
+    <select name="employment_status">
+        <option value="">{% trans "كل الحالات" %}</option>
+        {% for value, label in options.statuses %}
+        <option value="{{ value }}" {% if filters.employment_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    {% if options.leave_types %}
+    <select name="leave_type">
+        <option value="">{% trans "كل الأنواع" %}</option>
+        {% for t in options.leave_types %}
+        <option value="{{ t.pk }}" {% if filters.leave_type == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.name_ar }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    {% if options.leave_statuses %}
+    <select name="status">
+        <option value="">{% trans "كل الحالات" %}</option>
+        {% for value, label in options.leave_statuses %}
+        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    {% if show_scan_filters %}
+    <select name="device">
+        <option value="">{% trans "كل الأجهزة" %}</option>
+        {% for d in options.devices %}
+        <option value="{{ d.pk }}" {% if filters.device == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.device_code }}</option>
+        {% endfor %}
+    </select>
+    <select name="decision">
+        <option value="">{% trans "كل القرارات" %}</option>
+        {% for value, label in options.scan_decisions %}
+        <option value="{{ value }}" {% if filters.decision == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    <input type="text" name="from_date" placeholder="{% trans "من (YYYY-MM-DD)" %}" value="{{ filters.from_date|default:'' }}">
+    <input type="text" name="to_date" placeholder="{% trans "إلى (YYYY-MM-DD)" %}" value="{{ filters.to_date|default:'' }}">
+    <input type="date" name="work_date" value="{{ filters.work_date|default:'' }}">
+    <input type="number" name="year" placeholder="{% trans "السنة" %}" value="{{ filters.year|default:'' }}">
+    <button type="submit" class="btn btn-primary">{% trans "عرض" %}</button>
+    <a class="btn" href="?">{% trans "مسح" %}</a>
+</form>
+
+<div class="head-actions">
+    <a class="btn btn-sm" href="{% url 'reports:export' request.resolver_match.url_name 'csv' %}?{{ request.GET.urlencode }}">{% trans "تصدير CSV" %}</a>
+    <a class="btn btn-sm" href="{% url 'reports:export' request.resolver_match.url_name 'xlsx' %}?{{ request.GET.urlencode }}">{% trans "تصدير Excel" %}</a>
+    <a class="btn btn-sm btn-primary" href="{% url 'reports:export' request.resolver_match.url_name 'pdf' %}?{{ request.GET.urlencode }}">{% trans "تصدير PDF" %}</a>
+</div>
+
+<table>
+    <thead>
+        <tr>{% for c in columns %}<th>{{ c }}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+        {% empty %}
+        <tr><td colspan="{{ columns|length }}" class="empty">{% trans "لا بيانات مطابقة." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

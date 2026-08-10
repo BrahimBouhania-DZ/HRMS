@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% blocktrans %}قسائم {{ payrun.period_code }}{% endblocktrans %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{% blocktrans %}قسائم دورة {{ payrun.period_code }} — {{ payrun.branch }}{% endblocktrans %}</h1></div>
+<table class="table">
+    <thead>
+        <tr><th>{% trans "الموظف" %}</th><th>{% trans "الأساسي" %}</th><th>{% trans "إضافات" %}</th><th>{% trans "خصومات" %}</th><th>{% trans "الصافي" %}</th><th>{% trans "القسيمة" %}</th></tr>
+    </thead>
+    <tbody>
+        {% for p in payslips %}
+        <tr>
+            <td>{{ p.employee.employee_code }} — {{ p.employee }}</td>
+            <td>{{ p.basic_salary }}</td>
+            <td>{{ p.total_earnings }}</td>
+            <td>{{ p.total_deductions }}</td>
+            <td><strong>{{ p.net }}</strong></td>
+            <td><a class="btn btn-sm" href="{% url 'payroll:payslip_pdf' p.pk %}" target="_blank">PDF</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty">{% trans "لا قسائم." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

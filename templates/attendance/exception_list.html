@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "الاستثناءات" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "الاستثناءات" %}</h1>
+    <a class="btn btn-primary" href="{% url 'attendance:exception_create' %}">{% trans "+ طلب استثناء" %}</a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الموظف" %}</th>
+            <th>{% trans "النوع" %}</th>
+            <th>{% trans "من" %}</th>
+            <th>{% trans "إلى" %}</th>
+            <th>{% trans "الساعات" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th>{% trans "السبب" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for exc in exceptions %}
+        <tr>
+            <td>{{ exc.employee }}</td>
+            <td>{{ exc.get_type_display }}</td>
+            <td>{{ exc.from_time|date:"Y-m-d H:i" }}</td>
+            <td>{{ exc.to_time|date:"Y-m-d H:i" }}</td>
+            <td>{{ exc.hours }}</td>
+            <td><span class="badge badge-{{ exc.status }}">{{ exc.get_status_display }}</span></td>
+            <td>{{ exc.reason|truncatechars:40 }}</td>
+            <td class="actions">
+                {% if exc.status == "pending" %}
+                <form method="post" action="{% url 'attendance:exception_approve' exc.pk 'approve' %}" class="inline-form">
+                    {% csrf_token %}<button class="btn btn-sm" type="submit">{% trans "اعتماد" %}</button>
+                </form>
+                <form method="post" action="{% url 'attendance:exception_approve' exc.pk 'reject' %}" class="inline-form">
+                    {% csrf_token %}<button class="btn btn-sm btn-danger" type="submit">{% trans "رفض" %}</button>
+                </form>
+                {% else %}
+                <span class="muted">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="empty">{% trans "لا استثناءات بعد" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">{% trans "السابق" %}</a>{% endif %}
+    <span>{% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}صفحة {{ n }} / {{ total }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">{% trans "التالي" %}</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

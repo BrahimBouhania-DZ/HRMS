@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "طلبات الإجازات" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "طلبات الإجازات" %}</h1>
+    <span class="muted">{% blocktrans with c=pending_count %}قيد الانتظار: {{ c }}{% endblocktrans %}</span>
+    <div class="filters">
+        <form method="get" class="filter-form">
+            <select name="status">
+                <option value="">{% trans "كل الحالات" %}</option>
+                {% for value, label in statuses %}
+                <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-sm" type="submit">{% trans "تصفية" %}</button>
+        </form>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr><th>{% trans "الموظف" %}</th><th>{% trans "النوع" %}</th><th>{% trans "من" %}</th><th>{% trans "إلى" %}</th><th>{% trans "الأيام" %}</th><th>{% trans "الحالة" %}</th><th>{% trans "أُرسل" %}</th><th>{% trans "إجراءات" %}</th></tr>
+    </thead>
+    <tbody>
+        {% for r in requests %}
+        <tr>
+            <td>{{ r.employee }}</td>
+            <td>{{ r.leave_type }}</td>
+            <td>{{ r.from_date|date:"Y-m-d" }}</td>
+            <td>{{ r.to_date|date:"Y-m-d" }}</td>
+            <td>{{ r.days }}</td>
+            <td><span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+            <td>{{ r.submitted_at|date:"Y-m-d H:i" }}</td>
+            <td class="actions">
+                <a class="btn btn-sm" href="{% url 'leave:request_detail' r.pk %}">{% trans "التفاصيل" %}</a>
+                {% if r.status == "pending" %}
+                <form method="post" action="{% url 'leave:request_approve' r.pk 'approve' %}" class="inline-form">
+                    {% csrf_token %}
+                    <input type="text" name="comment" placeholder="{% trans "ملاحظة (اختياري)" %}" class="small-input">
+                    <button class="btn btn-sm" type="submit">{% trans "اعتماد" %}</button>
+                </form>
+                <form method="post" action="{% url 'leave:request_approve' r.pk 'reject' %}" class="inline-form">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-danger" type="submit">{% trans "رفض" %}</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="empty">{% trans "لا طلبات" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">{% trans "السابق" %}</a>{% endif %}
+    <span>{% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}صفحة {{ n }} / {{ total }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">{% trans "التالي" %}</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

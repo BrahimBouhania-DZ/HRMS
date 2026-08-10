@@ -1,0 +1,30 @@
+# =====================================================================
+# HRMS — وحدة systemd لخدمة Gunicorn
+# التثبيت:
+#   sudo cp deploy/hrms.service /etc/systemd/system/hrms.service
+#   عدّل User= و WorkingDirectory= و ExecStart= حسب بيئتك
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now hrms
+# =====================================================================
+[Unit]
+Description=HRMS Django Gunicorn Service
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=hrms
+Group=hrms
+WorkingDirectory=/opt/hrms
+Environment=DJANGO_SETTINGS_MODULE=config.settings.prod
+ExecStart=/opt/hrms/.venv/bin/gunicorn -c /opt/hrms/deploy/gunicorn.conf.py config.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+# أمان (تقوية)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

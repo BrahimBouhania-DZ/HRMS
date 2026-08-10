@@ -1,0 +1,254 @@
+"""اختبارات التقارير الأساسية + التصدير (S5)."""
+
+import csv
+import datetime
+import io
+from decimal import Decimal
+
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.urls import reverse
+
+from apps.auth_app.models import Permission
+from apps.attendance.models import AttendanceDay
+from apps.employees.models import Employee
+from apps.leave.models import LeaveBalance, LeaveRequest, LeaveType
+from apps.org.models import Branch, Department
+
+User = get_user_model()
+
+
+class ReportTests(TestCase):
+    """تغطية REP-01,10,12,13,20,21 + CSV/XLSX + النطاقات."""
+
+    @classmethod
+    def setUpTestData(cls):
+        Permission.objects.create(code="reports.view", module="core", name_ar="التقارير")
+        Permission.objects.create(code="reports.export", module="core", name_ar="تصدير")
+        cls.admin = User.objects.create_superuser(username="rep_admin", password="pass")
+        cls.emp_user = User.objects.create_user(username="rep_emp", password="pass")
+        cls.branch = Branch.objects.create(code="BR-R", name_ar="فرع R")
+        cls.dept = Department.objects.create(code="DEP-R", name_ar="قسم R", branch=cls.branch)
+        cls.emp = Employee.objects.create(
+            employee_code="R-001", first_name_ar="رأفت", last_name_ar="ر",
+            branch=cls.branch, department=cls.dept, user=cls.emp_user,
+            employment_status=Employee.EmploymentStatus.ACTIVE, phone="0550",
+        )
+        cls.emp2 = Employee.objects.create(
+            employee_code="R-002", first_name_ar="رانية", last_name_ar="ر",
+            branch=cls.branch, department=cls.dept,
+            employment_status=Employee.EmploymentStatus.ACTIVE,
+        )
+        cls.today = datetime.date(2026, 8, 9)
+        AttendanceDay.objects.create(employee=cls.emp, work_date=cls.today,
+                                     state=AttendanceDay.State.PRESENT, late_minutes=15,
+                                     worked_minutes=480)
+        AttendanceDay.objects.create(employee=cls.emp2, work_date=cls.today,
+                                     state=AttendanceDay.State.ABSENT)
+        cls.lt = LeaveType.objects.create(code="rep-lt", name_ar="سنوية", days_per_year=30)
+        LeaveBalance.objects.create(employee=cls.emp, leave_type=cls.lt, year=2026,
+                                    granted=30, used=4)
+        LeaveRequest.objects.create(employee=cls.emp, leave_type=cls.lt,
+                                    from_date=datetime.date(2026, 9, 1),
+                                    to_date=datetime.date(2026, 9, 3), days=3,
+                                    status=LeaveRequest.Status.PENDING)
+
+    def setUp(self):
+        self.client.force_login(self.admin)
+
+    def _get(self, name, params=None):
+        return self.client.get(reverse(name), params or {})
+
+    def test_index_and_all_reports_200(self):
+        for name in ["reports:index", "reports:rep01", "reports:rep10",
+                     "reports:rep12", "reports:rep13", "reports:rep20", "reports:rep21"]:
+            self.assertEqual(self._get(name).status_code, 200, name)
+
+    def test_employee_without_perm_forbidden(self):
+        self.client.force_login(self.emp_user)
+        self.assertEqual(self.client.get(reverse("reports:index")).status_code, 403)
+
+    def test_rep01_lists_employees(self):
+        resp = self._get("reports:rep01")
+        self.assertContains(resp, "R-001")
+        self.assertContains(resp, "رأفت")
+
+    def test_rep10_filters_today(self):
+        resp = self._get("reports:rep10", {"work_date": "2026-08-09"})
+        self.assertContains(resp, "15")
+        self.assertContains(resp, "480")
+
+    def test_rep12_absence_counts(self):
+        resp = self._get("reports:rep12", {"from_date": "2026-08-01", "to_date": "2026-08-31"})
+        self.assertContains(resp, "R-002")
+
+    def test_rep13_lateness_sums(self):
+        resp = self._get("reports:rep13", {"from_date": "2026-08-01", "to_date": "2026-08-31"})
+        self.assertContains(resp, "15")
+
+    def test_rep20_balances(self):
+        resp = self._get("reports:rep20", {"year": "2026"})
+        self.assertContains(resp, "30")
+
+    def test_rep21_requests(self):
+        resp = self._get("reports:rep21")
+        self.assertContains(resp, "قيد الانتظار")
+
+    def test_export_csv(self):
+        resp = self.client.get(reverse("reports:export", args=["rep01", "csv"]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "text/csv; charset=utf-8")
+        rows = list(csv.reader(io.StringIO(resp.content.decode("utf-8"))))
+        self.assertEqual(rows[0], ["الرمز", "الاسم", "القسم", "المنصب", "الفرع", "الحالة", "الهاتف"])
+        self.assertEqual(rows[1][0], "R-001")
+
+    def test_export_xlsx(self):
+        resp = self.client.get(reverse("reports:export", args=["rep01", "xlsx"]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("spreadsheetml", resp["Content-Type"])
+        self.assertGreater(len(resp.content), 100)
+
+    def test_export_pdf(self):
+        resp = self.client.get(reverse("reports:export", args=["rep01", "pdf"]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["Content-Type"], "application/pdf")
+        self.assertTrue(resp.content.startswith(b"%PDF"))
+
+    def test_export_requires_perm(self):
+        self.client.force_login(self.emp_user)
+        resp = self.client.get(reverse("reports:export", args=["rep01", "csv"]))
+        self.assertEqual(resp.status_code, 403)
+
+
+class ScanReportTests(TestCase):
+    """REP-16/17 — سجل المسحات والمرفوضات."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from apps.attendance.models import AttendanceDay, AttendanceScan
+        from apps.devices.models import QrDevice
+
+        Permission.objects.create(code="reports.view", module="core", name_ar="التقارير")
+        Permission.objects.create(code="reports.export", module="core", name_ar="تصدير")
+        cls.admin = User.objects.create_superuser(username="scan_admin", password="pass")
+        cls.branch = Branch.objects.create(code="BR-S", name_ar="فرع S")
+        cls.device = QrDevice.objects.create(
+            device_code="DEV-R1", branch=cls.branch, api_key_hash="hash", status="active",
+        )
+        cls.emp = Employee.objects.create(
+            employee_code="S-001", first_name_ar="سعد", last_name_ar="س",
+            branch=cls.branch, employment_status=Employee.EmploymentStatus.ACTIVE,
+        )
+        cls.day = AttendanceDay.objects.create(
+            employee=cls.emp, work_date=datetime.date(2026, 8, 9),
+            state=AttendanceDay.State.PRESENT,
+        )
+        AttendanceScan.objects.create(
+            attendanceday=cls.day, employee=cls.emp, device=cls.device,
+            source=AttendanceScan.Source.FIXED_READER,
+            decision=AttendanceScan.Decision.CHECK_IN,
+        )
+        AttendanceScan.objects.create(
+            employee=cls.emp, device=cls.device,
+            source=AttendanceScan.Source.FIXED_READER,
+            decision=AttendanceScan.Decision.REJECTED, result_detail="مفتاح غير صالح",
+        )
+        AttendanceScan.objects.create(
+            employee=cls.emp, device=cls.device,
+            source=AttendanceScan.Source.FIXED_READER,
+            decision=AttendanceScan.Decision.REJECTED, result_detail="QR منتهي",
+        )
+
+    def setUp(self):
+        self.client.force_login(self.admin)
+
+    def test_rep16_lists_scans(self):
+        resp = self.client.get(reverse("reports:rep16"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "دخول")
+        self.assertContains(resp, "مرفوض")
+
+    def test_rep16_filters_by_decision(self):
+        resp = self.client.get(reverse("reports:rep16"), {"decision": "rejected"})
+        self.assertContains(resp, "QR منتهي")
+        self.assertContains(resp, "مفتاح غير صالح")
+        self.assertNotContains(resp, "<td>دخول</td>")
+
+    def test_rep17_groups_rejected(self):
+        resp = self.client.get(reverse("reports:rep17"))
+        self.assertEqual(resp.status_code, 200)
+        # صفّان: واحد لكل (موظف/جهاز/سبب) بتكرار 1
+        self.assertEqual(resp.content.count(b"<tr><td>S-001"), 2)
+        self.assertContains(resp, "QR منتهي")
+        self.assertContains(resp, "مفتاح غير صالح")
+
+    def test_rep17_export_csv(self):
+        resp = self.client.get(reverse("reports:export", args=["rep17", "csv"]))
+        self.assertEqual(resp.status_code, 200)
+        rows = list(csv.reader(io.StringIO(resp.content.decode("utf-8"))))
+        self.assertEqual(rows[0], ["الرمز", "الاسم", "الجهاز", "السبب", "عدد المرات"])
+        self.assertEqual(rows[1][0], "S-001")
+
+
+class PayrollReportTests(TestCase):
+    """REP-30 — كشف الرواتب (ملخص) + صلاحيات التصدير المالي."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from apps.employees.models import Contract
+        from apps.payroll.models import PayElement
+        from apps.payroll.services import generate_payrun
+
+        Permission.objects.create(code="reports.view", module="core", name_ar="التقارير")
+        Permission.objects.create(code="reports.export", module="core", name_ar="تصدير")
+        Permission.objects.create(code="payroll.payslip.view", module="payroll",
+                                  name_ar="كشف الرواتب")
+        cls.admin = User.objects.create_superuser(username="pr_admin", password="pass")
+        cls.finance = User.objects.create_user(username="pr_fin", password="pass")
+        cls.peon = User.objects.create_user(username="pr_peon", password="pass")
+        cls.branch = Branch.objects.create(code="BR-PR", name_ar="فرع PR")
+        cls.emp = Employee.objects.create(
+            employee_code="PR-001", first_name_ar="مالي", last_name_ar="1",
+            branch=cls.branch, employment_status=Employee.EmploymentStatus.ACTIVE,
+            hire_date=datetime.date(2023, 1, 1), bank_account="ACC-PR",
+        )
+        Contract.objects.create(
+            contract_number="CTR-PR", employee=cls.emp,
+            start_date=datetime.date(2023, 1, 1), end_date=None,
+            base_salary=Decimal("50000"), gross_salary=Decimal("50000"), allowance=0,
+        )
+        PayElement.objects.create(code="BASIC-PR", name_ar="أساسي", kind="earning",
+                                  calculation="fixed", amount=Decimal("0"),
+                                  applies_to_all=True, is_active=True)
+        cls.payrun = generate_payrun("2026-08", cls.branch, cls.admin)
+
+    def setUp(self):
+        self.client.force_login(self.admin)
+
+    def test_rep30_shows_summary(self):
+        resp = self.client.get(reverse("reports:rep30"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "2026-08")
+        self.assertContains(resp, "50000.00")
+
+    def test_rep30_requires_payroll_perm(self):
+        self.client.force_login(self.peon)
+        self.assertEqual(self.client.get(reverse("reports:rep30")).status_code, 403)
+
+    def test_rep30_export_financial_guard(self):
+        self.client.force_login(self.peon)
+        resp = self.client.get(reverse("reports:export", args=["rep30", "csv"]))
+        self.assertEqual(resp.status_code, 403)
+        self.client.force_login(self.admin)
+        resp = self.client.get(reverse("reports:export", args=["rep30", "csv"]))
+        self.assertEqual(resp.status_code, 200)
+        rows = list(csv.reader(io.StringIO(resp.content.decode("utf-8"))))
+        self.assertEqual(rows[0][0], "الفترة")
+        self.assertEqual(rows[1][0], "2026-08")
+
+    def test_rep30_filter_by_period(self):
+        resp = self.client.get(reverse("reports:rep30"), {"period_code": "2026-08"})
+        self.assertContains(resp, "2026-08")
+        resp = self.client.get(reverse("reports:rep30"), {"period_code": "1999-01"})
+        self.assertContains(resp, "لا بيانات مطابقة")
+        self.assertNotContains(resp, "<td>2026-08</td>")

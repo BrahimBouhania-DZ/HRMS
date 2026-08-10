@@ -1,0 +1,21 @@
+# ---- الأسرار والبيئة ----
+.env
+.env.*
+!.env.example
+
+# ---- قاعدة البيانات ----
+db.sqlite3
+backups/
+
+# ---- بايثون ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# ---- الملفات المجمّعة ----
+staticfiles/
+media/
+*.log
+releases/

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "البحث" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% blocktrans %}نتائج البحث عن "{{ q }}"{% endblocktrans %}</h1>
+
+{% if q %}
+<div class="search-results">
+    <div class="card">
+        <div class="card-body">
+            <h3>{% blocktrans with count=employees|length %}الموظفون ({{ count }}){% endblocktrans %}</h3>
+            {% if employees %}
+            <ul class="plain-list">
+                {% for e in employees %}
+                <li><a href="{% url 'employees:employee_detail' e.pk %}">{{ e.employee_code }} — {{ e }}</a>
+                    <span class="muted">{{ e.department|default:"" }} {{ e.branch|default:"" }}</span></li>
+                {% endfor %}
+            </ul>
+            {% else %}<p class="empty">{% trans "لا نتائج." %}</p>{% endif %}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h3>{% blocktrans with count=departments|length %}الأقسام ({{ count }}){% endblocktrans %}</h3>
+            {% if departments %}
+            <ul class="plain-list">{% for d in departments %}<li><a href="{% url 'org:department_list' %}">{{ d }}</a></li>{% endfor %}</ul>
+            {% else %}<p class="empty">{% trans "لا نتائج." %}</p>{% endif %}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h3>{% blocktrans with count=positions|length %}المناصب ({{ count }}){% endblocktrans %}</h3>
+            {% if positions %}
+            <ul class="plain-list">{% for p in positions %}<li><a href="{% url 'org:position_list' %}">{{ p }}</a></li>{% endfor %}</ul>
+            {% else %}<p class="empty">{% trans "لا نتائج." %}</p>{% endif %}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h3>{% blocktrans with count=branches|length %}الفروع ({{ count }}){% endblocktrans %}</h3>
+            {% if branches %}
+            <ul class="plain-list">{% for b in branches %}<li><a href="{% url 'org:branch_list' %}">{{ b }}</a></li>{% endfor %}</ul>
+            {% else %}<p class="empty">{% trans "لا نتائج." %}</p>{% endif %}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h3>{% blocktrans with count=leave_requests|length %}طلبات الإجازات ({{ count }}){% endblocktrans %}</h3>
+            {% if leave_requests %}
+            <ul class="plain-list">
+                {% for r in leave_requests %}
+                <li><a href="{% url 'leave:request_detail' r.pk %}">{{ r.employee }} — {{ r.leave_type }}</a>
+                    <span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></li>
+                {% endfor %}
+            </ul>
+            {% else %}<p class="empty">{% trans "لا نتائج." %}</p>{% endif %}
+        </div>
+    </div>
+</div>
+{% else %}
+<p class="empty">{% trans "اكتب كلمة في صندوق البحث أعلى الصفحة." %}</p>
+{% endif %}
+{% endblock %}

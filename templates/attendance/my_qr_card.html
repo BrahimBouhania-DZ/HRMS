@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "بطاقتي" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+{% trans "توليد رمز جديد يلغي الرمز الحالي فورًا. متابعة؟" as qr_regenerate_confirm %}
+<div class="page-head">
+    <h1>{% trans "بطاقتي" %}</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h2>{{ employee }}</h2>
+        <p>{% blocktrans with dep=employee.department|default:"—" %}الرقم: <strong>{{ employee.employee_code }}</strong> — القسم: <strong>{{ dep }}</strong>{% endblocktrans %}</p>
+        <p>{% blocktrans with br=employee.branch|default:"—" %}الحالة الوظيفية: <strong>{{ employee.get_employment_status_display }}</strong> — الفرع: <strong>{{ br }}</strong>{% endblocktrans %}</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body center">
+        {% if payload %}
+            <h3>{% trans "رمز الحضور" %}</h3>
+            <p>{% trans "اعرض هذا الرمز للقارئ الثابت عند الدخول والخروج." %}</p>
+            <img src="{% url 'attendance:qr_image' payload %}" alt="{% trans 'رمز QR' %}"
+                 width="220" height="220" class="qr-code">
+            <p class="muted">{% blocktrans with ver=qr.version act=qr.activated_at|date:"Y-m-d H:i" %}الإصدار {{ ver }} — فُعّل {{ act }}{% endblocktrans %}</p>
+            {% if can_manage %}
+            <form method="post" class="inline-form">
+                {% csrf_token %}
+                <button class="btn btn-warning" type="submit"
+                        onclick="return confirm('{{ qr_regenerate_confirm|escapejs }}')">
+                    {% trans "توليد رمز جديد" %}
+                </button>
+            </form>
+            {% endif %}
+        {% else %}
+            <p>{% trans "لا يوجد رمز QR نشط لحسابك بعد." %}</p>
+            {% if can_manage %}
+            <form method="post" class="inline-form">
+                {% csrf_token %}
+                <button class="btn btn-primary" type="submit">{% trans "توليد رمز QR" %}</button>
+            </form>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<p><a href="{% url 'attendance:my_attendance' %}">{% trans "سجل حضوري" %}</a></p>
+{% endblock %}

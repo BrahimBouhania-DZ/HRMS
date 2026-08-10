@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "جداول الدوام" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "جداول الدوام" %}</h1>
+    <a class="btn btn-primary" href="{% url 'org:shift_create' %}">{% trans "+ جدول دوام" %}</a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الرمز" %}</th>
+            <th>{% trans "الاسم" %}</th>
+            <th>{% trans "البداية" %}</th>
+            <th>{% trans "النهاية" %}</th>
+            <th>{% trans "مرن" %}</th>
+            <th>{% trans "سماحية التأخير" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for shift in shifts %}
+        <tr>
+            <td>{{ shift.code }}</td>
+            <td>{{ shift.name_ar }}</td>
+            <td>{{ shift.start_time|time:"H:i" }}</td>
+            <td>{{ shift.end_time|time:"H:i" }}</td>
+            <td>{% if shift.is_flexible %}✔{% else %}—{% endif %}</td>
+            <td>{{ shift.grace_minutes }} {% trans "د" %}</td>
+            <td class="actions">
+                <a class="btn btn-sm" href="{% url 'org:shift_edit' shift.pk %}">{% trans "تعديل" %}</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty">{% trans "لا توجد جداول دوام بعد" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

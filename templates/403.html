@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "غير مصرح" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="confirm-box">
+    <h1>403 — {% trans "غير مصرح" %}</h1>
+    <p>{% trans "لا تملك الصلاحية الكافية للوصول إلى هذه الصفحة." %}</p>
+    <a class="btn" href="{% url 'core:home' %}">{% trans "العودة للرئيسية" %}</a>
+</div>
+{% endblock %}

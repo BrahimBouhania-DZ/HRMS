@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% if object %}{% trans "تعديل موظف" %}{% else %}{% trans "موظف جديد" %}{% endif %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% if object %}{% blocktrans %}تعديل الموظف: {{ object }}{% endblocktrans %}{% else %}{% trans "موظف جديد" %}{% endif %}</h1>
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="grid-2">
+        {% for field in form %}
+        <div class="field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{% trans "حفظ" %}</button>
+        <a class="btn" href="{% url 'employees:employee_list' %}">{% trans "إلغاء" %}</a>
+    </div>
+</form>
+{% endblock %}

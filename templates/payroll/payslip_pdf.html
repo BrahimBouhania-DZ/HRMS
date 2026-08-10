@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>قسيمة راتب</title>
+    <style>
+        @page { size: A4 portrait; margin: 15mm 12mm; }
+        body { font-family: 'Amiri', 'Noto Naskh Arabic', 'DejaVu Sans', sans-serif; color: #222; }
+        h1 {
+            font-size: 14pt; margin: 0 0 2mm; color: #144A69;
+            border-bottom: 1.2pt solid #D4AF37; padding-bottom: 2mm;
+        }
+        .meta { color: #5B6B79; font-size: 10pt; margin-bottom: 5mm; }
+        table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+        th, td { border: 0.5pt solid #C9D8E4; padding: 2mm; text-align: right; }
+        th { background: #D6EEF9; color: #144A69; }
+        .sum { font-weight: bold; background: #FBF3D9; color: #144A69; }
+    </style>
+</head>
+<body>
+    <h1>قسيمة راتب — {{ slip.pay_run.period_code }}</h1>
+    <div class="meta">{{ slip.employee }} ({{ slip.employee.employee_code }}) — {{ slip.pay_run.branch }}</div>
+
+    <table>
+        <thead><tr><th>البيان</th><th>المبلغ</th></tr></thead>
+        <tbody>
+            <tr><td>الأجر الأساسي</td><td>{{ slip.basic_salary }}</td></tr>
+            <tr><td>الحضور: {{ slip.attended_days }} يوم / غياب: {{ slip.absent_days }} / إجازة: {{ slip.leave_days }}</td><td></td></tr>
+            {% for line in lines %}
+            <tr>
+                <td>{{ line.element.name_ar|default:line.note }}</td>
+                <td>{{ line.amount }}</td>
+            </tr>
+            {% endfor %}
+            <tr class="sum"><td>إجمالي الإضافات</td><td>{{ slip.total_earnings }}</td></tr>
+            <tr class="sum"><td>إجمالي الخصومات</td><td>{{ slip.total_deductions }}</td></tr>
+            <tr class="sum"><td>الصافي المستحق</td><td>{{ slip.net }}</td></tr>
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "مركز الإشعارات" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "مركز الإشعارات" %}</h1>
+    <div class="head-actions">
+        {% if notifications %}
+        <form method="post" action="{% url 'notif:mark_all_read' %}" class="inline-form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm">{% trans "تعليم الكل كمقروء" %}</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+{% if unread_total %}
+<p class="muted">{% blocktrans with c=unread_total %}لديك {{ c }} إشعار غير مقروء.{% endblocktrans %}</p>
+{% endif %}
+
+{% if notifications %}
+<ul class="notif-list">
+    {% for n in notifications %}
+    <li class="notif-item {% if not n.is_read %}unread{% endif %}">
+        <div class="notif-row">
+            <strong>{{ n.title }}</strong>
+            {% if not n.is_read %}
+            <form method="post" action="{% url 'notif:mark_read' n.pk %}" class="inline-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'notif:list' %}">
+                <button type="submit" class="btn btn-sm">{% trans "قرأته" %}</button>
+            </form>
+            {% endif %}
+        </div>
+        {% if n.body %}<p class="muted">{{ n.body }}</p>{% endif %}
+        <small class="muted">{{ n.created_at|date:"Y-m-d H:i" }}</small>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="empty">{% trans "لا توجد إشعارات بعد." %}</p>
+{% endif %}
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">{% trans "السابق" %}</a>
+    {% endif %}
+    <span>{% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}صفحة {{ n }} من {{ total }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">{% trans "التالي" %}</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

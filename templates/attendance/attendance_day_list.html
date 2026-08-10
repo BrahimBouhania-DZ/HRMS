@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "سجل الحضور" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "سجل الحضور" %}</h1>
+    <div class="filters">
+        <form method="get" class="filter-form">
+            <input type="date" name="date" value="{{ date }}">
+            <input type="text" name="q" placeholder="{% trans 'بحث بالرمز أو الاسم' %}" value="{{ q }}">
+            <select name="state">
+                <option value="">{% trans "كل الحالات" %}</option>
+                {% for value, label in states %}
+                <option value="{{ value }}" {% if state == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-sm" type="submit">{% trans "تصفية" %}</button>
+        </form>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "التاريخ" %}</th>
+            <th>{% trans "الموظف" %}</th>
+            <th>{% trans "الفرع" %}</th>
+            <th>{% trans "الدوام" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th>{% trans "الدخول" %}</th>
+            <th>{% trans "الخروج" %}</th>
+            <th>{% trans "العمل (د)" %}</th>
+            <th>{% trans "تأخير (د)" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for day in days %}
+        <tr>
+            <td>{{ day.work_date|date:"Y-m-d" }}</td>
+            <td>{{ day.employee }}</td>
+            <td>{{ day.branch|default:"—" }}</td>
+            <td>{{ day.shift|default:"—" }}</td>
+            <td><span class="badge badge-{{ day.state }}">{{ day.get_state_display }}</span></td>
+            <td>{{ day.check_in|date:"H:i"|default:"—" }}</td>
+            <td>{{ day.check_out|date:"H:i"|default:"—" }}</td>
+            <td>{{ day.worked_minutes }}</td>
+            <td>{{ day.late_minutes }}</td>
+            <td class="actions">
+                <a class="btn btn-sm" href="{% url 'attendance:attendance_day_detail' day.pk %}">{% trans "التفاصيل" %}</a>
+                <a class="btn btn-sm" href="{% url 'attendance:attendance_day_correct' day.pk %}">{% trans "تصحيح" %}</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="10" class="empty">{% trans "لا توجد سجلات حضور" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&date={{ date }}&state={{ state }}&q={{ q }}">{% trans "السابق" %}</a>
+    {% endif %}
+    <span>{% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}صفحة {{ n }} / {{ total }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&date={{ date }}&state={{ state }}&q={{ q }}">{% trans "التالي" %}</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

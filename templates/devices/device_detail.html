@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% blocktrans %}الجهاز {{ device.device_code }} — {{ APP_NAME }}{% endblocktrans %}{% endblock %}
+{% block content %}
+{% trans "لم يتصل بعد" as never_connected %}
+{% trans "نظام" as system %}
+<h1>{% blocktrans %}الجهاز {{ device.device_code }}{% endblocktrans %}</h1>
+
+{% if shown_api_key %}
+<div class="alert alert-success">
+    <strong>{% trans "مفتاح API (يُعرض مرة واحدة فقط):" %}</strong>
+    <code dir="ltr">{{ shown_api_key }}</code>
+</div>
+{% endif %}
+
+<table class="kv">
+    <tr><th>{% trans "الفرع" %}</th><td>{{ device.branch }}</td></tr>
+    <tr><th>{% trans "الموقع" %}</th><td>{{ device.location|default:"—" }}</td></tr>
+    <tr><th>{% trans "الحالة" %}</th><td><span class="badge badge-{{ device.status }}">{{ device.get_status_display }}</span></td></tr>
+    <tr><th>{% trans "آخر اتصال" %}</th><td>{{ device.last_seen|default:never_connected }}</td></tr>
+</table>
+
+<div class="head-actions">
+    {% if device.status != 'active' %}
+    <form method="post" action="{% url 'devices:status' device.pk 'active' %}" class="inline-form">
+        {% csrf_token %}<button class="btn btn-sm btn-primary">{% trans "تفعيل" %}</button>
+    </form>
+    {% endif %}
+    {% if device.status != 'maintenance' %}
+    <form method="post" action="{% url 'devices:status' device.pk 'maintenance' %}" class="inline-form">
+        {% csrf_token %}<button class="btn btn-sm">{% trans "صيانة" %}</button>
+    </form>
+    {% endif %}
+    {% if device.status != 'inactive' %}
+    <form method="post" action="{% url 'devices:status' device.pk 'inactive' %}" class="inline-form">
+        {% csrf_token %}<button class="btn btn-sm btn-danger">{% trans "تعطيل" %}</button>
+    </form>
+    {% endif %}
+</div>
+
+<h3>{% trans "سجل الجهاز" %}</h3>
+{% if audit_logs %}
+<ul class="plain-list">
+    {% for log in audit_logs %}
+    <li>{{ log.action }} — {{ log.detail }}
+        <span class="muted">{{ log.created_at }} ({{ log.created_by|default:system }})</span></li>
+    {% endfor %}
+</ul>
+{% else %}<p class="empty">{% trans "لا سجلات." %}</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "تفاصيل الطلب" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% blocktrans %}طلب إجازة — {{ request.employee }}{% endblocktrans %}</h1>
+    <a class="btn btn-sm" href="{% url 'leave:request_list' %}">{% trans "قائمة الانتظار" %}</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>{% trans "النوع:" %}</strong> {{ request.leave_type }}</p>
+        <p><strong>{% trans "المدة:" %}</strong> {% blocktrans with fd=request.from_date|date:"Y-m-d" td=request.to_date|date:"Y-m-d" days=request.days %}{{ fd }} ← {{ td }} ({{ days }} يوم){% endblocktrans %}</p>
+        <p><strong>{% trans "الحالة:" %}</strong> <span class="badge badge-{{ request.status }}">{{ request.get_status_display }}</span></p>
+        <p><strong>{% trans "السبب:" %}</strong> {{ request.reason|default:"—" }}</p>
+        {% if request.status == "pending" %}
+        <p class="muted">{% blocktrans with lvl=request.current_level total=request.leave_type.requires_approval_levels %}المستوى الحالي: {{ lvl }} / {{ total }}{% endblocktrans %}</p>
+        {% endif %}
+    </div>
+</div>
+
+<h2>{% trans "سلسلة الموافقات" %}</h2>
+<table class="table">
+    <thead><tr><th>{% trans "المستوى" %}</th><th>{% trans "المعتمد" %}</th><th>{% trans "الإجراء" %}</th><th>{% trans "ملاحظة" %}</th><th>{% trans "في" %}</th></tr></thead>
+    <tbody>
+        {% for a in approvals %}
+        <tr>
+            <td>{{ a.level }}</td>
+            <td>{{ a.approver.get_full_name|default:a.approver.username }}</td>
+            <td><span class="badge badge-{{ a.action }}">{{ a.get_action_display }}</span></td>
+            <td>{{ a.comment|default:"—" }}</td>
+            <td>{{ a.at|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="empty">{% trans "لا موافقات بعد" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

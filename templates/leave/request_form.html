@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "طلب إجازة" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "طلب إجازة" %}</h1>
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="grid-2">
+        {% for field in form %}
+        <div class="field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+    </div>
+    <p class="muted">{% trans "تُحسب أيام العمل تلقائيًا عند الحفظ (دون عطل نهاية الأسبوع والعطل الرسمية)." %}</p>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{% trans "إرسال الطلب" %}</button>
+        <a class="btn" href="{% url 'leave:my_leave' %}">{% trans "إلغاء" %}</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "حذف قسم" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="confirm-box">
+    <h1>{% trans "تأكيد الحذف" %}</h1>
+    <p>{% blocktrans %}هل أنت متأكد من حذف القسم{% endblocktrans %} <strong>{{ object }}</strong>؟</p>
+    {% if object.children.exists %}
+    <div class="alert alert-warning">{% trans "هذا القسم يحتوي أقسامًا فرعية — يجب حذفها أولًا." %}</div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">{% trans "نعم، احذف" %}</button>
+        <a class="btn" href="{% url 'org:department_list' %}">{% trans "إلغاء" %}</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{{ LANGUAGE_DIR }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ APP_NAME }}{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-mark" aria-hidden="true">HR</span>
+            <a href="{% url 'core:home' %}">{{ APP_NAME }}</a>
+        </div>
+        <nav class="nav">
+            <a href="{% url 'core:home' %}" class="{% if request.path == '/' %}active{% endif %}">{% trans "الرئيسية" %}</a>
+            <a href="{% url 'org:branch_list' %}" class="{% if '/org/' in request.path %}active{% endif %}">{% trans "الفروع" %}</a>
+            <a href="{% url 'employees:employee_list' %}" class="{% if '/employees/' in request.path %}active{% endif %}">{% trans "الموظفون" %}</a>
+            <a href="{% url 'attendance:attendance_day_list' %}" class="{% if '/attendance/' in request.path and '/my/' not in request.path %}active{% endif %}">{% trans "الحضور" %}</a>
+            <a href="{% url 'leave:my_leave' %}" class="{% if '/leave/' in request.path %}active{% endif %}">{% trans "الإجازات" %}</a>
+            <a href="{% url 'notif:list' %}" class="notif-link {% if '/notifications/' in request.path %}active{% endif %}">
+                {% trans "الإشعارات" %}
+                {% if unread_notifications %}<span class="badge">{{ unread_notifications }}</span>{% endif %}
+            </a>
+            <a href="{% url 'attendance:my_qr_card' %}" class="{% if request.path == '/attendance/my-card/' %}active{% endif %}">{% trans "بطاقتي" %}</a>
+            <a href="{% url 'reports:index' %}" class="{% if '/reports/' in request.path %}active{% endif %}">{% trans "التقارير" %}</a>
+            <a href="{% url 'payroll:run_list' %}" class="{% if '/payroll/' in request.path %}active{% endif %}">{% trans "الرواتب" %}</a>
+            {% if user.is_superuser %}<a href="{% url 'devices:list' %}" class="{% if '/devices/' in request.path %}active{% endif %}">{% trans "الأجهزة" %}</a>{% endif %}
+            <form method="get" action="{% url 'core:search' %}" class="topbar-search">
+                <input type="search" name="q" placeholder="{% trans "بحث..." %}" value="{{ q|default:'' }}">
+            </form>
+            {% if user.is_staff %}<a href="{% url 'admin:index' %}">{% trans "الإدارة" %}</a>{% endif %}
+            <form action="{% url 'set_language' %}" method="post" class="lang-form">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                <select name="language" onchange="this.form.submit()" aria-label="{% trans 'اختر اللغة' %}" title="{% trans 'اللغة' %}">
+                    {% get_current_language as CURRENT_LANG %}
+                    {% get_available_languages as AVAIL_LANGS %}
+                    {% for code, name in AVAIL_LANGS %}
+                    <option value="{{ code }}" {% if code == CURRENT_LANG %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            <form method="post" action="{% url 'auth_app:logout' %}" class="logout-form">
+                {% csrf_token %}
+                <button type="submit">{% blocktrans %}تسجيل الخروج ({{ user.get_full_name|default:user.username }}){% endblocktrans %}</button>
+            </form>
+        </nav>
+    </header>
+    {% endif %}
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

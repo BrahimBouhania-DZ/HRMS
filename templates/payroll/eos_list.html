@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "نهايات الخدمة" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "نهايات الخدمة" %}</h1>
+    <a class="btn btn-primary" href="{% url 'payroll:eos_create' %}">+ {% trans "حساب نهاية خدمة" %}</a>
+</div>
+<table class="table">
+    <thead>
+        <tr><th>{% trans "الموظف" %}</th><th>{% trans "تاريخ النهاية" %}</th><th>{% trans "السنوات" %}</th><th>{% trans "المكافأة" %}</th><th>{% trans "تعويض الإجازات" %}</th><th>{% trans "بدل الإشعار" %}</th><th>{% trans "الصافي" %}</th><th>{% trans "الحالة" %}</th></tr>
+    </thead>
+    <tbody>
+        {% for r in records %}
+        <tr>
+            <td>{{ r.employee }}</td>
+            <td>{{ r.termination_date|date:"Y-m-d" }}</td>
+            <td>{{ r.total_years }}</td>
+            <td>{{ r.service_reward }}</td>
+            <td>{{ r.unused_leave_comp }}</td>
+            <td>{{ r.notice_period }}</td>
+            <td><strong>{{ r.net }}</strong></td>
+            <td>{{ r.get_status_display }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="empty">{% trans "لا سجلات نهاية خدمة." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

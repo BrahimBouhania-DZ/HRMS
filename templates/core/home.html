@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "الرئيسية" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% blocktrans with name=user.get_full_name|default:user.username %}مرحبًا، {{ name }}{% endblocktrans %}</h1>
+
+<div class="stats">
+    <div class="stat"><span class="stat-num">{{ kpis.employees_total }}</span><span class="stat-label">{% trans "موظف نشط" %}</span></div>
+    <div class="stat"><span class="stat-num">{{ kpis.present_today }}</span><span class="stat-label">{% trans "حاضر اليوم" %}</span></div>
+    <div class="stat"><span class="stat-num">{{ kpis.absent_today }}</span><span class="stat-label">{% trans "غائب اليوم" %}</span></div>
+    <div class="stat"><span class="stat-num">{{ kpis.on_leave_today }}</span><span class="stat-label">{% trans "في إجازة اليوم" %}</span></div>
+    <div class="stat"><span class="stat-num">{{ kpis.late_minutes_today }}</span><span class="stat-label">{% trans "دقيقة تأخير اليوم" %}</span></div>
+    <div class="stat"><span class="stat-num">{{ kpis.pending_leaves }}</span><span class="stat-label">{% trans "طلبات معلقة" %}</span></div>
+</div>
+
+<div class="dashboard-cols">
+    <div class="card">
+        <div class="card-body">
+            <h3>{% trans "طلبات الإجازة المعلقة" %}</h3>
+            {% if recent_leaves %}
+            <ul class="plain-list">
+                {% for r in recent_leaves %}
+                <li><a href="{% url 'leave:request_detail' r.pk %}">{{ r.employee }} — {{ r.leave_type }}</a>
+                    <span class="muted">{% blocktrans %}من {{ r.from_date }} إلى {{ r.to_date }} ({{ r.days }} يوم){% endblocktrans %}</span></li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="empty">{% trans "لا طلبات معلقة." %}</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h3>{% trans "أحدث أيام الحضور" %}</h3>
+            {% if recent_days %}
+            <ul class="plain-list">
+                {% for d in recent_days %}
+                <li>{{ d.employee }} — {{ d.work_date }}
+                    <span class="badge badge-{{ d.state }}">{{ d.get_state_display }}</span>
+                    {% if d.late_minutes %}<span class="muted">{% blocktrans %}تأخير {{ d.late_minutes }} د{% endblocktrans %}</span>{% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="empty">{% trans "لا سجلات حضور بعد." %}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if reports_menu %}
+<div class="card">
+    <div class="card-body">
+        <h3>{% trans "التقارير" %} (REP)</h3>
+        <ul class="plain-list">
+            {% for r in reports_menu %}
+            <li><span class="badge">{{ r.code }}</span>
+                <a href="{% url r.url %}">{{ r.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

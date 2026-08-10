@@ -1,0 +1,4 @@
+# HRMS — تبعيات الإنتاج (PostgreSQL + Gunicorn على خادم LAN)
+-r base.txt
+psycopg[binary]>=3.1  # PostgreSQL (prod.py)
+gunicorn>=21.2        # خادم الإنتاج (LAN)

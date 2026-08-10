@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "سجل حضوري" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "سجل حضوري" %}</h1>
+    <a class="btn btn-primary" href="{% url 'attendance:my_qr_card' %}">{% trans "بطاقتي" %}</a>
+    <a class="btn" href="{% url 'attendance:exception_create' %}">{% trans "+ طلب استثناء" %}</a>
+</div>
+
+{% if days %}
+<div class="stats">
+    <div class="stat"><span class="stat-num">{{ month_days }}</span><span class="stat-label">{% trans "أيام حضور" %}</span></div>
+    <div class="stat"><span class="stat-num">{{ month_worked }}</span><span class="stat-label">{% trans "دقيقة عمل" %}</span></div>
+    <div class="stat"><span class="stat-num">{{ month_late }}</span><span class="stat-label">{% trans "دقيقة تأخير" %}</span></div>
+</div>
+{% endif %}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "التاريخ" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th>{% trans "الدخول" %}</th>
+            <th>{% trans "الخروج" %}</th>
+            <th>{% trans "العمل (د)" %}</th>
+            <th>{% trans "تأخير (د)" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for day in days %}
+        <tr>
+            <td>{{ day.work_date|date:"Y-m-d" }}</td>
+            <td><span class="badge badge-{{ day.state }}">{{ day.get_state_display }}</span></td>
+            <td>{{ day.check_in|date:"H:i"|default:"—" }}</td>
+            <td>{{ day.check_out|date:"H:i"|default:"—" }}</td>
+            <td>{{ day.worked_minutes }}</td>
+            <td>{{ day.late_minutes }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty">{% trans "لا توجد سجلات بعد" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">{% trans "السابق" %}</a>{% endif %}
+    <span>{% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}صفحة {{ n }} / {{ total }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">{% trans "التالي" %}</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "نهاية خدمة جديدة" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{% trans "حساب نهاية خدمة" %}</h1></div>
+<form method="post" class="form">
+    {% csrf_token %}
+    <label>{% trans "الموظف" %}</label>
+    <select name="employee" required>
+        <option value="">— {% trans "اختر" %} —</option>
+        {% for e in employees %}<option value="{{ e.pk }}">{{ e.employee_code }} — {{ e }}</option>{% endfor %}
+    </select>
+    <label>{% trans "تاريخ نهاية الخدمة" %}</label>
+    <input type="date" name="termination_date" required>
+    <button class="btn btn-primary" type="submit">{% trans "حساب (آلي)" %}</button>
+    <a class="btn" href="{% url 'payroll:eos_list' %}">{% trans "إلغاء" %}</a>
+</form>
+{% endblock %}

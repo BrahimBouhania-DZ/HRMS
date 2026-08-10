@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "الأقسام" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "الأقسام" %}</h1>
+    <a class="btn btn-primary" href="{% url 'org:department_create' %}">{% trans "+ قسم جديد" %}</a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الرمز" %}</th>
+            <th>{% trans "الاسم" %}</th>
+            <th>{% trans "الفرع" %}</th>
+            <th>{% trans "القسم الأب" %}</th>
+            <th>{% trans "الأقسام الفرعية" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dept in departments %}
+        <tr>
+            <td>{{ dept.code }}</td>
+            <td>{{ dept.name_ar }}</td>
+            <td>{{ dept.branch.name_ar }}</td>
+            <td>{{ dept.parent.name_ar|default:"—" }}</td>
+            <td>{{ dept.children.count }}</td>
+            <td class="actions">
+                <a class="btn btn-sm" href="{% url 'org:department_edit' dept.pk %}">{% trans "تعديل" %}</a>
+                <a class="btn btn-sm btn-danger" href="{% url 'org:department_delete' dept.pk %}">{% trans "حذف" %}</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty">{% trans "لا توجد أقسام بعد" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

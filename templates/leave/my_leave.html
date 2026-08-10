@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "إجازاتي" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "إجازاتي" %}</h1>
+    <a class="btn btn-primary" href="{% url 'leave:request_create' %}">{% trans "+ طلب إجازة" %}</a>
+</div>
+
+<h2>{% blocktrans with y=balances.0.year|default:'' %}أرصدتي ({{ y }}){% endblocktrans %}</h2>
+<table class="table">
+    <thead>
+        <tr><th>{% trans "النوع" %}</th><th>{% trans "الممنوح" %}</th><th>{% trans "المستعمل" %}</th><th>{% trans "المُرحّل" %}</th><th>{% trans "التسوية" %}</th><th>{% trans "المتبقي" %}</th></tr>
+    </thead>
+    <tbody>
+        {% for b in balances %}
+        <tr>
+            <td>{{ b.leave_type }}</td>
+            <td>{{ b.granted }}</td>
+            <td>{{ b.used }}</td>
+            <td>{{ b.carried_from }}</td>
+            <td>{{ b.adjusted }}</td>
+            <td><strong>{{ b.remaining }}</strong></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty">{% trans "لا أرصدة بعد" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>{% trans "طلباتي" %}</h2>
+<table class="table">
+    <thead>
+        <tr><th>{% trans "النوع" %}</th><th>{% trans "من" %}</th><th>{% trans "إلى" %}</th><th>{% trans "الأيام" %}</th><th>{% trans "الحالة" %}</th><th>{% trans "أُرسل" %}</th><th>{% trans "إجراءات" %}</th></tr>
+    </thead>
+    <tbody>
+        {% for r in requests %}
+        <tr>
+            <td>{{ r.leave_type }}</td>
+            <td>{{ r.from_date|date:"Y-m-d" }}</td>
+            <td>{{ r.to_date|date:"Y-m-d" }}</td>
+            <td>{{ r.days }}</td>
+            <td><span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+            <td>{{ r.submitted_at|date:"Y-m-d H:i"|default:"—" }}</td>
+            <td class="actions">
+                <a class="btn btn-sm" href="{% url 'leave:request_detail' r.pk %}">{% trans "التفاصيل" %}</a>
+                {% if r.status == "pending" %}
+                <form method="post" action="{% url 'leave:request_cancel' r.pk %}" class="inline-form">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-danger" type="submit"
+                            onclick="return confirm('{% trans "إلغاء الطلب؟" %}')">{% trans "إلغاء" %}</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty">{% trans "لا طلبات بعد" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
