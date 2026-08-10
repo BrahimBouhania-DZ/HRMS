@@ -1,0 +1,129 @@
+# نظام تسيير الموارد البشرية (HRMS)
+
+> **Human Resource Management System** — نظام متكامل لإدارة الموارد البشرية، مبني بـ **Django 5** ويعمل داخل الشبكة المحلية (LAN) أو على الإنترنت.
+> يدعم العربية (RTL) والفرنسية والإنجليزية.
+
+---
+
+## ✨ المزايا
+
+| الوحدة | الوظائف |
+|---|---|
+| **الهيكل التنظيمي** | فروع، أقسام، مناصب، جداول دوام (إضافة/تعديل/حذف) |
+| **الموظفون** | ملفات موظفين، عقود، سجل وظيفي، مستندات، بحث متقدم |
+| **QR والبطاقات** | إصدار/إعادة توليد رمز QR لكل موظف + **بطاقة موظف قابلة للطباعة** (اسم + رقم وظيفي + QR) |
+| **الحضور/الانصراف** | مسح QR (هاتف/قارئ ثابت)، أيام حضور، تأخير/غياب، استثناءات (إذن/مأمورية) |
+| **الإجازات** | أنواع قابلة للتكوين، أرصدة سنوية، دورة موافقات متعددة المستويات، عطل رسمية |
+| **الرواتب** | دورات رواتب (draft→review→approved→frozen)، قسائم، عناصر أجر، تصدير بنك، PDF |
+| **الصلاحيات (RBAC)** | أدوار وصلاحيات وScope (كل موظف يرى نطاقه فقط)، Deny يتفوق دائمًا |
+| **الإشعارات والتقارير** | إشعارات داخلية، تقارير PDF/Excel |
+
+---
+
+## 🛠️ التقنيات
+
+- **Python 3.12 + Django 5** — `requirements.txt`
+- **PostgreSQL** (الإنتاج) / **SQLite** (التطوير)
+- **Pillow + qrcode** — صور الموظفين وأكواد QR
+- **WeasyPrint** — تصدير PDF (يدعم RTL العربي)
+- **Gunicorn + Nginx + systemd** — النشر على خادم LAN (`deploy/`)
+
+---
+
+## 📁 البنية
+
+```
+apps/
+├── core/        # لوحة رئيسية، بحث، أوامر seed_demo / seed_all / deploy_prepare
+├── auth_app/    # RBAC: مستخدمون، أدوار، صلاحيات، Scopes
+├── org/         # فروع، أقسام، مناصب، دوام
+├── employees/   # موظفون، عقود، QR Engine + Service، بطاقة قابلة للطباعة
+├── attendance/  # مسح QR، أيام حضور، استثناءات
+├── leave/       # أنواع إجازات، أرصدة، طلبات وموافقات
+├── payroll/     # دورات رواتب، قسائم، عناصر أجر
+├── devices/     # قارئات QR
+├── notif/       # إشعارات داخلية
+└── reports/     # تقارير PDF/Excel
+docs/            # الحزمة الهندسية الكاملة (00-index.md ... 15-payroll.md)
+```
+
+---
+
+## 🚀 التشغيل (تطوير)
+
+```bash
+# 1) بيئة افتراضية
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 2) التبعيات
+pip install -r requirements.txt
+
+# 3) الإعدادات — إنشاء .env من القالب
+cp .env.example .env
+
+# 4) الهجرات والتهيئة
+export DJANGO_SETTINGS_MODULE=config.settings.dev
+python manage.py migrate
+python manage.py seed_all          # RBAC + أنواع الإجازات + مشرف افتراضي
+
+# 5) التشغيل
+python manage.py runserver
+```
+
+افتح `http://127.0.0.1:8000/`.
+
+> ⚠️ **ملاحظة**: `config/settings/__init__.py` فارغ عمدًا — حدد دائماً
+> `DJANGO_SETTINGS_MODULE` (`config.settings.dev` للتطوير، `config.settings.prod` للإنتاج).
+
+---
+
+## 🧪 بيانات تجريبية (Demo)
+
+```bash
+export DJANGO_SETTINGS_MODULE=config.settings.dev
+python manage.py seed_demo                       # هيكل + 15 موظف + حضور + إجازات
+python manage.py seed_demo --payrun              # + دورة رواتب 2026-07 معتمدة
+python manage.py seed_demo --employees 12        # عدد موظفين محدد
+python manage.py seed_demo --no-users            # بدون حسابات
+```
+
+| الحساب | كلمة المرور |
+|---|---|
+| `admin` (مشرف) | `Adm1n@2026!` (من `seed_all`) |
+| `emp-101` ... `emp-115` | `Demo@2026!` |
+
+بطاقة موظف قابلة للطباعة: `http://127.0.0.1:8000/employees/<pk>/card/` — من صفحة الموظف زر **«بطاقة الموظف (QR)»**.
+
+---
+
+## ✅ الاختبارات
+
+```bash
+export DJANGO_SETTINGS_MODULE=config.settings.test
+python manage.py test apps
+```
+
+---
+
+## 🌍 اللغات
+
+عربي (افتراضي، RTL) / فرنسي / إنجليزي — التبديل من شريط التنقل. استخدم `makemessages`/`compilemessages` لتحديث الترجمات.
+
+---
+
+## 📦 النشر (LAN)
+
+راجع [`docs/14-deployment.md`](docs/14-deployment.md) ومجلد [`deploy/`](deploy/) (gunicorn + nginx + systemd).
+
+```bash
+export DJANGO_SETTINGS_MODULE=config.settings.prod
+python manage.py deploy_prepare   # check + هجرات + collectstatic (يفشل عند أي انحراف)
+```
+
+---
+
+## 📚 الوثائق
+
+الحزمة الهندسية الكاملة (تحليل، تصميم، قاعدة بيانات، أمان، RBAC، نظام QR، رواتب):
+ابدأ من [`docs/00-index.md`](docs/00-index.md).
