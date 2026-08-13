@@ -8,7 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
-from django.utils.translation import gettext as _
+from django.utils import translation
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
 
 from apps.auth_app.mixins import PermissionRequiredMixin
@@ -224,13 +225,45 @@ REPORTS = [
 ]
 
 
-class ReportIndexView(PermissionRequiredMixin, TemplateView):
+class ReportLangMixin:
+    """فعّل لغة تقرير صريحة (?lang=ar|fr|en) لكامل دورة الاستجابة.
+
+    يُعرض القالب داخل override حتى لا يتسرب تفعيل اللغة خارج الطلب
+    (لأن TemplateResponse يُعرض متأخرًا بعد عودة dispatch).
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        lang = _lang_param(request)
+        if lang:
+            with translation.override(lang):
+                return self._dispatch_rendered(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
+
+    def _dispatch_rendered(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        if hasattr(response, "render") and not getattr(response, "is_rendered", True):
+            return response.render()
+        return response
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        lang = translation.get_language()
+        ctx["report_lang"] = lang
+        ctx["report_langs"] = LANG_CHOICES
+        return ctx
+
+
+class ReportIndexView(ReportLangMixin, PermissionRequiredMixin, TemplateView):
     permission_code = "reports.view"
     template_name = "reports/index.html"
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["reports"] = REPORTS
+        ctx["lang_urls"] = [
+            (code, label, _lang_query(self.request.GET, code))
+            for code, label in LANG_CHOICES
+        ]
         return ctx
 
 
@@ -239,7 +272,38 @@ def _report_meta(code):
     return next((r for r in REPORTS if r["code"] == code), {})
 
 
-class _BaseReportView(PermissionRequiredMixin, TemplateView):
+LANG_CHOICES = (("ar", "العربية"), ("fr", "Français"), ("en", "English"))
+
+
+def _rname(r, prefix):
+    """اسم كيان من سطر values() حسب اللغة النشطة (prefix = employee__department__name)."""
+    return services.pick(
+        r.get(f"{prefix}_ar") or "", r.get(f"{prefix}_fr") or "", r.get(f"{prefix}_en") or "",
+    )
+
+
+def _remployee(r):
+    """اسم موظف من سطر values() حسب اللغة النشطة."""
+    fn = services.pick(
+        r.get("employee__first_name_ar") or "",
+        r.get("employee__first_name_fr") or "",
+        r.get("employee__first_name_en") or "",
+    )
+    ln = services.pick(
+        r.get("employee__last_name_ar") or "",
+        r.get("employee__last_name_fr") or "",
+        r.get("employee__last_name_en") or "",
+    )
+    return f"{fn} {ln}".strip()
+
+
+def _lang_param(request):
+    """لغة تقرير صريحة عبر ?lang=ar|fr|en (وإلا None → لغة الجلسة)."""
+    lang = request.GET.get("lang")
+    return lang if lang in ("ar", "fr", "en") else None
+
+
+class _BaseReportView(ReportLangMixin, PermissionRequiredMixin, TemplateView):
     permission_code = "reports.view"
     template_name = "reports/report.html"
     title = ""
@@ -252,8 +316,8 @@ class _BaseReportView(PermissionRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        filters = {k: v for k, v in self.request.GET.items() if v}
-        ctx["title"] = self.title
+        filters = {k: v for k, v in self.request.GET.items() if v and k != "lang"}
+        ctx["title"] = _report_meta(self.report_code).get("title") or self.title
         ctx["report_code"] = self.report_code
         ctx["columns"] = self.columns
         ctx["rows"] = self.get_rows(self.request.user, filters)
@@ -266,7 +330,20 @@ class _BaseReportView(PermissionRequiredMixin, TemplateView):
         ctx["show_exc_status_filter"] = getattr(self, "show_exc_status_filter", False)
         ctx["show_change_type_filter"] = getattr(self, "show_change_type_filter", False)
         ctx["summary"] = getattr(self, "summary", None)
+        ctx["lang_urls"] = [
+            (code, label, _lang_query(self.request.GET, code))
+            for code, label in LANG_CHOICES
+        ]
         return ctx
+
+
+def _lang_query(querydict, code):
+    """بناء سلسلة استعلام للغة محددة مع الحفاظ على الفلاتر الحالية."""
+    from urllib.parse import urlencode
+
+    q = {k: v for k, v in querydict.items() if k != "lang"}
+    q["lang"] = code
+    return urlencode(q)
 
 
 class Rep01View(_BaseReportView):
@@ -282,8 +359,9 @@ class Rep01View(_BaseReportView):
             employment_status=filters.get("employment_status"),
         )
         return [
-            (e.employee_code, str(e), e.department and e.department.name_ar or "",
-             e.position and e.position.name_ar or "", e.branch and e.branch.name_ar or "",
+            (e.employee_code, services.lemployee(e),
+             services.lname(e.department), services.lname(e.position),
+             services.lname(e.branch),
              e.get_employment_status_display(), e.phone or "")
             for e in qs
         ]
@@ -305,8 +383,8 @@ class Rep11View(_BaseReportView):
         self.summary = summary
         return [
             (r["employee__employee_code"],
-             f"{r['employee__first_name_ar']} {r['employee__last_name_ar']}",
-             r["employee__department__name_ar"] or "",
+             _remployee(r),
+             _rname(r, "employee__department__name"),
              r["present"], r["absent"], r["leave"],
              r["late_times"], r["late_minutes"] or 0,
              f"{round((r['overtime'] or 0) / 60, 1)}")
@@ -327,8 +405,8 @@ class Rep10View(_BaseReportView):
             department=filters.get("department"),
         )
         return [
-            (str(d.work_date), d.employee.employee_code, str(d.employee),
-             d.employee.department and d.employee.department.name_ar or "",
+            (str(d.work_date), d.employee.employee_code, services.lemployee(d.employee),
+             services.lname(d.employee.department),
              d.check_in and d.check_in.strftime("%H:%M") or "",
              d.check_out and d.check_out.strftime("%H:%M") or "",
              d.worked_minutes, d.late_minutes, d.get_state_display())
@@ -351,8 +429,8 @@ class Rep12View(_BaseReportView):
         )
         return [
             (r["employee__employee_code"],
-             f"{r['employee__first_name_ar']} {r['employee__last_name_ar']}",
-             r["employee__department__name_ar"] or "", r["days"])
+             _remployee(r),
+             _rname(r, "employee__department__name"), r["days"])
             for r in rows
         ]
 
@@ -418,8 +496,8 @@ class Rep14View(_BaseReportView):
         )
         return [
             (r["employee__employee_code"],
-             f"{r['employee__first_name_ar']} {r['employee__last_name_ar']}",
-             r["employee__department__name_ar"] or "", r["times"], r["total_minutes"])
+             _remployee(r),
+             _rname(r, "employee__department__name"), r["times"], r["total_minutes"])
             for r in rows
         ]
 
@@ -438,8 +516,8 @@ class Rep15View(_BaseReportView):
         )
         return [
             (r["employee__employee_code"],
-             f"{r['employee__first_name_ar']} {r['employee__last_name_ar']}",
-             r["employee__department__name_ar"] or "", r["times"], r["total_minutes"])
+             _remployee(r),
+             _rname(r, "employee__department__name"), r["times"], r["total_minutes"])
             for r in rows
         ]
 
@@ -499,9 +577,9 @@ class Rep20View(_BaseReportView):
             department=filters.get("department"),
         )
         return [
-            (b.employee.employee_code, str(b.employee),
-             b.employee.department and b.employee.department.name_ar or "",
-             b.year, b.leave_type.name_ar, b.granted, b.used,
+            (b.employee.employee_code, services.lemployee(b.employee),
+             services.lname(b.employee.department),
+             b.year, services.lname(b.leave_type), b.granted, b.used,
              b.adjusted, b.remaining)
             for b in qs
         ]
@@ -521,7 +599,8 @@ class Rep21View(_BaseReportView):
             leave_type=filters.get("leave_type"),
         )
         return [
-            (r.employee.employee_code, str(r.employee), r.leave_type.name_ar,
+            (r.employee.employee_code, services.lemployee(r.employee),
+             services.lname(r.leave_type),
              str(r.from_date), str(r.to_date), r.days, r.get_status_display())
             for r in qs
         ]
@@ -541,7 +620,7 @@ class Rep16View(_BaseReportView):
             decision=filters.get("decision"),
         )
         return [
-            (s.scanned_at.strftime("%Y-%m-%d %H:%M"), str(s.employee),
+            (s.scanned_at.strftime("%Y-%m-%d %H:%M"), services.lemployee(s.employee),
              s.get_source_display(), s.device and s.device.device_code or "—",
              s.get_decision_display(), s.result_detail)
             for s in qs
@@ -563,7 +642,7 @@ class Rep17View(_BaseReportView):
         )
         return [
             (r["employee__employee_code"],
-             f"{r['employee__first_name_ar']} {r['employee__last_name_ar']}",
+             _remployee(r),
              r["device__device_code"] or "—", r["result_detail"] or "—", r["times"])
             for r in rows
         ]
@@ -848,6 +927,10 @@ class Rep62View(_BaseReportView):
 def _stream(request, rows, header, fmt, filename, title=None):
     from django.http import HttpResponse
 
+    header = [str(h) for h in header]
+    rows = [[str(c) for c in row] for row in rows]
+    title = str(title or "")
+
     if fmt == "xlsx":
         response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         response["Content-Disposition"] = f'attachment; filename="{filename}.xlsx"'
@@ -865,7 +948,15 @@ def _stream(request, rows, header, fmt, filename, title=None):
 
 @login_required
 def export(request, report_code, fmt):
-    """تصدير CSV/XLSX — يعيد نفس فلاتر القائمة (يتطلب reports.export)."""
+    """تصدير CSV/XLSX/PDF بلغة التقرير المحددة (?lang=ar|fr|en) — يعيد نفس فلاتر القائمة."""
+    lang = _lang_param(request)
+    if lang:
+        with translation.override(lang):
+            return _do_export(request, report_code, fmt)
+    return _do_export(request, report_code, fmt)
+
+
+def _do_export(request, report_code, fmt):
     if not request.user.is_superuser and "reports.export" not in _effective_permissions(request.user):
         raise PermissionDenied
     # التصدير المالي (REP-30/31/33/34/35) يتطلب صلاحية كشف الرواتب

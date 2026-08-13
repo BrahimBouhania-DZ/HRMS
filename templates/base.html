@@ -31,6 +31,8 @@
             <a href="{% url 'reports:index' %}" class="{% if '/reports/' in request.path %}active{% endif %}">{% trans "التقارير" %}</a>
             <a href="{% url 'payroll:run_list' %}" class="{% if '/payroll/' in request.path %}active{% endif %}">{% trans "الرواتب" %}</a>
             <a href="{% url 'perf:cycle_list' %}" class="{% if '/perf/' in request.path %}active{% endif %}">{% trans "الأداء" %}</a>
+            <a href="{% url 'training:course_list' %}" class="{% if '/training/' in request.path %}active{% endif %}">{% trans "التدريب" %}</a>
+            <a href="{% url 'ai:predictions' %}" class="{% if '/ai/' in request.path %}active{% endif %}">{% trans "الذكاء الاصطناعي" %}</a>
             {% if user.is_superuser %}<a href="{% url 'devices:list' %}" class="{% if '/devices/' in request.path %}active{% endif %}">{% trans "الأجهزة" %}</a>{% endif %}
             {% if user.is_superuser %}<a href="{% url 'core:audit_log' %}" class="{% if '/audit/' in request.path %}active{% endif %}">{% trans "سجل التدقيق" %}</a>{% endif %}
             {% if user.is_superuser %}<a href="{% url 'backup:page' %}" class="{% if '/backup/' in request.path %}active{% endif %}">{% trans "النسخ الاحتياطي" %}</a>{% endif %}

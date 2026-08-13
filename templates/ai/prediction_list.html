@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "التنبؤات الذكية" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "التنبؤات الذكية" %} <span class="muted">— {% trans "مخاطر الاستقالة" %}</span></h1>
+
+{% if not trained %}
+<div class="alert alert-warning">
+    {% trans "لم يُدرَّب نموذج التنبؤ بعد. شغّل أولًا: seed_ai_data ثم train_ai_models." %}
+</div>
+{% else %}
+<div class="cards">
+    <div class="card">
+        <div class="card-label">{% trans "إصدار النموذج" %}</div>
+        <div class="card-value">{{ model.version }}</div>
+        <div class="muted">{{ model.n_samples }} {% trans "عينة" %} ({% trans "إيجابية" %} {{ model.n_positive }})</div>
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "AUC (تحقق متقاطع)" %}</div>
+        <div class="card-value">{{ model.metrics.auc_mean }}</div>
+        <div class="muted">± {{ model.metrics.auc_std }}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "الجرس والأداء" %}</div>
+        <div class="card-value">{{ model.metrics.recall_max }}</div>
+        <div class="muted">{% trans "أفضل نقطة P/R" %}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "آخر تدريب" %}</div>
+        <div class="card-value small">{{ model.trained_at }}</div>
+        <div class="muted">{% trans "مساعد إداري — ليس قرارًا آليًا" %}</div>
+    </div>
+</div>
+{% endif %}
+
+<div class="toolbar">
+    <form method="get" class="toolbar-form">
+        <input type="search" name="q" value="{{ request.GET.q|default:'' }}" placeholder="{% trans "رقم الموظف..." %}">
+        <select name="level">
+            <option value="">{% trans "كل المستويات" %}</option>
+            <option value="high" {% if request.GET.level == 'high' %}selected{% endif %}>{% trans "مرتفع" %}</option>
+            <option value="medium" {% if request.GET.level == 'medium' %}selected{% endif %}>{% trans "متوسط" %}</option>
+            <option value="low" {% if request.GET.level == 'low' %}selected{% endif %}>{% trans "منخفض" %}</option>
+        </select>
+        <button class="btn btn-sm" type="submit">{% trans "تصفية" %}</button>
+    </form>
+    <form method="post" action="{% url 'ai:refresh' %}" class="toolbar-form">
+        {% csrf_token %}
+        <button class="btn" type="submit">{% trans "تحديث التنبؤات" %}</button>
+    </form>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الموظف" %}</th>
+            <th>{% trans "القسم" %}</th>
+            <th>{% trans "الاحتمال" %}</th>
+            <th>{% trans "المستوى" %}</th>
+            <th>{% trans "أبرز العوامل" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in predictions %}
+        <tr>
+            <td>{{ p.employee.employee_code }} — {{ p.employee.first_name_ar }} {{ p.employee.last_name_ar }}</td>
+            <td>{{ p.employee.department.name_ar|default:"—" }}</td>
+            <td style="min-width:180px">
+                <div class="progress">
+                    <div class="progress-bar" style="width:{% widthratio p.probability 1 100 %}%"></div>
+                </div>
+                <span class="muted">{{ p.probability }}</span>
+            </td>
+            <td>
+                {% if p.level == 'high' %}<span class="badge badge-danger">{% trans "مرتفع" %}</span>
+                {% elif p.level == 'medium' %}<span class="badge badge-warning">{% trans "متوسط" %}</span>
+                {% else %}<span class="badge badge-success">{% trans "منخفض" %}</span>{% endif %}
+            </td>
+            <td class="muted small">
+                {% for k, v in p.features_json.items %}<span class="tag">{{ k }}={{ v }}</span> {% endfor %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">{% trans "لا توجد تنبؤات بعد — حدّث التنبؤات أولًا." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "تفاصيل الجلسة" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{{ session.course }} — {{ session.start_date|date:"SHORT_DATE_FORMAT" }}</h1>
+<div class="toolbar">
+    <a class="btn" href="{% url 'training:session_list' %}">{% trans "الجلسات" %}</a>
+    {% if session.status == "planned" or session.status == "running" %}
+    <form method="post" action="{% url 'training:session_complete' session.pk %}" class="inline-form">
+        {% csrf_token %}
+        <button class="btn btn-sm" type="submit" onclick="return confirm('{% trans "إكمال الجلسة وإصدار الشهادات؟" %}')">{% trans "إكمال الجلسة" %}</button>
+    </form>
+    <form method="post" action="{% url 'training:session_cancel' session.pk %}" class="inline-form">
+        {% csrf_token %}
+        <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('{% trans "إلغاء الجلسة؟" %}')">{% trans "إلغاء" %}</button>
+    </form>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>{% trans "بيانات الجلسة" %}</h2>
+    <dl class="detail-grid">
+        <dt>{% trans "الدورة" %}</dt><dd>{{ session.course.title_ar }}</dd>
+        <dt>{% trans "الفترة" %}</dt><dd>{{ session.start_date|date:"SHORT_DATE_FORMAT" }} → {{ session.end_date|date:"SHORT_DATE_FORMAT" }}</dd>
+        <dt>{% trans "المدرب" %}</dt><dd>{{ session.trainer|default:"—" }}</dd>
+        <dt>{% trans "المكان" %}</dt><dd>{{ session.location|default:"—" }}</dd>
+        <dt>{% trans "السعة" %}</dt><dd>{{ session.capacity }}</dd>
+        <dt>{% trans "المسجلون" %}</dt><dd>{{ session.enrolled_count }} / {{ session.capacity }}</dd>
+        <dt>{% trans "الحالة" %}</dt><dd>{{ session.get_status_display }}</dd>
+    </dl>
+</div>
+
+<h2>{% trans "التسجيلات" %}</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الموظف" %}</th>
+            <th>{% trans "رقم الموظف" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th>{% trans "الشهادة" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for e in enrollments %}
+        <tr>
+            <td>{{ e.employee }}</td>
+            <td>{{ e.employee.employee_code }}</td>
+            <td>{{ e.get_status_display }}</td>
+            <td>
+                {% if e.certificate %}
+                <a class="btn btn-sm" href="{% url 'training:certificate_list' %}?employee={{ e.employee_id }}">{{ e.certificate.title }}</a>
+                {% else %}—{% endif %}
+            </td>
+            <td>
+                {% if e.status == "pending" %}
+                <form method="post" action="{% url 'training:enroll_approve' session.pk e.pk %}" class="inline-form">
+                    {% csrf_token %}
+                    <button class="btn btn-sm" type="submit">{% trans "اعتماد" %}</button>
+                </form>
+                <form method="post" action="{% url 'training:enroll_reject' session.pk e.pk %}" class="inline-form">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-danger" type="submit">{% trans "رفض" %}</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">{% trans "لا توجد تسجيلات بعد." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if session.status == "planned" and employees %}
+<h2>{% trans "تسجيل موظفين" %}</h2>
+<form method="post" action="{% url 'training:session_enroll' session.pk %}" class="form">
+    {% csrf_token %}
+    {% for emp in employees %}
+    <label class="check-row">
+        <input type="checkbox" name="employee_ids" value="{{ emp.pk }}">
+        {{ emp }} ({{ emp.employee_code }})
+    </label>
+    {% empty %}
+    {% endfor %}
+    {% if employees %}
+    <button class="btn btn-primary" type="submit">{% trans "تسجيل المحددين" %}</button>
+    {% endif %}
+</form>
+{% endif %}
+{% endblock %}

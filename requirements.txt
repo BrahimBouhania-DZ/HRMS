@@ -6,3 +6,7 @@ weasyprint>=69.0      # تصدير تقارير PDF (يدعم RTL العربي)
 openpyxl>=3.1         # تصدير تقارير Excel
 cryptography>=42.0    # تشفير النسخ الاحتياطية (AES-256-GCM) — apps/backup
 gunicorn>=21.2        # خادم الإنتاج (LAN)
+pandas>=2.2           # تحويل بيانات النماذج التنبؤية (apps/ai)
+numpy>=1.26           # الحسابات الرقمية للنماذج
+scikit-learn>=1.5     # نماذج تعلّم الآلي (apps/ai — تنبؤ مخاطر)
+joblib>=1.4           # حفظ/تحميل النماذج المدربة

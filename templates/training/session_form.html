@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "جلسة تدريبية" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% if object %}{% trans "تعديل الجلسة" %}{% else %}{% trans "جلسة جديدة" %}{% endif %}</h1>
+<form method="post" class="form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">{% trans "حفظ" %}</button>
+    <a class="btn" href="{% url 'training:session_list' %}">{% trans "إلغاء" %}</a>
+</form>
+{% endblock %}

@@ -93,6 +93,19 @@ python manage.py seed_demo --no-users            # بدون حسابات
 | `admin` (مشرف) | `Adm1n@2026!` (من `seed_all`) |
 | `emp-101` ... `emp-115` | `Demo@2026!` |
 
+### 🎓 بيانات التدريب والذكاء الاصطناعي (v3)
+
+```bash
+python manage.py seed_training                 # دورات/جلسات/تسجيلات/شهادات واقعية
+python manage.py seed_ai_data                  # بيانات تدريب حقيقية لنماذج التنبؤ (60 موظفًا، 20٪ مغادرون)
+python manage.py seed_ai_data --employees 80 --departed 0.25   # ضبط حجم/نسبة المغادرين
+python manage.py train_ai_models               # تدريب نموذج مخاطر الاستقالة (AUC + تحقق متقاطع)
+python manage.py train_ai_models --all         # + نموذج مخاطر الغياب
+```
+
+لوحة التنبؤات: `http://127.0.0.1:8000/ai/` (صلاحية `ai.analytics.view`). النماذج تُحفظ
+في `media/ai/models/<type>/` مع بيانات تعريف (إصدار + مقاييس)، وتُحدَّث التنبؤات من اللوحة.
+
 بطاقة موظف قابلة للطباعة: `http://127.0.0.1:8000/employees/<pk>/card/` — من صفحة الموظف زر **«بطاقة الموظف (QR)»**.
 
 ---

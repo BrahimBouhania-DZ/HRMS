@@ -18,6 +18,46 @@ from apps.leave.models import LeaveBalance, LeaveRequest, LeaveType
 from apps.org.models import Branch, Department
 
 
+def pick(ar, fr, en):
+    """اختيار نص مترجم حسب اللغة النشطة (لأسماء الكيانات والبنود)."""
+    from django.utils import translation
+
+    lang = translation.get_language()
+    if lang == "fr" and fr:
+        return fr
+    if lang == "en" and en:
+        return en
+    return ar
+
+
+def lname(obj):
+    """اسم كيان محلي حسب اللغة النشطة (name_ar/name_fr/name_en)."""
+    if obj is None:
+        return ""
+    return pick(
+        getattr(obj, "name_ar", "") or "",
+        getattr(obj, "name_fr", "") or "",
+        getattr(obj, "name_en", "") or "",
+    )
+
+
+def lemployee(e):
+    """الاسم الكامل للموظف حسب اللغة النشطة (first_name_*/last_name_*)."""
+    if e is None:
+        return ""
+    fn = pick(
+        getattr(e, "first_name_ar", "") or "",
+        getattr(e, "first_name_fr", "") or "",
+        getattr(e, "first_name_en", "") or "",
+    )
+    ln = pick(
+        getattr(e, "last_name_ar", "") or "",
+        getattr(e, "last_name_fr", "") or "",
+        getattr(e, "last_name_en", "") or "",
+    )
+    return f"{fn} {ln}".strip()
+
+
 def scoped_employee_ids(user):
     return list(employee_scope_queryset(user).values_list("id", flat=True))
 
@@ -57,7 +97,10 @@ def absence_summary(user, from_date=None, to_date=None, department=None, justifi
     if department:
         qs = qs.filter(employee__department_id=department)
     return qs.values("employee_id", "employee__employee_code", "employee__first_name_ar",
-                     "employee__last_name_ar", "employee__department__name_ar").annotate(
+                     "employee__first_name_fr", "employee__first_name_en",
+                     "employee__last_name_ar", "employee__last_name_fr", "employee__last_name_en",
+                     "employee__department__name_ar", "employee__department__name_fr",
+                     "employee__department__name_en").annotate(
         days=Count("id")).order_by("-days")
 
 
@@ -71,7 +114,10 @@ def lateness_summary(user, from_date=None, to_date=None, department=None):
     if department:
         qs = qs.filter(employee__department_id=department)
     return qs.values("employee_id", "employee__employee_code", "employee__first_name_ar",
-                     "employee__last_name_ar", "employee__department__name_ar").annotate(
+                     "employee__first_name_fr", "employee__first_name_en",
+                     "employee__last_name_ar", "employee__last_name_fr", "employee__last_name_en",
+                     "employee__department__name_ar", "employee__department__name_fr",
+                     "employee__department__name_en").annotate(
         times=Count("id"), total_minutes=Sum("late_minutes")).order_by("-total_minutes")
 
 
@@ -111,7 +157,10 @@ def operational_summary(user, from_date=None, to_date=None, branch=None, departm
     rows = (
         qs.values(
             "employee_id", "employee__employee_code", "employee__first_name_ar",
-            "employee__last_name_ar", "employee__department__name_ar",
+            "employee__first_name_fr", "employee__first_name_en",
+            "employee__last_name_ar", "employee__last_name_fr", "employee__last_name_en",
+            "employee__department__name_ar", "employee__department__name_fr",
+            "employee__department__name_en",
         )
         .annotate(
             present=Count("id", filter=Q(state=AttendanceDay.State.PRESENT)),
@@ -140,9 +189,9 @@ def org_structure(user, branch=None):
                     id__in=ids, position_id=pos.id, is_active=True
                 ).count()
                 rows.append({
-                    "branch": b.name_ar,
-                    "department": dep.name_ar,
-                    "position": pos.name_ar,
+                    "branch": lname(b),
+                    "department": lname(dep),
+                    "position": lname(pos),
                     "employees": count,
                 })
     return rows
@@ -160,10 +209,10 @@ def new_employees(user, from_date=None, to_date=None, branch=None):
     return [
         {
             "code": e.employee_code,
-            "name": str(e),
+            "name": lemployee(e),
             "hire_date": e.hire_date,
-            "department": e.department and e.department.name_ar or "—",
-            "branch": e.branch and e.branch.name_ar or "—",
+            "department": lname(e.department) or "—",
+            "branch": lname(e.branch) or "—",
         }
         for e in qs.select_related("department", "branch").order_by("-hire_date")
     ]
@@ -180,7 +229,10 @@ def early_departure_summary(user, from_date=None, to_date=None, department=None)
     if department:
         qs = qs.filter(employee__department_id=department)
     return qs.values("employee_id", "employee__employee_code", "employee__first_name_ar",
-                     "employee__last_name_ar", "employee__department__name_ar").annotate(
+                     "employee__first_name_fr", "employee__first_name_en",
+                     "employee__last_name_ar", "employee__last_name_fr", "employee__last_name_en",
+                     "employee__department__name_ar", "employee__department__name_fr",
+                     "employee__department__name_en").annotate(
         times=Count("id"), total_minutes=Sum("early_minutes")).order_by("-total_minutes")
 
 
@@ -195,7 +247,10 @@ def overtime_summary(user, from_date=None, to_date=None, department=None):
     if department:
         qs = qs.filter(employee__department_id=department)
     return qs.values("employee_id", "employee__employee_code", "employee__first_name_ar",
-                     "employee__last_name_ar", "employee__department__name_ar").annotate(
+                     "employee__first_name_fr", "employee__first_name_en",
+                     "employee__last_name_ar", "employee__last_name_fr", "employee__last_name_en",
+                     "employee__department__name_ar", "employee__department__name_fr",
+                     "employee__department__name_en").annotate(
         times=Count("id"), total_minutes=Sum("overtime_minutes")).order_by("-total_minutes")
 
 
@@ -213,7 +268,7 @@ def attendance_exceptions(user, from_date=None, to_date=None, status=None):
         qs = qs.filter(status=status)
     return [
         {
-            "employee": f"{e.employee.employee_code} — {e.employee}",
+            "employee": f"{e.employee.employee_code} — {lemployee(e.employee)}",
             "type": e.get_type_display(),
             "from": e.from_time.strftime("%Y-%m-%d %H:%M"),
             "to": e.to_time.strftime("%Y-%m-%d %H:%M"),
@@ -237,8 +292,8 @@ def ongoing_approved_leaves(user, on_date=None):
     )
     return [
         {
-            "employee": f"{r.employee.employee_code} — {r.employee}",
-            "leave_type": r.leave_type.name_ar,
+            "employee": f"{r.employee.employee_code} — {lemployee(r.employee)}",
+            "leave_type": lname(r.leave_type),
             "from_date": r.from_date,
             "to_date": r.to_date,
             "days": r.days,
@@ -259,8 +314,8 @@ def public_holidays(user, year=None, branch=None):
     return [
         {
             "date": h.date,
-            "name": h.name_ar,
-            "branch": h.branch.name_ar,
+            "name": lname(h),
+            "branch": lname(h.branch),
             "recurring": _("نعم") if h.is_recurring else _("لا"),
         }
         for h in qs.select_related("branch").order_by("date")
@@ -322,7 +377,9 @@ def rejected_scans(user, from_date=None, to_date=None, device=None):
     if device:
         qs = qs.filter(device_id=device)
     return qs.values("employee_id", "employee__employee_code", "employee__first_name_ar",
-                     "employee__last_name_ar", "device__device_code",
+                     "employee__first_name_fr", "employee__first_name_en",
+                     "employee__last_name_ar", "employee__last_name_fr", "employee__last_name_en",
+                     "device__device_code",
                      "result_detail").annotate(times=Count("id")).order_by("-times")
 
 
@@ -376,7 +433,7 @@ def payroll_summary(user, period_code=None, branch=None):
     return [
         {
             "period_code": r.period_code,
-            "branch": r.branch.name_ar,
+            "branch": lname(r.branch),
             "status": r.get_status_display(),
             "employees": r.payslips.count(),
             "total_earnings": r.total_earnings,
@@ -406,11 +463,11 @@ def contract_expiry_list(user, days=30, branch=None):
     rows = []
     for c in qs.select_related("employee", "employee__branch").order_by("end_date"):
         rows.append({
-            "employee": f"{c.employee.employee_code} — {c.employee}",
+            "employee": f"{c.employee.employee_code} — {lemployee(c.employee)}",
             "contract_type": c.get_contract_type_display(),
             "end_date": c.end_date,
             "days_left": c.days_to_expiry,
-            "branch": c.employee.branch and c.employee.branch.name_ar or "",
+            "branch": lname(c.employee.branch),
         })
     return rows
 
@@ -446,12 +503,12 @@ def payroll_detail(user, period_code=None, department=None):
     for p in _payroll_scope(user, period_code=period_code, department=department).order_by(
             "employee__employee_code"):
         details = ", ".join(
-            f"{ln.element.name_ar if ln.element else ln.note}: {ln.amount:g}"
+            f"{lname(ln.element) if ln.element else ln.note}: {ln.amount:g}"
             for ln in PayrollLine.objects.filter(pay_run=p.pay_run, employee=p.employee)
         )
         lines.append({
-            "employee": f"{p.employee.employee_code} — {p.employee}",
-            "department": p.employee.department and p.employee.department.name_ar or "",
+            "employee": f"{p.employee.employee_code} — {lemployee(p.employee)}",
+            "department": lname(p.employee.department),
             "period": p.pay_run.period_code,
             "earnings": p.total_earnings,
             "deductions": p.total_deductions,
@@ -465,7 +522,9 @@ def payroll_cost_by_branch(user, period_code=None, branch=None):
     """REP-33 — تكلفة الرواتب مجمّعة حسب الفرع/القسم (SQL Aggregation)."""
     qs = _payroll_scope(user, period_code=period_code, branch=branch)
     rows = (
-        qs.values("pay_run__branch__name_ar", "employee__department__name_ar")
+        qs.values("pay_run__branch__name_ar", "pay_run__branch__name_fr",
+                  "pay_run__branch__name_en", "employee__department__name_ar",
+                  "employee__department__name_fr", "employee__department__name_en")
         .annotate(
             employees=Count("id", distinct=True),
             total_net=Sum("net"),
@@ -475,8 +534,11 @@ def payroll_cost_by_branch(user, period_code=None, branch=None):
     )
     return [
         {
-            "branch": r["pay_run__branch__name_ar"] or "—",
-            "department": r["employee__department__name_ar"] or "—",
+            "branch": pick(r["pay_run__branch__name_ar"] or "", r["pay_run__branch__name_fr"] or "",
+                           r["pay_run__branch__name_en"] or "") or "—",
+            "department": pick(r["employee__department__name_ar"] or "",
+                               r["employee__department__name_fr"] or "",
+                               r["employee__department__name_en"] or "") or "—",
             "employees": r["employees"],
             "total_earnings": r["total_earnings"] or 0,
             "total_net": r["total_net"] or 0,
@@ -502,8 +564,8 @@ def bonus_deduction_list(user, period_code=None, kind=None):
             continue
         rows.append({
             "period": ln.pay_run.period_code,
-            "employee": f"{ln.employee.employee_code} — {ln.employee}",
-            "element": ln.element.name_ar if ln.element else (ln.note or "—"),
+            "employee": f"{ln.employee.employee_code} — {lemployee(ln.employee)}",
+            "element": lname(ln.element) if ln.element else (ln.note or "—"),
             "kind": ln.element.get_kind_display() if ln.element else _("—"),
             "amount": ln.amount,
         })
@@ -524,7 +586,7 @@ def end_of_service_list(user, from_date=None, to_date=None, status=None):
         qs = qs.filter(status=status)
     return [
         {
-            "employee": f"{r.employee.employee_code} — {r.employee}",
+            "employee": f"{r.employee.employee_code} — {lemployee(r.employee)}",
             "termination_date": r.termination_date,
             "years": r.total_years,
             "reward": r.service_reward,
@@ -550,8 +612,8 @@ def perf_results(user, cycle=None):
         qs = qs.filter(cycle_id=cycle)
     return [
         {
-            "employee": f"{r.employee.employee_code} — {r.employee}",
-            "cycle": r.cycle.name_ar,
+            "employee": f"{r.employee.employee_code} — {lemployee(r.employee)}",
+            "cycle": lname(r.cycle),
             "self_score": r.self_score,
             "manager_score": r.manager_score,
             "final_score": r.final_score,
@@ -571,8 +633,8 @@ def pip_list(user, status=None):
         qs = qs.filter(status=status)
     return [
         {
-            "employee": f"{p.review.employee.employee_code} — {p.review.employee}",
-            "cycle": p.review.cycle.name_ar,
+            "employee": f"{p.review.employee.employee_code} — {lemployee(p.review.employee)}",
+            "cycle": lname(p.review.cycle),
             "start_date": p.start_date,
             "end_date": p.end_date,
             "status": p.get_status_display(),
@@ -624,12 +686,12 @@ def retirement_list(user, from_date=None, to_date=None, branch=None, retirement_
         if f_from <= retirement_date <= f_to:
             rows.append({
                 "code": e.employee_code,
-                "name": str(e),
+                "name": lemployee(e),
                 "birth": e.birth_date,
                 "retire": retirement_date,
                 "days": (retirement_date - today).days,
-                "department": e.department and e.department.name_ar or "",
-                "branch": e.branch and e.branch.name_ar or "",
+                "department": lname(e.department),
+                "branch": lname(e.branch),
             })
     return rows
 
@@ -667,23 +729,23 @@ def job_changes(user, from_date=None, to_date=None, change_type=None, branch=Non
             continue
 
         if kind == "promotion":
-            frm = prev.position and prev.position.name_ar or ""
-            to = h.position and h.position.name_ar or ""
+            frm = lname(prev.position)
+            to = lname(h.position)
         elif kind == "transfer":
-            frm = prev.department and prev.department.name_ar or ""
-            to = h.department and h.department.name_ar or ""
+            frm = lname(prev.department)
+            to = lname(h.department)
         elif kind == "update":
-            frm = prev.position and prev.position.name_ar or ""
-            to = h.position and h.position.name_ar or ""
+            frm = lname(prev.position)
+            to = lname(h.position)
         else:  # hire
             frm = _("—")
-            to = h.position and h.position.name_ar or ""
+            to = lname(h.position)
             if h.department:
-                to = f"{to} — {h.department.name_ar}"
+                to = f"{to} — {lname(h.department)}"
 
         rows.append({
             "code": h.employee.employee_code,
-            "name": str(h.employee),
+            "name": lemployee(h.employee),
             "kind": _("تعيين") if kind == "hire"
                 else _("ترقية/منصب") if kind == "promotion"
                 else _("نقل") if kind == "transfer"
@@ -691,7 +753,7 @@ def job_changes(user, from_date=None, to_date=None, change_type=None, branch=Non
             "from": frm,
             "to": to,
             "date": h.effective_from,
-            "branch": h.branch and h.branch.name_ar or "",
+            "branch": lname(h.branch),
         })
     return rows
 
@@ -742,7 +804,7 @@ def executive_summary(user, from_date=None, to_date=None, branch=None):
 
         avg_salary = round(net / active, 2) if active else 0
         rows.append({
-            "branch": b.name_ar,
+            "branch": lname(b),
             "active": active,
             "hires": hires,
             "departures": departures,
@@ -855,8 +917,8 @@ def turnover_report(user, from_date=None, to_date=None, branch=None):
         avg_hc = (start_hc + end_hc) / 2 if (start_hc + end_hc) else 0
         rate = round(departures / avg_hc * 100, 1) if avg_hc else 0
         rows.append({
-            "department": dept.name_ar,
-            "branch": dept.branch and dept.branch.name_ar or "",
+            "department": lname(dept),
+            "branch": lname(dept.branch),
             "end_hc": end_hc,
             "hires": hires,
             "departures": departures,
@@ -906,7 +968,7 @@ def users_roles_list(user, role=None):
         rows.append({
             "username": u.username,
             "full_name": u.get_full_name(),
-            "roles": ", ".join(r.role.name_ar for r in roles) or "—",
+            "roles": ", ".join(lname(r.role) for r in roles) or "—",
             "is_active": _("نعم") if u.is_active else _("لا"),
             "last_login": u.last_login and u.last_login.strftime("%Y-%m-%d %H:%M") or "—",
         })
@@ -974,7 +1036,7 @@ def device_status_list(user, branch=None):
         ).count()
         rows.append({
             "device": d.device_code,
-            "branch": d.branch.name_ar,
+            "branch": lname(d.branch),
             "location": d.location or "—",
             "status": d.get_status_display(),
             "last_seen": d.last_seen and d.last_seen.strftime("%Y-%m-%d %H:%M") or "—",
@@ -1010,10 +1072,21 @@ def export_xlsx(response, header, rows, title):
 def export_pdf(response, header, rows, title, request=None, extra=None):
     from django.template.loader import render_to_string
 
+    from django.utils import translation
     from weasyprint import HTML
 
+    lang = translation.get_language() or "ar"
+    direction = "rtl" if lang == "ar" else "ltr"
+    if lang == "ar":
+        body_font = "'Amiri', 'Noto Naskh Arabic', 'DejaVu Sans', sans-serif"
+        page_font = "'Amiri', sans-serif"
+    else:
+        body_font = "'DejaVu Sans', 'Arial', sans-serif"
+        page_font = "'DejaVu Sans', sans-serif"
     context = {"title": title, "header": header, "rows": rows,
-               "generated_at": date.today().isoformat()}
+               "generated_at": date.today().isoformat(),
+               "report_lang": lang, "direction": direction,
+               "body_font": body_font, "page_font": page_font}
     if extra:
         context.update(extra)
     html = render_to_string(

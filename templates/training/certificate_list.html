@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "شهادات التدريب" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "شهادات التدريب" %}</h1>
+<div class="toolbar">
+    <form method="get" class="toolbar-form">
+        <input type="text" name="employee" value="{{ request.GET.employee|default:'' }}" placeholder="{% trans "رقم الموظف..." %}">
+        <button class="btn btn-sm" type="submit">{% trans "بحث" %}</button>
+    </form>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الموظف" %}</th>
+            <th>{% trans "الدورة" %}</th>
+            <th>{% trans "الشهادة" %}</th>
+            <th>{% trans "تاريخ الإصدار" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cert in certificates %}
+        <tr>
+            <td>{{ cert.enrollment.employee }}</td>
+            <td>{{ cert.enrollment.session.course.title_ar }}</td>
+            <td>{{ cert.title }}</td>
+            <td>{{ cert.issued_date|date:"SHORT_DATE_FORMAT" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">{% trans "لا توجد شهادات بعد." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">{% trans "السابق" %}</a>{% endif %}
+    <span>{% blocktrans %}صفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">{% trans "التالي" %}</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

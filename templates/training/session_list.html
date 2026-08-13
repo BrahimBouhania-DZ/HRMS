@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "الجلسات التدريبية" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "الجلسات التدريبية" %}</h1>
+<div class="toolbar">
+    <a class="btn btn-primary" href="{% url 'training:session_create' %}">{% trans "جلسة جديدة" %}</a>
+    <form method="get" class="toolbar-form">
+        <select name="course">
+            <option value="">{% trans "كل الدورات" %}</option>
+            {% for c in courses %}
+            <option value="{{ c.pk }}" {% if request.GET.course == c.pk|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+        </select>
+        <select name="status">
+            <option value="">{% trans "كل الحالات" %}</option>
+            {% for value, label in sessions.model.Status.choices %}
+            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-sm" type="submit">{% trans "تصفية" %}</button>
+    </form>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الدورة" %}</th>
+            <th>{% trans "الفترة" %}</th>
+            <th>{% trans "المدرب" %}</th>
+            <th>{% trans "المكان" %}</th>
+            <th>{% trans "السعة" %}</th>
+            <th>{% trans "المسجلون" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for session in sessions %}
+        <tr>
+            <td>{{ session.course }}</td>
+            <td>{{ session.start_date|date:"SHORT_DATE_FORMAT" }} → {{ session.end_date|date:"SHORT_DATE_FORMAT" }}</td>
+            <td>{{ session.trainer|default:"—" }}</td>
+            <td>{{ session.location|default:"—" }}</td>
+            <td>{{ session.capacity }}</td>
+            <td>{{ session.enrolled_count }}</td>
+            <td>{{ session.get_status_display }}</td>
+            <td><a class="btn btn-sm" href="{% url 'training:session_detail' session.pk %}">{% trans "التفاصيل" %}</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">{% trans "لا توجد جلسات بعد." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">{% trans "السابق" %}</a>{% endif %}
+    <span>{% blocktrans %}صفحة {{ page_obj.number }} من {{ page_obj.paginator.num_pages }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">{% trans "التالي" %}</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

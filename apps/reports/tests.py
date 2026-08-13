@@ -674,3 +674,133 @@ class ExecutiveReportsV2Tests(TestCase):
         resp = self.client.get(reverse("reports:rep62"),
                                {"from_date": "2026-08-01", "to_date": "2026-08-31"})
         self.assertContains(resp, "قسم X")
+
+
+class TrilingualReportTests(TestCase):
+    """التقارير بثلاث لغات (ar/fr/en) — مصطلحات وعناوين وبيانات مناسبة لكل لغة."""
+
+    @classmethod
+    def setUpTestData(cls):
+        Permission.objects.create(code="reports.view", module="core", name_ar="التقارير")
+        Permission.objects.create(code="reports.export", module="core", name_ar="تصدير")
+        cls.admin = User.objects.create_superuser(username="tri_admin", password="pass")
+        cls.branch = Branch.objects.create(
+            code="BR-T", name_ar="فرع الجزائر", name_fr="Succursale Alger",
+            name_en="Algiers Branch",
+        )
+        cls.dept = Department.objects.create(
+            code="DEP-T", name_ar="قسم الموارد", name_fr="Département RH",
+            name_en="HR Department", branch=cls.branch,
+        )
+        cls.emp = Employee.objects.create(
+            employee_code="T-001",
+            first_name_ar="أمين", last_name_ar="بن يوسف",
+            first_name_fr="Amine", last_name_fr="Ben Youcef",
+            first_name_en="Amine", last_name_en="Ben Youcef",
+            branch=cls.branch, department=cls.dept,
+            employment_status=Employee.EmploymentStatus.ACTIVE, phone="0550",
+        )
+
+    def setUp(self):
+        self.client.force_login(self.admin)
+
+    def test_rep01_arabic_page(self):
+        resp = self.client.get(reverse("reports:rep01"), {"lang": "ar"})
+        self.assertContains(resp, "قائمة الموظفين")
+        self.assertContains(resp, "أمين بن يوسف")
+        self.assertContains(resp, "قسم الموارد")
+
+    def test_rep01_french_page(self):
+        resp = self.client.get(reverse("reports:rep01"), {"lang": "fr"})
+        self.assertContains(resp, "Liste des employés")
+        self.assertContains(resp, "Département")
+        self.assertContains(resp, "Amine Ben Youcef")
+        self.assertContains(resp, "Département RH")
+
+    def test_rep01_english_page(self):
+        resp = self.client.get(reverse("reports:rep01"), {"lang": "en"})
+        self.assertContains(resp, "Employee list")
+        self.assertContains(resp, "Department")
+        self.assertContains(resp, "Algiers Branch")
+
+    def test_rep01_language_selector_present(self):
+        resp = self.client.get(reverse("reports:rep01"), {"lang": "fr"})
+        self.assertContains(resp, "lang=ar")
+        self.assertContains(resp, "lang=en")
+        self.assertContains(resp, "Français")
+
+    def test_export_csv_french(self):
+        resp = self.client.get(reverse("reports:export", args=["rep01", "csv"]), {"lang": "fr"})
+        self.assertEqual(resp.status_code, 200)
+        rows = list(csv.reader(io.StringIO(resp.content.decode("utf-8"))))
+        self.assertEqual(rows[0], ["Code", "Nom", "Département", "Poste", "Succursale", "Statut", "Téléphone"])
+        self.assertIn("Amine Ben Youcef", rows[1])
+        self.assertIn("Département RH", rows[1])
+
+    def test_export_csv_english(self):
+        resp = self.client.get(reverse("reports:export", args=["rep01", "csv"]), {"lang": "en"})
+        self.assertEqual(resp.status_code, 200)
+        rows = list(csv.reader(io.StringIO(resp.content.decode("utf-8"))))
+        self.assertEqual(rows[0], ["Code", "Name", "Department", "Position", "Branch", "Status", "Phone"])
+        self.assertIn("Algiers Branch", rows[1])
+
+    def test_export_csv_arabic(self):
+        resp = self.client.get(reverse("reports:export", args=["rep01", "csv"]), {"lang": "ar"})
+        rows = list(csv.reader(io.StringIO(resp.content.decode("utf-8"))))
+        self.assertEqual(rows[0][0], "الرمز")
+        self.assertIn("أمين بن يوسف", rows[1])
+
+    def test_export_xlsx_french(self):
+        from openpyxl import load_workbook
+
+        resp = self.client.get(reverse("reports:export", args=["rep01", "xlsx"]), {"lang": "fr"})
+        self.assertEqual(resp.status_code, 200)
+        wb = load_workbook(io.BytesIO(resp.content))
+        ws = wb.active
+        self.assertEqual(ws["A1"].value, "Code")
+        self.assertEqual(ws["C1"].value, "Département")
+        self.assertTrue(any("Amine Ben Youcef" in str(c.value) for row in ws.iter_rows() for c in row if c.value))
+
+    def test_export_pdf_all_languages(self):
+        for lang in ("ar", "fr", "en"):
+            with self.subTest(lang=lang):
+                resp = self.client.get(reverse("reports:export", args=["rep01", "pdf"]), {"lang": lang})
+                self.assertEqual(resp.status_code, 200)
+                self.assertEqual(resp["Content-Type"], "application/pdf")
+                self.assertTrue(resp.content.startswith(b"%PDF"))
+
+    def test_pdf_template_direction(self):
+        from django.template.loader import render_to_string
+
+        for lang, direction, title in (("ar", "rtl", "قائمة الموظفين"),
+                                       ("fr", "ltr", "Liste des employés"),
+                                       ("en", "ltr", "Employee list")):
+            with self.subTest(lang=lang):
+                html = render_to_string("reports/pdf_report.html", {
+                    "title": title, "header": ["X"], "rows": [["1"]],
+                    "generated_at": "2026-08-09", "report_lang": lang,
+                    "direction": direction, "body_font": "sans-serif", "page_font": "sans-serif",
+                })
+                self.assertIn(f'dir="{direction}"', html)
+                self.assertIn(f'lang="{lang}"', html)
+
+    def test_triname_filter(self):
+        from django.template import Context, Template
+        from django.utils import translation
+
+        with translation.override("fr"):
+            out = Template("{% load report_local %}{{ b|triname }}").render(Context({"b": self.branch}))
+            self.assertEqual(out, "Succursale Alger")
+        with translation.override("en"):
+            out = Template("{% load report_local %}{{ b|triname }}").render(Context({"b": self.branch}))
+            self.assertEqual(out, "Algiers Branch")
+        with translation.override("ar"):
+            out = Template("{% load report_local %}{{ b|triname }}").render(Context({"b": self.branch}))
+            self.assertEqual(out, "فرع الجزائر")
+
+    def test_french_status_terminology(self):
+        resp = self.client.get(reverse("reports:rep01"), {"lang": "fr"})
+        self.assertContains(resp, "Actif")
+        resp = self.client.get(reverse("reports:export", args=["rep01", "csv"]), {"lang": "fr"})
+        rows = list(csv.reader(io.StringIO(resp.content.decode("utf-8"))))
+        self.assertIn("Actif", rows[1])

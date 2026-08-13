@@ -20,6 +20,8 @@ class Notification(models.Model):
         CONTRACT_EXPIRING = "contract_expiring", _("انتهاء عقد")
         DOCUMENT_EXPIRING = "document_expiring", _("انتهاء صلاحية وثيقة")
         PROBATION_END = "probation_end", _("نهاية فترة التجربة")
+        TRAINING_ENROLLMENT = "training_enrollment", _("تسجيل تدريبي")
+        TRAINING_CERTIFICATE = "training_certificate", _("شهادة تدريب")
         SYSTEM = "system", _("نظام")
 
     user = models.ForeignKey(

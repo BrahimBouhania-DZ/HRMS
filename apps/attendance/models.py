@@ -5,6 +5,7 @@
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import BaseModel
@@ -90,7 +91,7 @@ class AttendanceScan(BaseModel):
         on_delete=models.PROTECT,
         related_name="scans",
     )
-    scanned_at = models.DateTimeField(_("زمن المسح"), auto_now_add=True)
+    scanned_at = models.DateTimeField(_("زمن المسح"), default=timezone.now)
     source = models.CharField(_("المصدر"), max_length=20, choices=Source.choices, default=Source.PHONE)
     device = models.ForeignKey(
         "devices.QrDevice",

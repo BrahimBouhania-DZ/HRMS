@@ -1,8 +1,17 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n report_local %}
 {% block title %}{% blocktrans %}{{ title }} — {{ APP_NAME }}{% endblocktrans %}{% endblock %}
 {% block content %}
 <h1>{{ title }}</h1>
+
+<div class="head-actions">
+    <span class="btn-group">
+        {% for code, label, qs in lang_urls %}
+        <a class="btn btn-sm {% if report_lang == code %}btn-primary{% endif %}"
+           href="?{{ qs }}" aria-label="{{ label }}">{{ label }}</a>
+        {% endfor %}
+    </span>
+</div>
 
 {% if summary %}
 <div class="stat-grid">
@@ -29,7 +38,7 @@
     <select name="cycle">
         <option value="">{% trans "كل الدورات" %}</option>
         {% for c in options.cycles %}
-        <option value="{{ c.pk }}" {% if filters.cycle == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name_ar }}</option>
+        <option value="{{ c.pk }}" {% if filters.cycle == c.pk|stringformat:"s" %}selected{% endif %}>{{ c|triname }}</option>
         {% endfor %}
     </select>
     {% endif %}
@@ -61,7 +70,7 @@
     <select name="branch">
         <option value="">{% trans "كل الفروع" %}</option>
         {% for b in options.branches %}
-        <option value="{{ b.pk }}" {% if filters.branch == b.pk|stringformat:"s" %}selected{% endif %}>{{ b.name_ar }}</option>
+        <option value="{{ b.pk }}" {% if filters.branch == b.pk|stringformat:"s" %}selected{% endif %}>{{ b|triname }}</option>
         {% endfor %}
     </select>
     {% endif %}
@@ -69,7 +78,7 @@
     <select name="department">
         <option value="">{% trans "كل الأقسام" %}</option>
         {% for d in options.departments %}
-        <option value="{{ d.pk }}" {% if filters.department == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name_ar }}</option>
+        <option value="{{ d.pk }}" {% if filters.department == d.pk|stringformat:"s" %}selected{% endif %}>{{ d|triname }}</option>
         {% endfor %}
     </select>
     {% endif %}
@@ -85,7 +94,7 @@
     <select name="leave_type">
         <option value="">{% trans "كل الأنواع" %}</option>
         {% for t in options.leave_types %}
-        <option value="{{ t.pk }}" {% if filters.leave_type == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.name_ar }}</option>
+        <option value="{{ t.pk }}" {% if filters.leave_type == t.pk|stringformat:"s" %}selected{% endif %}>{{ t|triname }}</option>
         {% endfor %}
     </select>
     {% endif %}

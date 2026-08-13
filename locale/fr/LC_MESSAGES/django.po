@@ -5136,3 +5136,452 @@ msgstr "Exporter PDF"
 #: templates/reports/report.html:146
 msgid "لا بيانات مطابقة."
 msgstr "Aucune donnée correspondante."
+
+
+#: apps/ai
+msgid "AUC (تحقق متقاطع)"
+msgstr "AUC (validation croisée)"
+
+#: apps/ai
+msgid "آخر تدريب"
+msgstr "Dernier entraînement"
+
+#: apps/ai
+msgid "أبرز العوامل"
+msgstr "Facteurs clés"
+
+#: apps/ai
+msgid "أفضل نقطة P/R"
+msgstr "Meilleur point P/R"
+
+#: apps/ai
+msgid "إصدار النموذج"
+msgstr "Version du modèle"
+
+#: apps/ai
+msgid "إيجابية"
+msgstr "positif(s)"
+
+#: apps/ai
+msgid "الأسئلة الذكية"
+msgstr "Questions intelligentes"
+
+#: apps/ai
+msgid "الإجابة (JSON)"
+msgstr "Réponse (JSON)"
+
+#: apps/ai
+msgid "الإنتاجية"
+msgstr "Productivité"
+
+#: apps/ai
+msgid "الاحتمال"
+msgstr "Probabilité"
+
+#: apps/ai
+msgid "التنبؤات الذكية"
+msgstr "Prédictions intelligentes"
+
+#: apps/ai
+msgid "التنقل الوظيفي"
+msgstr "Turnover"
+
+#: apps/ai
+msgid "الجرس والأداء"
+msgstr "Précision et rappel"
+
+#: apps/ai
+msgid "الخصائص (JSON)"
+msgstr "Caractéristiques (JSON)"
+
+#: apps/ai
+msgid "الذكاء الاصطناعي"
+msgstr "Intelligence artificielle"
+
+#: apps/ai
+msgid "السؤال"
+msgstr "La question"
+
+#: apps/ai
+msgid "النتيجة (JSON)"
+msgstr "Résultat (JSON)"
+
+#: apps/ai
+msgid "النطاق (JSON)"
+msgstr "Portée (JSON)"
+
+#: apps/ai
+msgid "بانتظار التنفيذ"
+msgstr "En attente d'exécution"
+
+#: apps/ai
+msgid "تحديث التنبؤات"
+msgstr "Mettre à jour les prédictions"
+
+#: apps/ai
+msgid "تنبؤ ذكي"
+msgstr "Prédiction intelligente"
+
+#: apps/ai
+msgid "حُدّثت التنبؤات (%(n)s موظفًا)"
+msgstr "Prédictions mises à jour (%(n)s employé(s))"
+
+#: apps/ai
+msgid "سؤال ذكي"
+msgstr "Question intelligente"
+
+#: apps/ai
+msgid "طلبها"
+msgstr "Demandée par"
+
+#: apps/ai
+msgid "عينة"
+msgstr "échantillon(s)"
+
+#: apps/ai
+msgid "كل المستويات"
+msgstr "Tous les niveaux"
+
+#: apps/ai
+msgid "لا توجد تنبؤات بعد — حدّث التنبؤات أولًا."
+msgstr "Aucune prédiction pour l'instant — mettez d'abord à jour les prédictions."
+
+#: apps/ai
+msgid "لم يُدرَّب نموذج التنبؤ بعد. شغّل أولًا: seed_ai_data ثم train_ai_models."
+msgstr "Le modèle de prédiction n'est pas encore entraîné. Exécutez d'abord : seed_ai_data puis train_ai_models."
+
+#: apps/ai
+msgid "متوسط"
+msgstr "Moyen"
+
+#: apps/ai
+msgid "مخاطر الاستقالة"
+msgstr "Risque de départ"
+
+#: apps/ai
+msgid "مخاطر الغياب"
+msgstr "Risque d'absence"
+
+#: apps/ai
+msgid "مرتفع"
+msgstr "Élevé"
+
+#: apps/ai
+msgid "مرجع تحليلي"
+msgstr "Référence analytique"
+
+#: apps/ai
+msgid "مساعد إداري — ليس قرارًا آليًا"
+msgstr "Aide à la décision — pas une décision automatique"
+
+#: apps/ai
+msgid "منخفض"
+msgstr "Faible"
+
+#: apps/ai
+msgid "مهام التحليل"
+msgstr "Tâches d'analyse"
+
+#: apps/ai
+msgid "مهمة تحليل"
+msgstr "Tâche d'analyse"
+
+#: apps/ai
+msgid "نوع التحليل"
+msgstr "Type d'analyse"
+
+#: apps/ai
+msgid "نوع التنبؤ"
+msgstr "Type de prédiction"
+
+#: apps/training
+msgid "أُكملت الجلسة — أُصدرت %(n)s شهادة"
+msgstr "Session terminée — %(n)s certificat(s) émis"
+
+#: apps/training
+msgid "أُلغيت الجلسة"
+msgstr "La session a été annulée"
+
+#: apps/training
+msgid "أُنشئت الجلسة"
+msgstr "Session créée"
+
+#: apps/training
+msgid "أُنشئت الدورة"
+msgstr "Cours créé"
+
+#: apps/training
+msgid "إكمال الجلسة"
+msgstr "Terminer la session"
+
+#: apps/training
+msgid "إكمال الجلسة وإصدار الشهادات؟"
+msgstr "Terminer la session et émettre les certificats ?"
+
+#: apps/training
+msgid "إلغاء الجلسة؟"
+msgstr "Annuler la session ?"
+
+#: apps/training
+msgid "اختر موظفًا واحدًا على الأقل"
+msgstr "Sélectionnez au moins un employé"
+
+#: apps/training
+msgid "اعتمده"
+msgstr "Approuvé par"
+
+#: apps/training
+msgid "اعتُمد التسجيل"
+msgstr "Inscription approuvée"
+
+#: apps/training
+msgid "اعتُمد تسجيلك في %(s)s"
+msgstr "Votre inscription à %(s)s a été approuvée"
+
+#: apps/training
+msgid "التدريب"
+msgstr "Formation"
+
+#: apps/training
+msgid "التسجيل"
+msgstr "L'inscription"
+
+#: apps/training
+msgid "التسجيل ليس قيد الانتظار"
+msgstr "L'inscription n'est pas en attente"
+
+#: apps/training
+msgid "التسجيلات"
+msgstr "Inscriptions"
+
+#: apps/training
+msgid "التسجيلات التدريبية"
+msgstr "Inscriptions de formation"
+
+#: apps/training
+msgid "التكلفة"
+msgstr "Coût"
+
+#: apps/training
+msgid "الجلسات"
+msgstr "Sessions"
+
+#: apps/training
+msgid "الجلسات التدريبية"
+msgstr "Sessions de formation"
+
+#: apps/training
+msgid "الجلسة"
+msgstr "La session"
+
+#: apps/training
+msgid "الجلسة مكتملة أو ملغاة بالفعل"
+msgstr "La session est déjà terminée ou annulée"
+
+#: apps/training
+msgid "الجلسة مكتملة بالفعل"
+msgstr "La session est déjà terminée"
+
+#: apps/training
+msgid "الجلسة ملغاة"
+msgstr "La session est annulée"
+
+#: apps/training
+msgid "الجلسة ممتلئة (%(cap)s مقعدًا)"
+msgstr "La session est complète (%(cap)s places)"
+
+#: apps/training
+msgid "الدورات التدريبية"
+msgstr "Cours de formation"
+
+#: apps/training
+msgid "السعة"
+msgstr "Capacité"
+
+#: apps/training
+msgid "الشهادات"
+msgstr "Certificats"
+
+#: apps/training
+msgid "الشهادة"
+msgstr "Le certificat"
+
+#: apps/training
+msgid "العنوان (إنجليزي)"
+msgstr "Titre (anglais)"
+
+#: apps/training
+msgid "العنوان (عربي)"
+msgstr "Titre (arabe)"
+
+#: apps/training
+msgid "العنوان (فرنسي)"
+msgstr "Titre (français)"
+
+#: apps/training
+msgid "الفئة"
+msgstr "Catégorie"
+
+#: apps/training
+msgid "المدرب"
+msgstr "Formateur"
+
+#: apps/training
+msgid "المزوّد"
+msgstr "Prestataire"
+
+#: apps/training
+msgid "المسجلون"
+msgstr "Inscrits"
+
+#: apps/training
+msgid "المكان"
+msgstr "Lieu"
+
+#: apps/training
+msgid "بانتظار الاعتماد على %(c)s"
+msgstr "En attente d'approbation pour %(c)s"
+
+#: apps/training
+msgid "بيانات الجلسة"
+msgstr "Détails de la session"
+
+#: apps/training
+msgid "تسجيل المحددين"
+msgstr "Inscrire les sélectionnés"
+
+#: apps/training
+msgid "تسجيل تدريبي"
+msgstr "Inscription de formation"
+
+#: apps/training
+msgid "تسجيل موظفين"
+msgstr "Inscrire des employés"
+
+#: apps/training
+msgid "تعديل الجلسة"
+msgstr "Modifier la session"
+
+#: apps/training
+msgid "تعديل الدورة"
+msgstr "Modifier le cours"
+
+#: apps/training
+msgid "تفاصيل الجلسة"
+msgstr "Détails de la session"
+
+#: apps/training
+msgid "تم تسجيلك في الجلسة %(s)s"
+msgstr "Vous êtes inscrit(e) à la session %(s)s"
+
+#: apps/training
+msgid "جلسة"
+msgstr "Session"
+
+#: apps/training
+msgid "جلسة تدريبية"
+msgstr "Session de formation"
+
+#: apps/training
+msgid "جلسة جديدة"
+msgstr "Nouvelle session"
+
+#: apps/training
+msgid "حصلت على شهادة %(c)s"
+msgstr "Vous avez obtenu le certificat %(c)s"
+
+#: apps/training
+msgid "حُدّثت الدورة"
+msgstr "Cours mis à jour"
+
+#: apps/training
+msgid "دورة تدريبية"
+msgstr "Cours de formation"
+
+#: apps/training
+msgid "رقم الموظف..."
+msgstr "Numéro d'employé..."
+
+#: apps/training
+msgid "رمز الدورة"
+msgstr "Code du cours"
+
+#: apps/training
+msgid "رُفض التسجيل"
+msgstr "Inscription rejetée"
+
+#: apps/training
+msgid "رُفض تسجيلك في %(s)s"
+msgstr "Votre inscription à %(s)s a été rejetée"
+
+#: apps/training
+msgid "سُجّل %(n)s موظفًا"
+msgstr "%(n)s employé(s) inscrit(s)"
+
+#: apps/training
+msgid "شهادات التدريب"
+msgstr "Certificats de formation"
+
+#: apps/training
+msgid "شهاداتي"
+msgstr "Mes certificats"
+
+#: apps/training
+msgid "شهادة إتمام: %(c)s — %(s)s"
+msgstr "Certificat d'achèvement : %(c)s — %(s)s"
+
+#: apps/training
+msgid "شهادة تدريب"
+msgstr "Certificat de formation"
+
+#: apps/training
+msgid "فاشل"
+msgstr "Échec"
+
+#: apps/training
+msgid "لا توجد تسجيلات بعد."
+msgstr "Aucune inscription pour l'instant."
+
+#: apps/training
+msgid "لا توجد جلسات بعد."
+msgstr "Aucune session pour l'instant."
+
+#: apps/training
+msgid "لا توجد شهادات بعد."
+msgstr "Aucun certificat pour l'instant."
+
+#: apps/training
+msgid "لا يمكن الاعتماد في جلسة مكتملة أو ملغاة"
+msgstr "Impossible d'approuver une session terminée ou annulée"
+
+#: apps/training
+msgid "لا يمكن التسجيل في جلسة مكتملة أو ملغاة"
+msgstr "Impossible de s'inscrire à une session terminée ou annulée"
+
+#: apps/training
+msgid "مجدولة"
+msgstr "Planifiée"
+
+#: apps/training
+msgid "مسار الملف"
+msgstr "Chemin du fichier"
+
+#: apps/training
+msgid "مكتملة"
+msgstr "Terminée"
+
+#: apps/training
+msgid "نهاية الجلسة يجب أن تكون بعد بدايتها"
+msgstr "La fin de la session doit être postérieure à son début"
+
+#: templates/reports/pdf_report.html
+msgid "أُنشئ في %(generated_at)s"
+msgstr "Créé le %(generated_at)s"
+
+#: templates/reports/pdf_report.html
+msgid "صفحة %(page)s من %(pages)s"
+msgstr "Page %(page)s sur %(pages)s"
+
+#: templates/reports/pdf_report.html
+msgid "لا بيانات."
+msgstr "Aucune donnée."

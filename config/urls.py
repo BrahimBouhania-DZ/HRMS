@@ -20,6 +20,8 @@ urlpatterns = [
     path("payroll/", include("apps.payroll.urls", namespace="payroll")),
     path("backup/", include("apps.backup.urls", namespace="backup")),
     path("perf/", include("apps.perf.urls", namespace="perf")),
+    path("training/", include("apps.training.urls", namespace="training")),
+    path("ai/", include("apps.ai.urls", namespace="ai")),
 ]
 
 if settings.DEBUG:

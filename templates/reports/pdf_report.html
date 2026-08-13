@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+{% load i18n %}<!DOCTYPE html>
+<html lang="{{ report_lang }}" dir="{{ direction }}">
 <head>
     <meta charset="UTF-8">
     <title>{{ title }}</title>
@@ -7,21 +7,31 @@
         @page {
             size: A4 landscape;
             margin: 15mm 12mm;
-            @bottom-center { content: "صفحة " counter(page) " من " counter(pages); font-family: 'Amiri', sans-serif; font-size: 9pt; color: #667; }
-            @top-left { content: "HRMS"; font-family: 'Amiri', sans-serif; font-size: 9pt; color: #667; }
+            @bottom-center {
+                content: "{% blocktrans %}صفحة {{ page }} من {{ pages }}{% endblocktrans %}";
+                font-family: {{ page_font }}; font-size: 9pt; color: #667;
+            }
+            @top-left { content: "HRMS"; font-family: {{ page_font }}; font-size: 9pt; color: #667; }
         }
-        body { font-family: 'Amiri', 'Noto Naskh Arabic', 'DejaVu Sans', sans-serif; color: #222; }
+        body {
+            font-family: {{ body_font }};
+            color: #222;
+        }
         h1 { font-size: 15pt; margin: 0 0 2mm; }
         .meta { color: #667; font-size: 10pt; margin-bottom: 5mm; }
         table { width: 100%; border-collapse: collapse; font-size: 10pt; }
-        th, td { border: 0.5pt solid #999; padding: 2mm; text-align: right; }
+        th, td {
+            border: 0.5pt solid #999;
+            padding: 2mm;
+            text-align: {% if direction == "rtl" %}right{% else %}left{% endif %};
+        }
         th { background: #eef2f7; }
         tr:nth-child(even) td { background: #fafbfc; }
     </style>
 </head>
 <body>
     <h1>{{ title }}</h1>
-    <div class="meta">أُنشئ في {{ generated_at }}</div>
+    <div class="meta">{% blocktrans %}أُنشئ في {{ generated_at }}{% endblocktrans %}</div>
     <table>
         <thead>
             <tr>{% for c in header %}<th>{{ c }}</th>{% endfor %}</tr>
@@ -30,7 +40,7 @@
             {% for row in rows %}
             <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
             {% empty %}
-            <tr><td colspan="{{ header|length }}" style="text-align:center">لا بيانات.</td></tr>
+            <tr><td colspan="{{ header|length }}" style="text-align:center">{% trans "لا بيانات." %}</td></tr>
             {% endfor %}
         </tbody>
     </table>

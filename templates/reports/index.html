@@ -28,7 +28,15 @@
 </style>
 
 <div class="report-center">
-    <h1>{% trans "مركز التقارير" %}</h1>
+    <div class="head-actions" style="justify-content: space-between; margin-bottom: 10px;">
+        <h1 style="margin:0;">{% trans "مركز التقارير" %}</h1>
+        <span class="btn-group">
+            {% for code, label, qs in lang_urls %}
+            <a class="btn btn-sm {% if report_lang == code %}btn-primary{% endif %}"
+               href="?{{ qs }}" aria-label="{{ label }}">{{ label }}</a>
+            {% endfor %}
+        </span>
+    </div>
     <p class="muted">{% trans "تقارير تشغيلية ومالية مع إمكانية التصفية والطباعة والتصدير (Excel / CSV / PDF)." %}</p>
 
     <div class="report-cat">
@@ -44,8 +52,8 @@
             </div>
             <div class="rc-desc">{{ r.desc }}</div>
             <div class="rc-actions">
-                <a class="btn btn-sm btn-primary" href="{% url r.url %}">{% trans "فتح" %}</a>
-                <a class="btn btn-sm" href="{% url r.url %}?from_date={% now "Y" %}-01-01&to_date={% now "Y-m-d" %}">{% trans "هذا العام" %}</a>
+                <a class="btn btn-sm btn-primary" href="{% url r.url %}?lang={{ report_lang }}">{% trans "فتح" %}</a>
+                <a class="btn btn-sm" href="{% url r.url %}?lang={{ report_lang }}&from_date={% now "Y" %}-01-01&to_date={% now "Y-m-d" %}">{% trans "هذا العام" %}</a>
             </div>
         </div>
         {% endif %}{% endfor %}
@@ -64,7 +72,7 @@
             </div>
             <div class="rc-desc">{{ r.desc }}</div>
             <div class="rc-actions">
-                <a class="btn btn-sm btn-primary" href="{% url r.url %}">{% trans "فتح" %}</a>
+                <a class="btn btn-sm btn-primary" href="{% url r.url %}?lang={{ report_lang }}">{% trans "فتح" %}</a>
             </div>
         </div>
         {% endif %}{% endfor %}
@@ -83,7 +91,7 @@
             </div>
             <div class="rc-desc">{{ r.desc }}</div>
             <div class="rc-actions">
-                <a class="btn btn-sm btn-primary" href="{% url r.url %}">{% trans "فتح" %}</a>
+                <a class="btn btn-sm btn-primary" href="{% url r.url %}?lang={{ report_lang }}">{% trans "فتح" %}</a>
             </div>
         </div>
         {% endif %}{% endfor %}
@@ -102,7 +110,7 @@
             </div>
             <div class="rc-desc">{{ r.desc }}</div>
             <div class="rc-actions">
-                <a class="btn btn-sm btn-primary" href="{% url r.url %}">{% trans "فتح" %}</a>
+                <a class="btn btn-sm btn-primary" href="{% url r.url %}?lang={{ report_lang }}">{% trans "فتح" %}</a>
             </div>
         </div>
         {% endif %}{% endfor %}
@@ -121,7 +129,7 @@
             </div>
             <div class="rc-desc">{{ r.desc }}</div>
             <div class="rc-actions">
-                <a class="btn btn-sm btn-primary" href="{% url r.url %}">{% trans "فتح" %}</a>
+                <a class="btn btn-sm btn-primary" href="{% url r.url %}?lang={{ report_lang }}">{% trans "فتح" %}</a>
             </div>
         </div>
         {% endif %}{% endfor %}
