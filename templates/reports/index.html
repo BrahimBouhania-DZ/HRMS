@@ -107,6 +107,25 @@
         </div>
         {% endif %}{% endfor %}
     </div>
+
+    <div class="report-cat">
+        <h2>{% trans "التقارير التنفيذية" %}</h2>
+        <span class="pill">{% trans "ملخص، KPI، دوران وظيفي" %}</span>
+    </div>
+    <div class="report-grid">
+        {% for r in reports %}{% if r.category == "executive" %}
+        <div class="report-card">
+            <div class="rc-head">
+                <span class="rc-code">{{ r.code }}</span>
+                <span class="rc-title">{{ r.title }}</span>
+            </div>
+            <div class="rc-desc">{{ r.desc }}</div>
+            <div class="rc-actions">
+                <a class="btn btn-sm btn-primary" href="{% url r.url %}">{% trans "فتح" %}</a>
+            </div>
+        </div>
+        {% endif %}{% endfor %}
+    </div>
 </div>
 
 <div style="margin-top: 26px;">

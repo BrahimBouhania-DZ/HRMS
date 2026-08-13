@@ -49,6 +49,14 @@
         {% endfor %}
     </select>
     {% endif %}
+    {% if show_exc_status_filter %}
+    <select name="status">
+        <option value="">{% trans "كل الحالات" %}</option>
+        {% for value, label in options.exception_statuses %}
+        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
     {% if options.branches %}
     <select name="branch">
         <option value="">{% trans "كل الفروع" %}</option>
@@ -79,6 +87,15 @@
         {% for t in options.leave_types %}
         <option value="{{ t.pk }}" {% if filters.leave_type == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.name_ar }}</option>
         {% endfor %}
+    </select>
+    {% endif %}
+    {% if show_change_type_filter %}
+    <select name="change_type">
+        <option value="">{% trans "كل التغييرات" %}</option>
+        <option value="hire" {% if filters.change_type == "hire" %}selected{% endif %}>{% trans "تعيين" %}</option>
+        <option value="promotion" {% if filters.change_type == "promotion" %}selected{% endif %}>{% trans "ترقية/منصب" %}</option>
+        <option value="transfer" {% if filters.change_type == "transfer" %}selected{% endif %}>{% trans "نقل" %}</option>
+        <option value="update" {% if filters.change_type == "update" %}selected{% endif %}>{% trans "تحديث سجل" %}</option>
     </select>
     {% endif %}
     {% if options.leave_statuses %}

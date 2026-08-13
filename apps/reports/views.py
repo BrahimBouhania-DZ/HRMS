@@ -24,6 +24,18 @@ REPORTS = [
         "header": [_("الرمز"), _("الاسم"), _("القسم"), _("المنصب"), _("الفرع"), _("الحالة"), _("الهاتف")],
     },
     {
+        "code": "REP-02", "title": _("الهيكل التنظيمي"), "url": "reports:rep02",
+        "category": "operational",
+        "desc": _("شجرة الفروع/الأقسام/المناصب مع عدد الموظفين"),
+        "header": [_("الفرع"), _("القسم"), _("المنصب"), _("عدد الموظفين")],
+    },
+    {
+        "code": "REP-03", "title": _("الموظفون الجدد"), "url": "reports:rep03",
+        "category": "operational",
+        "desc": _("الموظفون حسب فترة التوظيف"),
+        "header": [_("الرمز"), _("الاسم"), _("تاريخ التوظيف"), _("القسم"), _("الفرع")],
+    },
+    {
         "code": "REP-11", "title": _("الملخص التشغيلي"), "url": "reports:rep11",
         "category": "operational",
         "desc": _("إحصاءات عامة: حضور/غياب/إجازة/تأخر/إضافي مع تفصيل لكل موظف"),
@@ -46,6 +58,36 @@ REPORTS = [
         "category": "operational",
         "desc": _("مرات التأخر ومجموع الدقائق لكل موظف"),
         "header": [_("الرمز"), _("الاسم"), _("القسم"), _("عدد المرات"), _("مجموع الدقائق")],
+    },
+    {
+        "code": "REP-14", "title": _("الانصراف المبكر"), "url": "reports:rep14",
+        "category": "operational",
+        "desc": _("مرات الانصراف المبكر ومجموع الدقائق لكل موظف"),
+        "header": [_("الرمز"), _("الاسم"), _("القسم"), _("عدد المرات"), _("مجموع الدقائق")],
+    },
+    {
+        "code": "REP-15", "title": _("ساعات العمل الإضافية"), "url": "reports:rep15",
+        "category": "operational",
+        "desc": _("دقائق العمل الإضافي لكل موظف في الفترة"),
+        "header": [_("الرمز"), _("الاسم"), _("القسم"), _("عدد المرات"), _("مجموع الدقائق")],
+    },
+    {
+        "code": "REP-18", "title": _("استثناءات الحضور"), "url": "reports:rep18",
+        "category": "operational",
+        "desc": _("إذن/مأمورية/تعويض/تصحيح — مع الموافق"),
+        "header": [_("الموظف"), _("النوع"), _("من"), _("إلى"), _("الساعات"), _("الحالة"), _("المعتمد")],
+    },
+    {
+        "code": "REP-22", "title": _("الإجازات الجارية"), "url": "reports:rep22",
+        "category": "operational",
+        "desc": _("الإجازات المعتمدة الجارية في تاريخ معين"),
+        "header": [_("الموظف"), _("النوع"), _("من"), _("إلى"), _("أيام")],
+    },
+    {
+        "code": "REP-23", "title": _("العطل الرسمية"), "url": "reports:rep23",
+        "category": "operational",
+        "desc": _("العطل الرسمية حسب السنة/الفرع"),
+        "header": [_("التاريخ"), _("الاسم"), _("الفرع"), _("متكررة")],
     },
     {
         "code": "REP-16", "title": _("سجل مسحات QR"), "url": "reports:rep16",
@@ -108,6 +150,18 @@ REPORTS = [
         "header": [_("الموظف"), _("النوع"), _("الانتهاء"), _("المتبقي (يوم)"), _("الفرع")],
     },
     {
+        "code": "REP-05", "title": _("المقبلون على التقاعد"), "url": "reports:rep05",
+        "category": "operational",
+        "desc": _("الموظفون المقبلون على سن التقاعد مع التاريخ المتوقع"),
+        "header": [_("الرمز"), _("الاسم"), _("تاريخ الميلاد"), _("التقاعد المتوقع"), _("المتبقي (يوم)"), _("القسم"), _("الفرع")],
+    },
+    {
+        "code": "REP-06", "title": _("تغييرات الوظائف"), "url": "reports:rep06",
+        "category": "operational",
+        "desc": _("التعيينات والترقيات والنقل من السجل الوظيفي"),
+        "header": [_("الرمز"), _("الاسم"), _("النوع"), _("من"), _("إلى"), _("التاريخ"), _("الفرع")],
+    },
+    {
         "code": "REP-42", "title": _("نتائج التقييمات"), "url": "reports:rep42",
         "category": "performance",
         "desc": _("نتائج دورة تقييم: ذاتي/مدير/نهائي"),
@@ -148,6 +202,24 @@ REPORTS = [
         "category": "admin",
         "desc": _("أجهزة المسح وحالتها وعدد مسحاتها"),
         "header": [_("الجهاز"), _("الفرع"), _("الموقع"), _("الحالة"), _("آخر اتصال"), _("مسحات اليوم"), _("إجمالي المسحات")],
+    },
+    {
+        "code": "REP-60", "title": _("ملخص تنفيذي شهري"), "url": "reports:rep60",
+        "category": "executive",
+        "desc": _("أرقام رئيسية حسب الفرع: توظيف، مغادرة، حضور، رواتب"),
+        "header": [_("الفرع"), _("الموظفون"), _("معينون جدد"), _("مغادرون"), _("أيام غياب"), _("نسبة الحضور"), _("آخر صافي صرف"), _("متوسط الراتب")],
+    },
+    {
+        "code": "REP-61", "title": _("مؤشرات KPI"), "url": "reports:rep61",
+        "category": "executive",
+        "desc": _("قياس مؤشرات الأداء الرئيسية للفترة مقابل الأهداف"),
+        "header": [_("المؤشر"), _("القيمة"), _("الهدف"), _("نسبة التحقق")],
+    },
+    {
+        "code": "REP-62", "title": _("الدوران الوظيفي"), "url": "reports:rep62",
+        "category": "executive",
+        "desc": _("معدل المغادرة/التعيين حسب القسم"),
+        "header": [_("القسم"), _("الفرع"), _("الموظفون (نهاية)"), _("معينون"), _("مغادرون"), _("معدل الدوران %")],
     },
 ]
 
@@ -191,6 +263,8 @@ class _BaseReportView(PermissionRequiredMixin, TemplateView):
         ctx["show_cycle_filter"] = getattr(self, "show_cycle_filter", False)
         ctx["show_kind_filter"] = getattr(self, "show_kind_filter", False)
         ctx["show_eos_status_filter"] = getattr(self, "show_eos_status_filter", False)
+        ctx["show_exc_status_filter"] = getattr(self, "show_exc_status_filter", False)
+        ctx["show_change_type_filter"] = getattr(self, "show_change_type_filter", False)
         ctx["summary"] = getattr(self, "summary", None)
         return ctx
 
@@ -300,6 +374,115 @@ class Rep13View(_BaseReportView):
              f"{r['employee__first_name_ar']} {r['employee__last_name_ar']}",
              r["employee__department__name_ar"] or "", r["times"], r["total_minutes"])
             for r in rows
+        ]
+
+
+class Rep02View(_BaseReportView):
+    title = _("REP-02 الهيكل التنظيمي")
+    report_code = "REP-02"
+    columns = _report_meta("REP-02")["header"]
+
+    def get_rows(self, user, filters):
+        return [
+            (r["branch"], r["department"], r["position"], r["employees"])
+            for r in services.org_structure(user, branch=filters.get("branch"))
+        ]
+
+
+class Rep03View(_BaseReportView):
+    title = _("REP-03 الموظفون الجدد")
+    report_code = "REP-03"
+    columns = _report_meta("REP-03")["header"]
+
+    def get_rows(self, user, filters):
+        return [
+            (r["code"], r["name"], r["hire_date"], r["department"], r["branch"])
+            for r in services.new_employees(
+                user, from_date=filters.get("from_date"), to_date=filters.get("to_date"),
+                branch=filters.get("branch"),
+            )
+        ]
+
+
+class Rep14View(_BaseReportView):
+    title = _("REP-14 الانصراف المبكر")
+    report_code = "REP-14"
+    columns = _report_meta("REP-14")["header"]
+
+    def get_rows(self, user, filters):
+        rows = services.early_departure_summary(
+            user,
+            from_date=filters.get("from_date") or None,
+            to_date=filters.get("to_date") or None,
+            department=filters.get("department"),
+        )
+        return [
+            (r["employee__employee_code"],
+             f"{r['employee__first_name_ar']} {r['employee__last_name_ar']}",
+             r["employee__department__name_ar"] or "", r["times"], r["total_minutes"])
+            for r in rows
+        ]
+
+
+class Rep15View(_BaseReportView):
+    title = _("REP-15 ساعات العمل الإضافية")
+    report_code = "REP-15"
+    columns = _report_meta("REP-15")["header"]
+
+    def get_rows(self, user, filters):
+        rows = services.overtime_summary(
+            user,
+            from_date=filters.get("from_date") or None,
+            to_date=filters.get("to_date") or None,
+            department=filters.get("department"),
+        )
+        return [
+            (r["employee__employee_code"],
+             f"{r['employee__first_name_ar']} {r['employee__last_name_ar']}",
+             r["employee__department__name_ar"] or "", r["times"], r["total_minutes"])
+            for r in rows
+        ]
+
+
+class Rep18View(_BaseReportView):
+    title = _("REP-18 استثناءات الحضور")
+    report_code = "REP-18"
+    columns = _report_meta("REP-18")["header"]
+    show_exc_status_filter = True
+
+    def get_rows(self, user, filters):
+        return [
+            (r["employee"], r["type"], r["from"], r["to"], f"{r['hours']:g}", r["status"], r["approved_by"])
+            for r in services.attendance_exceptions(
+                user, from_date=filters.get("from_date"), to_date=filters.get("to_date"),
+                status=filters.get("status"),
+            )
+        ]
+
+
+class Rep22View(_BaseReportView):
+    title = _("REP-22 الإجازات الجارية")
+    report_code = "REP-22"
+    columns = _report_meta("REP-22")["header"]
+
+    def get_rows(self, user, filters):
+        return [
+            (r["employee"], r["leave_type"], r["from_date"], r["to_date"], r["days"])
+            for r in services.ongoing_approved_leaves(user, on_date=filters.get("work_date"))
+        ]
+
+
+class Rep23View(_BaseReportView):
+    title = _("REP-23 العطل الرسمية")
+    report_code = "REP-23"
+    columns = _report_meta("REP-23")["header"]
+
+    def get_rows(self, user, filters):
+        return [
+            (r["date"], r["name"], r["branch"], r["recurring"])
+            for r in services.public_holidays(
+                user, year=filters.get("year"), branch=filters.get("branch")
+            )
         ]
 
 
@@ -415,6 +598,37 @@ class Rep04View(_BaseReportView):
         return [
             (r["employee"], r["contract_type"], r["end_date"], r["days_left"], r["branch"])
             for r in services.contract_expiry_list(user, branch=filters.get("branch"))
+        ]
+
+
+class Rep05View(_BaseReportView):
+    title = _("REP-05 المقبلون على التقاعد")
+    report_code = "REP-05"
+    columns = _report_meta("REP-05")["header"]
+
+    def get_rows(self, user, filters):
+        return [
+            (r["code"], r["name"], r["birth"], r["retire"], r["days"], r["department"], r["branch"])
+            for r in services.retirement_list(
+                user, from_date=filters.get("from_date"), to_date=filters.get("to_date"),
+                branch=filters.get("branch"),
+            )
+        ]
+
+
+class Rep06View(_BaseReportView):
+    title = _("REP-06 تغييرات الوظائف")
+    report_code = "REP-06"
+    columns = _report_meta("REP-06")["header"]
+    show_change_type_filter = True
+
+    def get_rows(self, user, filters):
+        return [
+            (r["code"], r["name"], r["kind"], r["from"], r["to"], r["date"], r["branch"])
+            for r in services.job_changes(
+                user, from_date=filters.get("from_date"), to_date=filters.get("to_date"),
+                change_type=filters.get("change_type"), branch=filters.get("branch"),
+            )
         ]
 
 
@@ -584,6 +798,53 @@ class Rep54View(_BaseReportView):
         ]
 
 
+class Rep60View(_BaseReportView):
+    title = _("REP-60 ملخص تنفيذي شهري")
+    report_code = "REP-60"
+    columns = _report_meta("REP-60")["header"]
+
+    def get_rows(self, user, filters):
+        return [
+            (r["branch"], r["active"], r["hires"], r["departures"], r["absent"],
+             f"{r['attendance_rate']}%", f"{r['net']:g}", f"{r['avg_salary']:g}")
+            for r in services.executive_summary(
+                user, from_date=filters.get("from_date"), to_date=filters.get("to_date"),
+                branch=filters.get("branch"),
+            )
+        ]
+
+
+class Rep61View(_BaseReportView):
+    title = _("REP-61 مؤشرات KPI")
+    report_code = "REP-61"
+    columns = _report_meta("REP-61")["header"]
+
+    def get_rows(self, user, filters):
+        return [
+            (r["kpi"], r["value"], r["target"], r["score"])
+            for r in services.kpi_summary(
+                user, from_date=filters.get("from_date"), to_date=filters.get("to_date"),
+                branch=filters.get("branch"),
+            )
+        ]
+
+
+class Rep62View(_BaseReportView):
+    title = _("REP-62 الدوران الوظيفي")
+    report_code = "REP-62"
+    columns = _report_meta("REP-62")["header"]
+
+    def get_rows(self, user, filters):
+        return [
+            (r["department"], r["branch"], r["end_hc"], r["hires"], r["departures"],
+             f"{r['rate']}%")
+            for r in services.turnover_report(
+                user, from_date=filters.get("from_date"), to_date=filters.get("to_date"),
+                branch=filters.get("branch"),
+            )
+        ]
+
+
 def _stream(request, rows, header, fmt, filename, title=None):
     from django.http import HttpResponse
 
@@ -633,6 +894,20 @@ def export(request, report_code, fmt):
         rows = Rep12View().get_rows(request.user, request.GET)
     elif report_code == "rep13":
         rows = Rep13View().get_rows(request.user, request.GET)
+    elif report_code == "rep02":
+        rows = Rep02View().get_rows(request.user, request.GET)
+    elif report_code == "rep03":
+        rows = Rep03View().get_rows(request.user, request.GET)
+    elif report_code == "rep14":
+        rows = Rep14View().get_rows(request.user, request.GET)
+    elif report_code == "rep15":
+        rows = Rep15View().get_rows(request.user, request.GET)
+    elif report_code == "rep18":
+        rows = Rep18View().get_rows(request.user, request.GET)
+    elif report_code == "rep22":
+        rows = Rep22View().get_rows(request.user, request.GET)
+    elif report_code == "rep23":
+        rows = Rep23View().get_rows(request.user, request.GET)
     elif report_code == "rep20":
         rows = Rep20View().get_rows(request.user, request.GET)
     elif report_code == "rep21":
@@ -653,6 +928,16 @@ def export(request, report_code, fmt):
         rows = Rep34View().get_rows(request.user, request.GET)
     elif report_code == "rep35":
         rows = Rep35View().get_rows(request.user, request.GET)
+    elif report_code == "rep05":
+        rows = Rep05View().get_rows(request.user, request.GET)
+    elif report_code == "rep06":
+        rows = Rep06View().get_rows(request.user, request.GET)
+    elif report_code == "rep60":
+        rows = Rep60View().get_rows(request.user, request.GET)
+    elif report_code == "rep61":
+        rows = Rep61View().get_rows(request.user, request.GET)
+    elif report_code == "rep62":
+        rows = Rep62View().get_rows(request.user, request.GET)
     elif report_code == "rep42":
         rows = Rep42View().get_rows(request.user, request.GET)
     elif report_code == "rep43":

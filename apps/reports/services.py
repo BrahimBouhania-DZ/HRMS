@@ -126,6 +126,147 @@ def operational_summary(user, from_date=None, to_date=None, branch=None, departm
     return summary, rows
 
 
+def org_structure(user, branch=None):
+    """REP-02 — الهيكل التنظيمي: فرع/قسم/منصب + عدد الموظفين (مقيد بالنطاق)."""
+    ids = scoped_employee_ids(user)
+    branches = Branch.objects.all()
+    if branch:
+        branches = branches.filter(id=branch)
+    rows = []
+    for b in branches.prefetch_related("departments__positions"):
+        for dep in b.departments.all():
+            for pos in dep.positions.all():
+                count = Employee.objects.filter(
+                    id__in=ids, position_id=pos.id, is_active=True
+                ).count()
+                rows.append({
+                    "branch": b.name_ar,
+                    "department": dep.name_ar,
+                    "position": pos.name_ar,
+                    "employees": count,
+                })
+    return rows
+
+
+def new_employees(user, from_date=None, to_date=None, branch=None):
+    """REP-03 — الموظفون الجدد حسب فترة التوظيف."""
+    qs = employee_scope_queryset(user).filter(is_active=True)
+    if from_date:
+        qs = qs.filter(hire_date__gte=from_date)
+    if to_date:
+        qs = qs.filter(hire_date__lte=to_date)
+    if branch:
+        qs = qs.filter(branch_id=branch)
+    return [
+        {
+            "code": e.employee_code,
+            "name": str(e),
+            "hire_date": e.hire_date,
+            "department": e.department and e.department.name_ar or "—",
+            "branch": e.branch and e.branch.name_ar or "—",
+        }
+        for e in qs.select_related("department", "branch").order_by("-hire_date")
+    ]
+
+
+def early_departure_summary(user, from_date=None, to_date=None, department=None):
+    """REP-14 — الانصراف المبكر: مرات + مجموع دقائق لكل موظف."""
+    ids = scoped_employee_ids(user)
+    qs = AttendanceDay.objects.filter(employee_id__in=ids, early_minutes__gt=0)
+    if from_date:
+        qs = qs.filter(work_date__gte=from_date)
+    if to_date:
+        qs = qs.filter(work_date__lte=to_date)
+    if department:
+        qs = qs.filter(employee__department_id=department)
+    return qs.values("employee_id", "employee__employee_code", "employee__first_name_ar",
+                     "employee__last_name_ar", "employee__department__name_ar").annotate(
+        times=Count("id"), total_minutes=Sum("early_minutes")).order_by("-total_minutes")
+
+
+def overtime_summary(user, from_date=None, to_date=None, department=None):
+    """REP-15 — ساعات العمل الإضافية: دقائق OT لكل موظف."""
+    ids = scoped_employee_ids(user)
+    qs = AttendanceDay.objects.filter(employee_id__in=ids, overtime_minutes__gt=0)
+    if from_date:
+        qs = qs.filter(work_date__gte=from_date)
+    if to_date:
+        qs = qs.filter(work_date__lte=to_date)
+    if department:
+        qs = qs.filter(employee__department_id=department)
+    return qs.values("employee_id", "employee__employee_code", "employee__first_name_ar",
+                     "employee__last_name_ar", "employee__department__name_ar").annotate(
+        times=Count("id"), total_minutes=Sum("overtime_minutes")).order_by("-total_minutes")
+
+
+def attendance_exceptions(user, from_date=None, to_date=None, status=None):
+    """REP-18 — استثناءات الحضور (إذن/مأمورية/تعويض/تصحيح)."""
+    from apps.attendance.models import AttendanceException
+
+    ids = scoped_employee_ids(user)
+    qs = AttendanceException.objects.filter(employee_id__in=ids)
+    if from_date:
+        qs = qs.filter(from_time__date__gte=from_date)
+    if to_date:
+        qs = qs.filter(from_time__date__lte=to_date)
+    if status:
+        qs = qs.filter(status=status)
+    return [
+        {
+            "employee": f"{e.employee.employee_code} — {e.employee}",
+            "type": e.get_type_display(),
+            "from": e.from_time.strftime("%Y-%m-%d %H:%M"),
+            "to": e.to_time.strftime("%Y-%m-%d %H:%M"),
+            "hours": e.hours,
+            "status": e.get_status_display(),
+            "approved_by": e.approved_by and e.approved_by.username or "—",
+        }
+        for e in qs.select_related("employee", "approved_by").order_by("-from_time")
+    ]
+
+
+def ongoing_approved_leaves(user, on_date=None):
+    """REP-22 — الإجازات المعتمدة الجارية في تاريخ معين."""
+    from apps.leave.models import LeaveRequest
+
+    ids = scoped_employee_ids(user)
+    on_date = on_date or date.today()
+    qs = LeaveRequest.objects.filter(
+        employee_id__in=ids, status=LeaveRequest.Status.APPROVED,
+        from_date__lte=on_date, to_date__gte=on_date,
+    )
+    return [
+        {
+            "employee": f"{r.employee.employee_code} — {r.employee}",
+            "leave_type": r.leave_type.name_ar,
+            "from_date": r.from_date,
+            "to_date": r.to_date,
+            "days": r.days,
+        }
+        for r in qs.select_related("employee", "leave_type").order_by("from_date")
+    ]
+
+
+def public_holidays(user, year=None, branch=None):
+    """REP-23 — العطل الرسمية حسب السنة/الفرع."""
+    from apps.leave.models import PublicHoliday
+
+    qs = PublicHoliday.objects.all()
+    if year:
+        qs = qs.filter(date__year=year)
+    if branch:
+        qs = qs.filter(branch_id=branch)
+    return [
+        {
+            "date": h.date,
+            "name": h.name_ar,
+            "branch": h.branch.name_ar,
+            "recurring": _("نعم") if h.is_recurring else _("لا"),
+        }
+        for h in qs.select_related("branch").order_by("date")
+    ]
+
+
 def leave_balances(user, year=None, leave_type=None, department=None):
     ids = scoped_employee_ids(user)
     qs = LeaveBalance.objects.filter(employee_id__in=ids)
@@ -188,7 +329,7 @@ def rejected_scans(user, from_date=None, to_date=None, device=None):
 # ---- فلاتر (للقوالب) ------------------------------------------------------
 
 def filter_options():
-    from apps.attendance.models import AttendanceScan
+    from apps.attendance.models import AttendanceException, AttendanceScan
     from apps.devices.models import QrDevice
     from apps.payroll.models import PayElement, PayRun, EndOfService
     from apps.perf.models import PerfCycle
@@ -208,6 +349,7 @@ def filter_options():
         "cycles": PerfCycle.objects.all().order_by("-period_start"),
         "element_kinds": PayElement.Kind.choices,
         "eos_statuses": EndOfService.Status.choices,
+        "exception_statuses": AttendanceException.Status.choices,
     }
 
 
@@ -437,6 +579,290 @@ def pip_list(user, status=None):
         }
         for p in qs.select_related("review__employee", "review__cycle").order_by("-start_date")
     ]
+
+
+# ---- الموظفون: تقاعد وتغييرات (v3) ------------------------------------------
+
+def _to_date(value):
+    if not value:
+        return None
+    try:
+        return date.fromisoformat(str(value))
+    except (TypeError, ValueError):
+        return None
+
+
+def _add_years(d, years):
+    try:
+        return d.replace(year=d.year + years)
+    except ValueError:
+        return d.replace(year=d.year + years, day=28)
+
+
+def retirement_list(user, from_date=None, to_date=None, branch=None, retirement_age=60):
+    """REP-05 — الموظفون المقبلون على التقاعد (تاريخ الميلاد + سن التقاعد).
+
+    النطاق الافتراضي: من اليوم إلى سنة قادمة. سن التقاعد الافتراضي 60 سنة.
+    """
+    qs = employee_scope_queryset(user).filter(
+        birth_date__isnull=False,
+        employment_status__in=[
+            Employee.EmploymentStatus.ACTIVE,
+            Employee.EmploymentStatus.PROBATION,
+        ],
+    )
+    if branch:
+        qs = qs.filter(branch_id=branch)
+
+    today = date.today()
+    f_from = _to_date(from_date) or today
+    f_to = _to_date(to_date) or (today + timedelta(days=365))
+
+    rows = []
+    for e in qs.select_related("branch", "department").order_by("employee_code"):
+        retirement_date = _add_years(e.birth_date, retirement_age)
+        if f_from <= retirement_date <= f_to:
+            rows.append({
+                "code": e.employee_code,
+                "name": str(e),
+                "birth": e.birth_date,
+                "retire": retirement_date,
+                "days": (retirement_date - today).days,
+                "department": e.department and e.department.name_ar or "",
+                "branch": e.branch and e.branch.name_ar or "",
+            })
+    return rows
+
+
+def job_changes(user, from_date=None, to_date=None, change_type=None, branch=None):
+    """REP-06 — تغييرات الوظائف (تعيين/ترقية منصب/نقل) من السجل الوظيفي."""
+    from apps.employees.models import EmploymentHistory
+
+    ids = scoped_employee_ids(user)
+    qs = EmploymentHistory.objects.filter(employee_id__in=ids).select_related(
+        "employee", "branch", "department", "position",
+    )
+    if from_date:
+        qs = qs.filter(effective_from__gte=from_date)
+    if to_date:
+        qs = qs.filter(effective_from__lte=to_date)
+    if branch:
+        qs = qs.filter(branch_id=branch)
+    qs = qs.order_by("employee_id", "effective_from", "id")
+
+    rows = []
+    prev_by_emp = {}
+    for h in qs:
+        prev = prev_by_emp.get(h.employee_id)
+        if prev is None:
+            kind = "hire"
+        elif h.position_id and h.position_id != prev.position_id:
+            kind = "promotion"
+        elif h.department_id != prev.department_id or h.branch_id != prev.branch_id:
+            kind = "transfer"
+        else:
+            kind = "update"
+        prev_by_emp[h.employee_id] = h
+        if change_type and kind != change_type:
+            continue
+
+        if kind == "promotion":
+            frm = prev.position and prev.position.name_ar or ""
+            to = h.position and h.position.name_ar or ""
+        elif kind == "transfer":
+            frm = prev.department and prev.department.name_ar or ""
+            to = h.department and h.department.name_ar or ""
+        elif kind == "update":
+            frm = prev.position and prev.position.name_ar or ""
+            to = h.position and h.position.name_ar or ""
+        else:  # hire
+            frm = _("—")
+            to = h.position and h.position.name_ar or ""
+            if h.department:
+                to = f"{to} — {h.department.name_ar}"
+
+        rows.append({
+            "code": h.employee.employee_code,
+            "name": str(h.employee),
+            "kind": _("تعيين") if kind == "hire"
+                else _("ترقية/منصب") if kind == "promotion"
+                else _("نقل") if kind == "transfer"
+                else _("تحديث سجل"),
+            "from": frm,
+            "to": to,
+            "date": h.effective_from,
+            "branch": h.branch and h.branch.name_ar or "",
+        })
+    return rows
+
+
+# ---- تنفيذية: ملخص وKPI ودوران (v3) -----------------------------------------
+
+def _active_statuses():
+    return [Employee.EmploymentStatus.ACTIVE, Employee.EmploymentStatus.PROBATION]
+
+
+def executive_summary(user, from_date=None, to_date=None, branch=None):
+    """REP-60 — ملخص تنفيذي حسب الفرع: توظيف، مغادرة، حضور، رواتب."""
+    from apps.attendance.models import AttendanceDay
+    from apps.payroll.models import EndOfService, PayRun, Payslip
+
+    ids = scoped_employee_ids(user)
+    branches = Branch.objects.filter(id__in=employee_scope_queryset(user)
+                                     .values_list("branch_id", flat=True).distinct())
+    if branch:
+        branches = branches.filter(pk=branch)
+
+    f_from = _to_date(from_date) or date.today().replace(day=1)
+    f_to = _to_date(to_date) or date.today()
+    if f_to < f_from:
+        f_from, f_to = f_to, f_from
+
+    rows = []
+    for b in branches:
+        emp_qs = Employee.objects.filter(branch=b, id__in=ids)
+        active = emp_qs.filter(employment_status__in=_active_statuses()).count()
+        hires = emp_qs.filter(hire_date__range=(f_from, f_to)).count()
+        departures = EndOfService.objects.filter(
+            employee__branch=b, employee_id__in=ids,
+            termination_date__range=(f_from, f_to),
+        ).count()
+
+        att = AttendanceDay.objects.filter(branch=b, employee_id__in=ids,
+                                           work_date__range=(f_from, f_to))
+        present = att.filter(state=AttendanceDay.State.PRESENT).count()
+        absent = att.filter(state=AttendanceDay.State.ABSENT).count()
+        total = att.count()
+
+        last_payrun = PayRun.objects.filter(branch=b, status=PayRun.Status.FROZEN) \
+            .order_by("-period_code").first()
+        net = 0
+        if last_payrun:
+            net = Payslip.objects.filter(pay_run=last_payrun).aggregate(n=Sum("net"))["n"] or 0
+
+        avg_salary = round(net / active, 2) if active else 0
+        rows.append({
+            "branch": b.name_ar,
+            "active": active,
+            "hires": hires,
+            "departures": departures,
+            "absent": absent,
+            "attendance_rate": round(present / total * 100, 1) if total else 0,
+            "net": net,
+            "avg_salary": avg_salary,
+        })
+    return rows
+
+
+def kpi_summary(user, from_date=None, to_date=None, branch=None):
+    """REP-61 — مؤشرات KPI للفترة: حضور/غياب/إجازة/تأخر/دوران/رواتب."""
+    from apps.payroll.models import EndOfService, PayRun, Payslip
+
+    ids = scoped_employee_ids(user)
+    f_from = _to_date(from_date) or date.today().replace(day=1)
+    f_to = _to_date(to_date) or date.today()
+    if f_to < f_from:
+        f_from, f_to = f_to, f_from
+
+    summary, op_rows = operational_summary(user, from_date=f_from, to_date=f_to, branch=branch)
+    active = Employee.objects.filter(id__in=ids, employment_status__in=_active_statuses()).count()
+    if branch:
+        active = Employee.objects.filter(id__in=ids, branch_id=branch,
+                                         employment_status__in=_active_statuses()).count()
+
+    hires = Employee.objects.filter(id__in=ids, hire_date__range=(f_from, f_to)).count()
+    if branch:
+        hires = Employee.objects.filter(id__in=ids, branch_id=branch,
+                                        hire_date__range=(f_from, f_to)).count()
+    departures = EndOfService.objects.filter(
+        employee_id__in=ids, termination_date__range=(f_from, f_to),
+    ).count()
+    if branch:
+        departures = EndOfService.objects.filter(
+            employee__branch_id=branch, employee_id__in=ids,
+            termination_date__range=(f_from, f_to),
+        ).count()
+
+    start_hc = active + departures - hires
+    avg_hc = (start_hc + active) / 2 if (start_hc + active) else 1
+    turnover = round(departures / avg_hc * 100, 1) if departures else 0
+
+    total = summary["days_total"]
+    absence_rate = round(summary["absent"] / total * 100, 1) if total else 0
+    leave_rate = round(summary["leave"] / total * 100, 1) if total else 0
+    late_per_emp = round(summary["late_times"] / summary["employees"], 2) if summary["employees"] else 0
+
+    payruns = PayRun.objects.filter(status=PayRun.Status.FROZEN)
+    if branch:
+        payruns = payruns.filter(branch_id=branch)
+    net_total = Payslip.objects.filter(pay_run__in=payruns).aggregate(n=Sum("net"))["n"] or 0
+
+    def ratio(value, target, invert=False):
+        if target is None or target == 0:
+            return "—"
+        if invert:
+            return round(min(1.0, target / value) * 100, 1) if value else 100.0
+        return round(min(1.0, value / target) * 100, 1)
+
+    return [
+        {"kpi": _("نسبة الحضور"), "value": f"{summary['attendance_rate']}%",
+         "target": _("95%"), "score": ratio(summary["attendance_rate"], 95)},
+        {"kpi": _("نسبة الغياب"), "value": f"{absence_rate}%",
+         "target": _("3%"), "score": ratio(absence_rate, 3, invert=True)},
+        {"kpi": _("نسبة الإجازات"), "value": f"{leave_rate}%",
+         "target": _("15%"), "score": ratio(leave_rate, 15, invert=True)},
+        {"kpi": _("التأخر (مرات/موظف)"), "value": f"{late_per_emp}",
+         "target": _("1"), "score": ratio(late_per_emp, 1, invert=True)},
+        {"kpi": _("ساعات الإضافي"), "value": f"{summary['overtime_hours']}",
+         "target": "—", "score": "—"},
+        {"kpi": _("معدل الدوران"), "value": f"{turnover}%",
+         "target": _("5%"), "score": ratio(turnover, 5, invert=True)},
+        {"kpi": _("إجمالي الرواتب (صافي)"), "value": f"{net_total}",
+         "target": "—", "score": "—"},
+        {"kpi": _("الموظفون النشطون"), "value": f"{active}",
+         "target": "—", "score": "—"},
+    ]
+
+
+def turnover_report(user, from_date=None, to_date=None, branch=None):
+    """REP-62 — الدوران الوظيفي حسب القسم: معدل مغادرة/تعيين."""
+    from apps.payroll.models import EndOfService
+
+    ids = scoped_employee_ids(user)
+    f_from = _to_date(from_date) or date.today().replace(day=1)
+    f_to = _to_date(to_date) or date.today()
+    if f_to < f_from:
+        f_from, f_to = f_to, f_from
+
+    emps = employee_scope_queryset(user).filter(employment_status__in=_active_statuses())
+    if branch:
+        emps = emps.filter(branch_id=branch)
+
+    rows = []
+    for dept in Department.objects.filter(id__in=emps.values_list("department_id", flat=True).distinct()):
+        dept_emps = emps.filter(department=dept)
+        end_hc = dept_emps.count()
+        hires = Employee.objects.filter(id__in=ids, department=dept,
+                                        hire_date__range=(f_from, f_to)).count()
+        if branch:
+            hires = Employee.objects.filter(id__in=ids, department=dept, branch_id=branch,
+                                            hire_date__range=(f_from, f_to)).count()
+        departures = EndOfService.objects.filter(
+            employee__department=dept, employee_id__in=ids,
+            termination_date__range=(f_from, f_to),
+        ).count()
+        start_hc = end_hc + departures - hires
+        avg_hc = (start_hc + end_hc) / 2 if (start_hc + end_hc) else 0
+        rate = round(departures / avg_hc * 100, 1) if avg_hc else 0
+        rows.append({
+            "department": dept.name_ar,
+            "branch": dept.branch and dept.branch.name_ar or "",
+            "end_hc": end_hc,
+            "hires": hires,
+            "departures": departures,
+            "rate": rate,
+        })
+    return rows
 
 
 # ---- النظام والأمان (v2) --------------------------------------------------

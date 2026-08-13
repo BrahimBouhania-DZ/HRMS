@@ -513,3 +513,164 @@ class ScheduledReportTests(TestCase):
     def test_download_guard(self):
         self.client.force_login(self.recipient)
         self.assertEqual(self.client.get(reverse("reports:generated")).status_code, 403)
+
+
+class OperationalReportsV2Tests(TestCase):
+    """REP-02/03/14/15/18/22/23 — التقارير التشغيلية المكملة."""
+
+    @classmethod
+    def setUpTestData(cls):
+        Permission.objects.get_or_create(code="reports.view", defaults={"module": "core", "name_ar": "التقارير"})
+        cls.admin = User.objects.create_superuser(username="op_admin", password="pass")
+        cls.branch = Branch.objects.create(code="BR-O", name_ar="فرع O")
+        cls.dept = Department.objects.create(code="DEP-O", name_ar="قسم O", branch=cls.branch)
+        from apps.org.models import Position
+
+        cls.pos = Position.objects.create(code="POS-O", name_ar="مهندس", department=cls.dept)
+        cls.emp = Employee.objects.create(
+            employee_code="O-001", first_name_ar="عمر", last_name_ar="O",
+            branch=cls.branch, department=cls.dept, position=cls.pos,
+            hire_date=datetime.date(2026, 7, 1),
+        )
+        cls.today = datetime.date(2026, 8, 9)
+        AttendanceDay.objects.create(employee=cls.emp, work_date=cls.today,
+                                     state=AttendanceDay.State.PRESENT,
+                                     early_minutes=20, overtime_minutes=90,
+                                     worked_minutes=480)
+        from apps.attendance.models import AttendanceException
+        from apps.leave.models import PublicHoliday
+
+        cls.lt = LeaveType.objects.create(code="op-lt", name_ar="سنوية", days_per_year=30)
+        AttendanceException.objects.create(
+            employee=cls.emp, type=AttendanceException.Type.MISSION,
+            from_time=datetime.datetime(2026, 8, 9, 10, 0),
+            to_time=datetime.datetime(2026, 8, 9, 12, 0), hours=2,
+            status=AttendanceException.Status.APPROVED, approved_by=cls.admin,
+        )
+        LeaveRequest.objects.create(employee=cls.emp, leave_type=cls.lt,
+                                    from_date=datetime.date(2026, 8, 1),
+                                    to_date=datetime.date(2026, 8, 31), days=5,
+                                    status=LeaveRequest.Status.APPROVED)
+        PublicHoliday.objects.create(branch=cls.branch, date=datetime.date(2026, 7, 5),
+                                     name_ar="عيد الفطر", is_recurring=True)
+
+    def setUp(self):
+        self.client.force_login(self.admin)
+
+    def test_rep02_org_structure(self):
+        resp = self.client.get(reverse("reports:rep02"))
+        self.assertContains(resp, "مهندس")
+        self.assertContains(resp, "قسم O")
+
+    def test_rep03_new_employees(self):
+        resp = self.client.get(reverse("reports:rep03"),
+                               {"from_date": "2026-01-01", "to_date": "2026-12-31"})
+        self.assertContains(resp, "O-001")
+        resp = self.client.get(reverse("reports:rep03"), {"from_date": "2027-01-01"})
+        self.assertNotContains(resp, "O-001")
+
+    def test_rep14_early_departure(self):
+        resp = self.client.get(reverse("reports:rep14"),
+                               {"from_date": "2026-08-01", "to_date": "2026-08-31"})
+        self.assertContains(resp, "20")
+
+    def test_rep15_overtime(self):
+        resp = self.client.get(reverse("reports:rep15"),
+                               {"from_date": "2026-08-01", "to_date": "2026-08-31"})
+        self.assertContains(resp, "90")
+
+    def test_rep18_exceptions(self):
+        resp = self.client.get(reverse("reports:rep18"))
+        self.assertContains(resp, "مأمورية")
+        self.assertContains(resp, "op_admin")
+
+    def test_rep22_ongoing_leaves(self):
+        resp = self.client.get(reverse("reports:rep22"), {"work_date": "2026-08-15"})
+        self.assertContains(resp, "O-001")
+        resp = self.client.get(reverse("reports:rep22"), {"work_date": "2026-12-15"})
+        self.assertNotContains(resp, "O-001")
+
+    def test_rep23_public_holidays(self):
+        resp = self.client.get(reverse("reports:rep23"), {"year": "2026"})
+        self.assertContains(resp, "عيد الفطر")
+
+
+class ExecutiveReportsV2Tests(TestCase):
+    """REP-05/06/60/61/62 — التقاعد وتغييرات الوظائف والتنفيذية."""
+
+    @classmethod
+    def setUpTestData(cls):
+        Permission.objects.get_or_create(code="reports.view", defaults={"module": "core", "name_ar": "التقارير"})
+        cls.admin = User.objects.create_superuser(username="ex_admin", password="pass")
+        cls.branch = Branch.objects.create(code="BR-X", name_ar="فرع X")
+        cls.dept = Department.objects.create(code="DEP-X", name_ar="قسم X", branch=cls.branch)
+        from apps.org.models import Position
+
+        cls.pos1 = Position.objects.create(code="POS-X1", name_ar="منفذ", department=cls.dept)
+        cls.pos2 = Position.objects.create(code="POS-X2", name_ar="مشرف", department=cls.dept)
+        cls.emp = Employee.objects.create(
+            employee_code="X-001", first_name_ar="خالد", last_name_ar="X",
+            branch=cls.branch, department=cls.dept, position=cls.pos2,
+            birth_date=datetime.date(1966, 6, 15), hire_date=datetime.date(2026, 6, 1),
+        )
+        cls.today = datetime.date(2026, 8, 9)
+        from apps.employees.models import EmploymentHistory
+
+        EmploymentHistory.objects.create(
+            employee=cls.emp, branch=cls.branch, department=cls.dept, position=cls.pos1,
+            effective_from=datetime.date(2026, 6, 1), is_current=False,
+        )
+        EmploymentHistory.objects.create(
+            employee=cls.emp, branch=cls.branch, department=cls.dept, position=cls.pos2,
+            effective_from=datetime.date(2026, 7, 15), is_current=True,
+        )
+        from apps.payroll.models import EndOfService, PayRun, Payslip
+
+        cls.payrun = PayRun.objects.create(period_code="2026-07", branch=cls.branch,
+                                           status=PayRun.Status.FROZEN)
+        Payslip.objects.create(pay_run=cls.payrun, employee=cls.emp,
+                               basic_salary=Decimal("45000"),
+                               total_earnings=Decimal("45000"),
+                               total_deductions=Decimal("0"), net=Decimal("45000"))
+        AttendanceDay.objects.create(employee=cls.emp, work_date=cls.today,
+                                     state=AttendanceDay.State.ABSENT, worked_minutes=0)
+        AttendanceDay.objects.create(employee=cls.emp,
+                                     work_date=datetime.date(2026, 8, 10),
+                                     state=AttendanceDay.State.PRESENT, worked_minutes=480)
+        EndOfService.objects.create(employee=cls.emp, termination_date=datetime.date(2026, 8, 5),
+                                    net=Decimal("30000"), status=EndOfService.Status.PAID)
+
+    def setUp(self):
+        self.client.force_login(self.admin)
+
+    def test_rep05_retirement(self):
+        resp = self.client.get(reverse("reports:rep05"),
+                               {"from_date": "2026-01-01", "to_date": "2026-12-31"})
+        self.assertContains(resp, "X-001")
+        resp = self.client.get(reverse("reports:rep05"),
+                               {"from_date": "2030-01-01", "to_date": "2035-01-01"})
+        self.assertNotContains(resp, "X-001")
+
+    def test_rep06_job_changes(self):
+        resp = self.client.get(reverse("reports:rep06"))
+        self.assertContains(resp, "منفذ")
+        self.assertContains(resp, "مشرف")
+        resp = self.client.get(reverse("reports:rep06"), {"change_type": "promotion"})
+        self.assertContains(resp, "ترقية/منصب")
+
+    def test_rep60_executive_summary(self):
+        resp = self.client.get(reverse("reports:rep60"),
+                               {"from_date": "2026-08-01", "to_date": "2026-08-31"})
+        self.assertContains(resp, "فرع X")
+        self.assertContains(resp, "45000")
+
+    def test_rep61_kpi(self):
+        resp = self.client.get(reverse("reports:rep61"),
+                               {"from_date": "2026-08-01", "to_date": "2026-08-31"})
+        self.assertContains(resp, "نسبة الحضور")
+        self.assertContains(resp, "معدل الدوران")
+
+    def test_rep62_turnover(self):
+        resp = self.client.get(reverse("reports:rep62"),
+                               {"from_date": "2026-08-01", "to_date": "2026-08-31"})
+        self.assertContains(resp, "قسم X")
