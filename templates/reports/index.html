@@ -1,20 +1,111 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% block title %}{% trans "التقارير" %} — {{ APP_NAME }}{% endblock %}
+{% block title %}{% trans "مركز التقارير" %} — {{ APP_NAME }}{% endblock %}
 {% block content %}
-<h1>{% trans "التقارير الأساسية" %}</h1>
-<table>
-    <thead>
-        <tr><th>{% trans "الرمز" %}</th><th>{% trans "التقرير" %}</th><th></th></tr>
-    </thead>
-    <tbody>
-        {% for r in reports %}
-        <tr>
-            <td>{{ r.code }}</td>
-            <td>{{ r.title }}</td>
-            <td><a class="btn btn-sm btn-primary" href="{% url r.url %}">{% trans "فتح" %}</a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<style>
+    .report-center h1 { margin-bottom: 6px; }
+    .report-cat { margin: 26px 0 12px; display: flex; align-items: center; gap: 10px; }
+    .report-cat h2 { margin: 0; font-size: 17px; }
+    .report-cat .pill {
+        background: var(--sky-100, #e7f3fb); color: var(--sky-700, #1f5f8b);
+        font-size: 12px; font-weight: 700; border-radius: 999px; padding: 2px 10px;
+    }
+    .report-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px;
+    }
+    .report-card {
+        background: #fff; border: 1px solid #dbe4ee; border-radius: 12px;
+        padding: 14px 16px; display: flex; flex-direction: column; gap: 8px;
+        box-shadow: 0 3px 0 #e3ebf3, 0 6px 16px rgba(18, 35, 59, .06);
+        transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .report-card:hover { transform: translateY(-2px); box-shadow: 0 5px 0 #e3ebf3, 0 10px 22px rgba(18, 35, 59, .10); }
+    .report-card .rc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .report-card .rc-code { font-size: 11px; font-weight: 800; color: var(--gold-700, #a67733); letter-spacing: .5px; }
+    .report-card .rc-title { font-size: 15px; font-weight: 800; color: var(--sky-800, #12233b); }
+    .report-card .rc-desc { font-size: 12.5px; color: #5b6b79; flex: 1; }
+    .report-card .rc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+</style>
+
+<div class="report-center">
+    <h1>{% trans "مركز التقارير" %}</h1>
+    <p class="muted">{% trans "تقارير تشغيلية ومالية مع إمكانية التصفية والطباعة والتصدير (Excel / CSV / PDF)." %}</p>
+
+    <div class="report-cat">
+        <h2>{% trans "التقارير التشغيلية" %}</h2>
+        <span class="pill">{% trans "الحضور، الغياب، التأخر، المسحات" %}</span>
+    </div>
+    <div class="report-grid">
+        {% for r in reports %}{% if r.category == "operational" %}
+        <div class="report-card">
+            <div class="rc-head">
+                <span class="rc-code">{{ r.code }}</span>
+                <span class="rc-title">{{ r.title }}</span>
+            </div>
+            <div class="rc-desc">{{ r.desc }}</div>
+            <div class="rc-actions">
+                <a class="btn btn-sm btn-primary" href="{% url r.url %}">{% trans "فتح" %}</a>
+                <a class="btn btn-sm" href="{% url r.url %}?from_date={% now "Y" %}-01-01&to_date={% now "Y-m-d" %}">{% trans "هذا العام" %}</a>
+            </div>
+        </div>
+        {% endif %}{% endfor %}
+    </div>
+
+    <div class="report-cat">
+        <h2>{% trans "التقارير المالية" %}</h2>
+        <span class="pill">{% trans "الرواتب والخصومات" %}</span>
+    </div>
+    <div class="report-grid">
+        {% for r in reports %}{% if r.category == "financial" %}
+        <div class="report-card">
+            <div class="rc-head">
+                <span class="rc-code">{{ r.code }}</span>
+                <span class="rc-title">{{ r.title }}</span>
+            </div>
+            <div class="rc-desc">{{ r.desc }}</div>
+            <div class="rc-actions">
+                <a class="btn btn-sm btn-primary" href="{% url r.url %}">{% trans "فتح" %}</a>
+            </div>
+        </div>
+        {% endif %}{% endfor %}
+    </div>
+
+    <div class="report-cat">
+        <h2>{% trans "تقارير الأداء" %}</h2>
+        <span class="pill">{% trans "التقييمات وخطط التحسين" %}</span>
+    </div>
+    <div class="report-grid">
+        {% for r in reports %}{% if r.category == "performance" %}
+        <div class="report-card">
+            <div class="rc-head">
+                <span class="rc-code">{{ r.code }}</span>
+                <span class="rc-title">{{ r.title }}</span>
+            </div>
+            <div class="rc-desc">{{ r.desc }}</div>
+            <div class="rc-actions">
+                <a class="btn btn-sm btn-primary" href="{% url r.url %}">{% trans "فتح" %}</a>
+            </div>
+        </div>
+        {% endif %}{% endfor %}
+    </div>
+
+    <div class="report-cat">
+        <h2>{% trans "تقارير النظام والأمان" %}</h2>
+        <span class="pill">{% trans "التدقيق، المستخدمون، النسخ الاحتياطي" %}</span>
+    </div>
+    <div class="report-grid">
+        {% for r in reports %}{% if r.category == "admin" %}
+        <div class="report-card">
+            <div class="rc-head">
+                <span class="rc-code">{{ r.code }}</span>
+                <span class="rc-title">{{ r.title }}</span>
+            </div>
+            <div class="rc-desc">{{ r.desc }}</div>
+            <div class="rc-actions">
+                <a class="btn btn-sm btn-primary" href="{% url r.url %}">{% trans "فتح" %}</a>
+            </div>
+        </div>
+        {% endif %}{% endfor %}
+    </div>
+</div>
 {% endblock %}

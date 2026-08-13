@@ -18,6 +18,8 @@ urlpatterns = [
     path("reports/", include("apps.reports.urls", namespace="reports")),
     path("devices/", include("apps.devices.urls", namespace="devices")),
     path("payroll/", include("apps.payroll.urls", namespace="payroll")),
+    path("backup/", include("apps.backup.urls", namespace="backup")),
+    path("perf/", include("apps.perf.urls", namespace="perf")),
 ]
 
 if settings.DEBUG:

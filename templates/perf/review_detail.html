@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "مراجعة" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% blocktrans with e=review.employee c=review.cycle %}مراجعة {{ e }} — {{ c }}{% endblocktrans %}</h1>
+<div class="card-grid">
+    <div class="card">
+        <h2>{% trans "النتيجة" %}</h2>
+        <p>{% trans "التقييم الذاتي" %}: <strong>{{ review.self_score|default:"—" }}</strong></p>
+        <p>{% trans "تقييم المدير" %}: <strong>{{ review.manager_score|default:"—" }}</strong></p>
+        <p>{% trans "النهائي" %}: <strong>{{ review.final_score|default:"—" }}</strong></p>
+        <p>{% trans "الحالة" %}: <strong>{{ review.get_status_display }}</strong></p>
+    </div>
+    <div class="card">
+        <h2>{% trans "تقييم المدير" %}</h2>
+        <form method="post" action="{% url 'perf:review_submit' review.pk %}" novalidate>
+            {% csrf_token %}
+            {{ manager_form.as_p }}
+            <button type="submit" class="btn btn-primary">{% trans "حفظ تقييم المدير" %}</button>
+        </form>
+    </div>
+</div>
+
+<h2>{% trans "الأهداف / KPI" %}</h2>
+<form method="post" action="{% url 'perf:review_submit' review.pk %}" novalidate>
+    {% csrf_token %}
+    {{ objective_formset.management_form }}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{% trans "الهدف" %}</th>
+                <th>{% trans "الوزن (٪)" %}</th>
+                <th>{% trans "الهدف" %}</th>
+                <th>{% trans "المحقق" %}</th>
+                <th>{% trans "الدرجة" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for form in objective_formset %}
+            <tr>
+                {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                <td>{{ form.kpi_title }}{{ form.kpi_title.errors }}</td>
+                <td>{{ form.weight }}{{ form.weight.errors }}</td>
+                <td>{{ form.target }}{{ form.target.errors }}</td>
+                <td>{{ form.achieved }}{{ form.achieved.errors }}</td>
+                <td>{{ form.score }}{{ form.score.errors }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary">{% trans "حفظ الأهداف" %}</button>
+</form>
+
+{% if pip_plan %}
+<h2>{% trans "خطة التحسين (PIP)" %}</h2>
+<p>{% blocktrans with s=pip_plan.start_date e=pip_plan.end_date %}من {{ s }} إلى {{ e }}{% endblocktrans %} — {{ pip_plan.get_status_display }}</p>
+{% else %}
+<h2>{% trans "خطة تحسين جديدة (PIP)" %}</h2>
+<form method="post" action="{% url 'perf:pip_create' review.pk %}" class="grid-2" novalidate>
+    {% csrf_token %}
+    {{ pip_form.as_p }}
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{% trans "فتح خطة" %}</button>
+    </div>
+</form>
+{% endif %}
+
+<div class="form-actions">
+    <a class="btn" href="{% url 'perf:review_list' %}">{% trans "رجوع" %}</a>
+</div>
+{% endblock %}

@@ -245,3 +245,259 @@ select, input[type="text"], input[type="email"], input[type="password"], textare
     #content-main .module { padding: 4px 12px 14px; }
     .module h2 { margin: 0 -12px 10px; }
 }
+
+/* ==========================================================================
+   لوحة التحكم — index.html (لوحة احترافية بدل القائمة العادية)
+   ========================================================================== */
+.admin-hero {
+    background: linear-gradient(120deg, var(--sky-900) 0%, var(--sky-600) 100%);
+    border-radius: 14px;
+    color: #fff;
+    padding: 22px 26px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 20px rgba(14, 53, 76, .22);
+    border-bottom: 3px solid var(--gold-500);
+}
+
+.admin-hero h1 { margin: 0 0 4px; color: #fff; font-size: 24px; }
+.admin-hero p { margin: 0; color: rgba(255, 255, 255, .85); font-size: 14px; }
+
+/* ---- شبكة الإحصائيات ---- */
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.admin-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #DEE8F0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 3px 0 #E3EBF3, 0 6px 18px rgba(20, 60, 90, .06);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.admin-stat:hover { transform: translateY(-2px); box-shadow: 0 5px 0 #E3EBF3, 0 10px 24px rgba(20, 60, 90, .10); }
+
+.admin-stat-ico {
+    font-size: 26px;
+    filter: drop-shadow(0 2px 3px rgba(20, 60, 90, .25));
+}
+
+.admin-stat-value { font-size: 26px; font-weight: 800; color: var(--sky-800); line-height: 1.1; }
+.admin-stat-label { font-size: 12.5px; font-weight: 700; color: #5B6B79; }
+
+.admin-stat-blue .admin-stat-value { color: var(--sky-700); }
+.admin-stat-gold .admin-stat-value { color: var(--gold-700); }
+.admin-stat-green .admin-stat-value { color: #2F7A54; }
+.admin-stat-amber .admin-stat-value { color: #A67733; }
+
+/* ---- بطاقات الوحدات ---- */
+.admin-modules {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.admin-module-card {
+    background: #fff;
+    border: 1px solid #DEE8F0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 3px 0 #E3EBF3, 0 6px 18px rgba(20, 60, 90, .06);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.admin-module-card:hover { transform: translateY(-2px); box-shadow: 0 5px 0 #E3EBF3, 0 12px 26px rgba(20, 60, 90, .10); }
+
+.amc-head {
+    background: linear-gradient(90deg, var(--sky-50), #fff);
+    border-bottom: 1px solid #DEE8F0;
+    padding: 12px 16px;
+}
+
+.amc-head h2 { margin: 0; font-size: 15px; color: var(--sky-800); font-weight: 800; }
+
+.amc-list { list-style: none; margin: 0; padding: 8px 12px; }
+
+.amc-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 8px;
+    border-radius: 9px;
+    border-bottom: 1px dashed #EDF2F7;
+}
+
+.amc-list li:last-child { border-bottom: none; }
+.amc-list li:hover { background: var(--sky-50); }
+
+.amc-link { font-weight: 700; color: var(--sky-700); flex: 1; }
+.amc-link:hover { color: var(--sky-800); text-decoration: none; }
+
+.amc-add {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(120deg, var(--gold-700), var(--gold-500));
+    color: var(--sky-900);
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(212, 175, 55, .4);
+    transition: transform .12s ease;
+}
+
+.amc-add:hover { transform: translateY(-1px); color: var(--sky-900); text-decoration: none; }
+
+/* ---- آخر الإجراءات ---- */
+.admin-recent {
+    background: #fff;
+    border: 1px solid #DEE8F0;
+    border-radius: 14px;
+    padding: 16px 20px;
+    box-shadow: 0 3px 0 #E3EBF3, 0 6px 18px rgba(20, 60, 90, .06);
+}
+
+.admin-recent h2 { margin: 0 0 12px; font-size: 16px; color: var(--sky-800); }
+
+.admin-log { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+
+.admin-log li {
+    padding: 10px 12px;
+    border: 1px solid #EDF2F7;
+    border-radius: 10px;
+    background: var(--sky-50);
+    font-size: 13px;
+}
+
+.admin-log li a { font-weight: 700; color: var(--sky-700); }
+
+/* ==========================================================================
+   أزرار احترافية
+   ========================================================================== */
+input[type="submit"], input[type="button"], .button {
+    border-radius: 9px;
+    font-weight: 700;
+    padding: 9px 18px;
+    box-shadow: 0 3px 0 #C3D5E3;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+
+input[type="submit"]:hover, input[type="button"]:hover, .button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 #C3D5E3;
+}
+
+input[type="submit"]:active, input[type="button"]:active, .button:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 #C3D5E3;
+}
+
+/* زر الحفظ الرئيسي */
+.submit-row input[type="submit"].default,
+input[type="submit"].default {
+    background: linear-gradient(120deg, var(--sky-700), var(--sky-500));
+    border: none;
+    color: #fff;
+    box-shadow: 0 3px 0 #0E354C, 0 5px 14px rgba(46, 150, 200, .35);
+}
+
+.submit-row input[type="submit"].default:hover { box-shadow: 0 5px 0 #0E354C, 0 6px 16px rgba(46, 150, 200, .45); }
+.submit-row input[type="submit"].default:active { box-shadow: 0 0 0 #0E354C; }
+
+/* أزرار الإجابات (اعتماد/حفظ في الأعلى) */
+.submit-row a, .submit-row input, .submit-row button { border-radius: 9px; }
+
+.submit-row a.deletelink { background: #FDEEEC; color: var(--red-700); border: 1px solid #FADDD8; padding: 9px 16px; }
+
+.object-tools a, .object-tools a:link, .object-tools a:visited {
+    background: linear-gradient(120deg, var(--gold-700), var(--gold-500));
+    color: var(--sky-900);
+    border-radius: 999px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 3px 8px rgba(212, 175, 55, .35);
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.object-tools a:hover { transform: translateY(-1px); box-shadow: 0 5px 12px rgba(212, 175, 55, .45); color: var(--sky-900); }
+
+/* ==========================================================================
+   حقول إدخال احترافية
+   ========================================================================== */
+.aligned .fieldBox select,
+.aligned select, .aligned input[type="text"], .aligned input[type="email"],
+.aligned input[type="password"], .aligned input[type="number"], .aligned input[type="date"],
+.aligned input[type="datetime-local"], .aligned textarea {
+    border-radius: 9px;
+    border: 1.5px solid #C9D8E4;
+    background: #fff;
+    padding: 9px 12px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.aligned select:focus, .aligned input:focus, .aligned textarea:focus {
+    border-color: var(--sky-500);
+    box-shadow: 0 0 0 3px rgba(46, 150, 200, .18);
+    outline: none;
+}
+
+.aligned .form-row label { color: var(--sky-800); font-weight: 700; }
+
+/* فحوصات (checkboxes) أوسع وأوضح */
+.aligned .checkbox-row input[type="checkbox"], .aligned input[type="checkbox"] {
+    width: 17px; height: 17px;
+    accent-color: var(--sky-500);
+    cursor: pointer;
+}
+
+/* فلاتر القائمة */
+#changelist .toplinks a, #changelist-filter li { border-radius: 8px; }
+#changelist-filter li.selected { background: var(--sky-50); border: 1px solid #A9DBF1; border-radius: 8px; }
+#changelist-filter li.selected a { color: var(--sky-800); }
+
+/* ==========================================================================
+   صفحة الدخول — بطاقة مركزية أنيقة
+   ========================================================================== */
+.login #container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 92vh;
+}
+
+.login #header { border-radius: 14px 14px 0 0; }
+
+.login #content {
+    background: #fff;
+    border: 1px solid #DEE8F0;
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+    box-shadow: 0 10px 30px rgba(14, 53, 76, .16);
+    padding: 26px 30px;
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.login #content-main { float: none; width: 100%; }
+
+.login .submit-row { padding: 0; box-shadow: none; }
+
+.login input[type="submit"] { width: 100%; padding: 12px; }
+
+.login .password-reset-link { text-align: center; }

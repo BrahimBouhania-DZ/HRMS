@@ -3,11 +3,66 @@
 المرجع: docs/03-database-design.md §3.6 + docs/01 §8.6 (BR-PAY) + docs/10-roadmap.md v2.
 """
 
+from decimal import Decimal
+
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import BaseModel
+
+
+class PayrollSettings(models.Model):
+    """إعدادات الحساب الآلي للرواتب والخصومات — يعدّلها المدير/موظف المالية.
+
+    سجل وحيد (singleton) كـ CompanySettings؛ عند عدم وجود سجل تُستخدم القيم الافتراضية.
+    """
+
+    salary_base_days = models.PositiveSmallIntegerField(
+        _("أيام الأساس للأجر اليومي"),
+        default=0,
+        help_text=_(
+            "0 = تُحسب تلقائيًا من تقويم الفترة (الاثنين..الجمعة − العطل الرسمية). "
+            "عند ضبطها (مثل 26) تُستخدم بدلاً منها في حساب الأجر اليومي (BR-PAY-002)."
+        ),
+    )
+    absence_deduction_enabled = models.BooleanField(
+        _("تفعيل خصم الغياب"),
+        default=True,
+        help_text=_("عند إيقافه لا يُسجَّل خصم آلي على أيام الغياب."),
+    )
+    absence_grace_days = models.PositiveSmallIntegerField(
+        _("أيام سماح للغياب"),
+        default=0,
+        help_text=_("عدد أيام الغياب المعفاة من الخصم كل شهر (يُخصم ما بعدها فقط)."),
+    )
+    auto_mark_absent = models.BooleanField(
+        _("العلام التلقائي للغياب عند توليد الرواتب"),
+        default=False,
+        help_text=_(
+            "BR-ATT-004: تُعلَّم أيام العمل التي لا يوجد لها مسح كغياب تلقائيًا "
+            "(مع استثناء الإجازات المعتمدة والمهام والعطل الرسمية)."
+        ),
+    )
+    eos_reward_factor = models.DecimalField(
+        _("عامل مكافأة نهاية الخدمة"),
+        max_digits=4,
+        decimal_places=2,
+        default=Decimal("0.50"),
+        help_text=_("مكافأة نهاية الخدمة = سنوات الخدمة × الأجر اليومي × هذا العامل."),
+    )
+
+    class Meta:
+        verbose_name = _("إعدادات الرواتب والخصم")
+        verbose_name_plural = _("إعدادات الرواتب والخصم")
+
+    def __str__(self):
+        return str(_("إعدادات الرواتب والخصم"))
+
+    @classmethod
+    def get_default(cls):
+        """أول سجل (يُنشأ عند أول استخدام إن لم يوجد)."""
+        return cls.objects.first()
 
 
 class PayElement(BaseModel):

@@ -4,11 +4,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% trans "طباعة بطاقة" %} — {{ employee.employee_code }}</title>
+<title>{% trans "طباعة بطاقات الموظفين" %}</title>
 <style>
     @page {
         size: A4 portrait;
-        margin: 8mm;
+        margin: 5mm;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
@@ -17,15 +17,18 @@
         color: #12233b;
     }
 
-    /* ===== ورقة A4 ===== */
+    /* ===== ورقة A4 (200×287 = أبعاد A4 مطروحًا منها هامش 5mm) ===== */
     .sheet {
         position: relative;
-        width: 194mm;      /* 210 - 16 (هوامش @page) */
-        height: 281mm;     /* 297 - 16 */
+        width: 200mm;
+        height: 287mm;
+        padding: 28.5mm 0;   /* يوزّع صفوف البطاقات الثلاثة عموديًا */
         margin: 0 auto;
+        page-break-after: always;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
+    .sheet:last-of-type { page-break-after: auto; }
 
     /* ===== خلفية رمز الشركة (علامة مائية قابلة للتعديل) ===== */
     .watermark {
@@ -58,14 +61,14 @@
         text-align: center;
     }
 
-    /* ===== شبكة البطاقات: 2 × 2 ===== */
+    /* ===== شبكة البطاقات: 2 × 3 (بطاقة 100×70mm) ===== */
     .cards {
         position: relative;
         z-index: 1;
         display: grid;
-        grid-template-columns: repeat(2, 85.6mm);
-        grid-template-rows: repeat(2, 54mm);
-        gap: 10mm 12mm;
+        grid-template-columns: repeat(2, 100mm);
+        grid-template-rows: repeat(3, 70mm);
+        gap: 10mm;
         justify-content: center;
         align-content: center;
         height: 100%;
@@ -83,21 +86,23 @@
     .cut-v {
         top: 0; bottom: 0; inset-inline-start: 50%;
         border-width: 0 0 0 0.3mm;
-        /* الخط نفسه: نرسمه بحد خفيف */
     }
     .cut-h {
-        left: 0; right: 0; top: 50%;
+        left: 0; right: 0;
         border-width: 0.3mm 0 0 0;
     }
+    .cut-h-1 { top: 103.5mm; }   /* بين الصف الأول والثاني */
+    .cut-h-2 { top: 183.5mm; }   /* بين الصف الثاني والثالث */
 
     @media screen {
         body { background: #eef2f7; padding: 12mm; }
-        .sheet { background: #fff; box-shadow: 0 6px 24px rgba(18, 35, 59, .15); border-radius: 3mm; }
+        .sheet { background: #fff; box-shadow: 0 6px 24px rgba(18, 35, 59, .15); border-radius: 3mm; margin-bottom: 12mm; }
         .cut-v, .cut-h { border-color: #8aa0b6; }
     }
 </style>
 </head>
 <body>
+{% for sheet in sheets %}
 <div class="sheet" style="--wm-op: {{ COMPANY.watermark_opacity|default:8 }};">{% if COMPANY and COMPANY.show_logo_watermark %}
     <div class="watermark">
         {% if COMPANY.logo %}
@@ -109,15 +114,16 @@
     {% endif %}
 
     <div class="cards">
-        {% include "employees/_id_card.html" %}
-        {% include "employees/_id_card.html" %}
-        {% include "employees/_id_card.html" %}
-        {% include "employees/_id_card.html" %}
+        {% for card in sheet.cards %}
+        {% include "employees/_id_card.html" with employee=card.employee payload=card.payload qr=card.qr %}
+        {% endfor %}
     </div>
 
     <div class="cut-v" aria-hidden="true"></div>
-    <div class="cut-h" aria-hidden="true"></div>
+    <div class="cut-h cut-h-1" aria-hidden="true"></div>
+    <div class="cut-h cut-h-2" aria-hidden="true"></div>
 </div>
+{% endfor %}
 <script>
     window.onload = function () { window.print(); };
 </script>

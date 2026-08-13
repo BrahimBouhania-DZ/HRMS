@@ -9,12 +9,17 @@
             <input type="search" name="q" value="{{ q }}" placeholder="{% trans "بحث بالاسم أو الرقم..." %}">
             <button type="submit" class="btn">{% trans "بحث" %}</button>
         </form>
+        <button type="button" class="btn btn-gold" id="print-selected" disabled onclick="printSelected()">
+            🖨 {% trans "طباعة البطاقات المحددة" %}
+        </button>
         <a class="btn btn-primary" href="{% url 'employees:employee_create' %}">+ {% trans "موظف جديد" %}</a>
     </div>
 </div>
+<form id="employees-form">
 <table class="table">
     <thead>
         <tr>
+            <th class="col-check"><input type="checkbox" id="select-all" title="{% trans "تحديد الكل" %}"></th>
             <th>{% trans "الرقم" %}</th>
             <th>{% trans "الاسم" %}</th>
             <th>{% trans "الفرع" %}</th>
@@ -27,6 +32,7 @@
     <tbody>
         {% for emp in employees %}
         <tr>
+            <td class="col-check"><input type="checkbox" class="emp-check" value="{{ emp.pk }}"></td>
             <td>{{ emp.employee_code }}</td>
             <td>{{ emp.first_name_ar }} {{ emp.last_name_ar }}</td>
             <td>{{ emp.branch.name_ar|default:"—" }}</td>
@@ -39,10 +45,12 @@
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="empty">{% trans "لا يوجد موظفون بعد" %}</td></tr>
+        <tr><td colspan="8" class="empty">{% trans "لا يوجد موظفون بعد" %}</td></tr>
         {% endfor %}
     </tbody>
 </table>
+</form>
+<p class="muted print-hint">{% trans "ملاحظة: يتم إرسال التحديد من الصفحة الحالية فقط إلى الطباعة." %}</p>
 {% if is_paginated %}
 <div class="pagination">
     {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ q }}">« {% trans "السابق" %}</a>{% endif %}
@@ -50,4 +58,28 @@
     {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ q }}">{% trans "التالي" %} »</a>{% endif %}
 </div>
 {% endif %}
+<script>
+    var selectAll = document.getElementById("select-all");
+    var printBtn = document.getElementById("print-selected");
+
+    function updatePrintBtn() {
+        var any = document.querySelectorAll(".emp-check:checked").length > 0;
+        printBtn.disabled = !any;
+    }
+
+    selectAll.addEventListener("change", function () {
+        document.querySelectorAll(".emp-check").forEach(function (cb) { cb.checked = selectAll.checked; });
+        updatePrintBtn();
+    });
+    document.querySelectorAll(".emp-check").forEach(function (cb) {
+        cb.addEventListener("change", updatePrintBtn);
+    });
+
+    function printSelected() {
+        var ids = Array.from(document.querySelectorAll(".emp-check:checked")).map(function (cb) { return cb.value; });
+        if (!ids.length) return;
+        var url = "{% url 'employees:employee_cards_print' %}?ids=" + ids.join(",");
+        window.open(url, "_blank");
+    }
+</script>
 {% endblock %}

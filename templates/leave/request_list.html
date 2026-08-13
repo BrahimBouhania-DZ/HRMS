@@ -43,6 +43,12 @@
                     {% csrf_token %}
                     <button class="btn btn-sm btn-danger" type="submit">{% trans "رفض" %}</button>
                 </form>
+                {% if r.current_level < r.leave_type.requires_approval_levels %}
+                <form method="post" action="{% url 'leave:request_approve' r.pk 'escalate' %}" class="inline-form">
+                    {% csrf_token %}
+                    <button class="btn btn-sm" type="submit">{% trans "تصعيد" %}</button>
+                </form>
+                {% endif %}
                 {% endif %}
             </td>
         </tr>

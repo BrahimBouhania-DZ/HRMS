@@ -120,8 +120,8 @@
 | Documents | مستودع + فئات + صلاحيات + إصدارات + عارض + إشعار صلاحية | 03/04 |
 | Backup/Restore | مهام Celery + تشفير + اختبار استعادة شهري | 09 |
 | Audit | تقوية append-only + لوحة سجل التدقيق + تقارير أمان | 09/08 |
-| Notifications | جدولة انتهاء + تفضيلات + بريد LAN | 03 |
-| Performance | PerfCycle + Reviews + Objectives/KPIs + PIP | 03 |
+| Notifications | جدولة انتهاء (تمّت) + تفضيلات (تمّت) + بريد LAN | 03 |
+| Performance | PerfCycle + Reviews + Objectives/KPIs + PIP (تمّت) | 03 |
 | Reports | فهرس v2 (مالية + إدارية + أمان) + جدولة تقارير | 08 |
 
 ### معايير القبول v2

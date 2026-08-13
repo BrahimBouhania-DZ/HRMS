@@ -10,4 +10,5 @@ app_name = "core"
 urlpatterns = [
     path("", login_required(views.home), name="home"),
     path("search/", views.search, name="search"),
+    path("audit/", views.AuditLogView.as_view(), name="audit_log"),
 ]

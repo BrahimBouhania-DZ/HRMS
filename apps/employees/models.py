@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import BaseModel
@@ -41,6 +42,12 @@ class Employee(BaseModel):
     email = models.EmailField(_("البريد الإلكتروني"), blank=True)
     address = models.TextField(_("العنوان"), blank=True)
     bank_account = models.CharField(_("الحساب البنكي"), max_length=50, blank=True, help_text=_("لتصدير البنك (FR-PAY-008)"))
+    national_id = models.CharField(
+        _("رقم الهوية الوطنية"),
+        max_length=30,
+        blank=True,
+        help_text=_("يُعرض على بطاقة الموظف"),
+    )
     photo = models.ImageField(_("الصورة"), upload_to="employees/photos/", null=True, blank=True)
     employment_status = models.CharField(
         _("الحالة الوظيفية"),
@@ -125,10 +132,34 @@ class Contract(BaseModel):
     base_salary = models.DecimalField(_("الأجر الأساسي"), max_digits=15, decimal_places=2)
     allowance = models.DecimalField(_("العلاوات"), max_digits=15, decimal_places=2, default=0)
     currency = models.CharField(_("العملة"), max_length=3, default="DZD")
+    previous_contract = models.OneToOneField(
+        "self",
+        verbose_name=_("العقد السابق"),
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="renewal",
+    )
 
     class Meta:
         verbose_name = _("عقد")
         verbose_name_plural = _("العقود")
+
+    @property
+    def status(self) -> str:
+        """active / expiring (خلال 30 يومًا) / expired."""
+        today = timezone.localdate()
+        if self.end_date and self.end_date < today:
+            return "expired"
+        if self.end_date and (self.end_date - today).days <= 30:
+            return "expiring"
+        return "active"
+
+    @property
+    def days_to_expiry(self):
+        if not self.end_date:
+            return None
+        return (self.end_date - timezone.localdate()).days
 
     def __str__(self):
         return f"{self.contract_number} — {self.employee}"
@@ -147,6 +178,16 @@ class Document(BaseModel):
     class Meta:
         verbose_name = _("مستند")
         verbose_name_plural = _("المستندات")
+
+    @property
+    def status(self) -> str:
+        """active / expiring (خلال 30 يومًا) / expired."""
+        today = timezone.localdate()
+        if self.expiry_date and self.expiry_date < today:
+            return "expired"
+        if self.expiry_date and (self.expiry_date - today).days <= 30:
+            return "expiring"
+        return "active"
 
     def __str__(self):
         return self.title

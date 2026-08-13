@@ -1,7 +1,8 @@
-"""خدمة الإشعارات — إنشاء in_app مع احترام التفضيلات (S4).
+"""خدمة الإشعارات — إنشاء in_app + بريد LAN مع احترام التفضيلات (S4/v2).
 
-المرجع: docs/03 §3.9 + docs/10-roadmap.md S4 (طلبات/قرارات).
-قناة البريد LAN تُضاف في v2 — الإشعار الأساسي داخل التطبيق.
+المرجع: docs/03 §3.9 + docs/10-roadmap.md v2 (بريد LAN).
+القناة البريدية تُفعَّل لكل نوع عبر تفضيل NotificationPref (channel=email)،
+وتُرسل عبر إعدادات البريد في base.py — مفتوحة على SMTP LAN.
 """
 
 from django.utils.translation import gettext as _
@@ -9,29 +10,78 @@ from django.utils.translation import gettext as _
 from .models import Notification, NotificationPref
 
 
+def _pref_enabled(user, type, channel) -> bool:
+    """تفضيل القناة لنوع معين — غياب التفضيل يعني مفعّلًا (افتراضي)."""
+    pref = NotificationPref.objects.filter(user=user, type=type, channel=channel).first()
+    return pref is None or pref.enabled
+
+
 def notify(user, type, title, body="", related=None):
-    """ينشئ إشعار in_app إن كانت قناة in_app مفعّلة لذلك النوع."""
+    """ينشئ إشعار in_app إن كانت قناة in_app مفعّلة، ويرسل بريد LAN إن كان مفعّلًا."""
     if user is None:
         return None
-    enabled = NotificationPref.objects.filter(
-        user=user, type=type, channel=NotificationPref.Channel.IN_APP
-    ).first()
-    if enabled is not None and not enabled.enabled:
-        return None
 
-    related_model = related_id = None
-    if related is not None:
-        related_model = related.__class__.__name__.lower()
-        related_id = related.pk
+    notification = None
+    if _pref_enabled(user, type, NotificationPref.Channel.IN_APP):
+        related_model = related_id = None
+        if related is not None:
+            related_model = related.__class__.__name__.lower()
+            related_id = related.pk
 
-    return Notification.objects.create(
-        user=user,
-        type=type,
-        title=title,
-        body=body,
-        related_model=related_model or "",
-        related_id=related_id,
+        notification = Notification.objects.create(
+            user=user,
+            type=type,
+            title=title,
+            body=body,
+            related_model=related_model or "",
+            related_id=related_id,
+        )
+
+    if _pref_enabled(user, type, NotificationPref.Channel.EMAIL):
+        _send_email_notification(user, type, title, body)
+
+    return notification
+
+
+def _send_email_notification(user, type, title, body):
+    """يرسل بريد LAN إن كانت الميزة مفعّلة (HRMS_EMAIL_ENABLED) وبريد المستخدم معروف."""
+    address = getattr(user, "email", "") or ""
+    if not address:
+        return False
+    from django.conf import settings
+    from django.core.mail import send_mail
+
+    if not settings.HRMS_EMAIL_ENABLED:
+        return False
+    send_mail(
+        subject=f"[HRMS] {title}",
+        message=body or title,
+        from_email=None,  # DEFAULT_FROM_EMAIL
+        recipient_list=[address],
+        fail_silently=True,
     )
+    return True
+
+
+def set_notification_pref(user, type, channel, enabled):
+    """يضبط تفضيل قناة لنوع إشعار (إنشاء/تحديث)."""
+    pref, _ = NotificationPref.objects.get_or_create(
+        user=user, type=type, channel=channel,
+        defaults={"enabled": enabled},
+    )
+    if pref.enabled != enabled:
+        pref.enabled = enabled
+        pref.save(update_fields=["enabled"])
+    return pref
+
+
+def email_prefs(user) -> dict:
+    """خريطة النوع ← الحالة الفعلية للقناة البريدية (غياب التفضيل = مفعّل)."""
+    disabled = set(
+        NotificationPref.objects.filter(user=user, channel=NotificationPref.Channel.EMAIL)
+        .filter(enabled=False).values_list("type", flat=True)
+    )
+    return {t: t not in disabled for t, _ in Notification.Type.choices}
 
 
 def notify_leave_submitted(request, requester):

@@ -1,8 +1,29 @@
 """إدارة الرواتب (v2)."""
 
 from django.contrib import admin
+from django.utils.translation import gettext as _
 
-from .models import EndOfService, PayElement, PayRun, PayrollLine, Payslip
+from .models import (
+    EndOfService,
+    PayElement,
+    PayRun,
+    PayrollLine,
+    PayrollSettings,
+    Payslip,
+)
+
+
+@admin.register(PayrollSettings)
+class PayrollSettingsAdmin(admin.ModelAdmin):
+    """إعدادات الحساب الآلي للخصم والغياب — للمدير أو موظف المالية المختص."""
+
+    fieldsets = (
+        (None, {"fields": ("salary_base_days", "eos_reward_factor")}),
+        (
+            _("خصم الغياب"),
+            {"fields": ("absence_deduction_enabled", "absence_grace_days", "auto_mark_absent")},
+        ),
+    )
 
 
 @admin.register(PayElement)

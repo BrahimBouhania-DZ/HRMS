@@ -5,14 +5,19 @@
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
 from django.views import View
 from django.views.generic import ListView
 
-from .models import Notification
-from .services import mark_all_as_read, mark_as_read
+from .models import Notification, NotificationPref
+from .services import (
+    email_prefs,
+    mark_all_as_read,
+    mark_as_read,
+    set_notification_pref,
+)
 
 
 class NotificationListView(LoginRequiredMixin, ListView):
@@ -50,3 +55,25 @@ class NotificationMarkAllReadView(LoginRequiredMixin, View):
         mark_all_as_read(request.user)
         messages.success(request, _("عُلمت جميع الإشعارات كمقروءة"))
         return redirect(reverse_lazy("notif:list"))
+
+
+class NotificationPrefsView(LoginRequiredMixin, View):
+    """تفضيلات البريد LAN — تفعيل/تعطيل البريد لكل نوع إشعار."""
+
+    template_name = "notif/prefs.html"
+
+    def get(self, request):
+        ctx = {
+            "types": [(value, label, email_prefs(request.user).get(value, True))
+                      for value, label in Notification.Type.choices],
+        }
+        return render(request, self.template_name, ctx)
+
+    def post(self, request):
+        checked = set(request.POST.getlist("email"))
+        for value, label in Notification.Type.choices:
+            set_notification_pref(
+                request.user, value, NotificationPref.Channel.EMAIL, value in checked
+            )
+        messages.success(request, _("حُفظت تفضيلات البريد"))
+        return redirect("notif:prefs")

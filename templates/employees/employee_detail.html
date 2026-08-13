@@ -35,4 +35,43 @@
         </dl>
     </section>
 </div>
+<section class="card">
+    <h2>{% trans "العقود" %} <a class="btn btn-sm" href="{% url 'employees:contract_create' %}?employee={{ employee.pk }}">+ {% trans "عقد جديد" %}</a></h2>
+    <table class="table">
+        <thead><tr><th>{% trans "الرقم" %}</th><th>{% trans "النوع" %}</th><th>{% trans "البداية" %}</th><th>{% trans "النهاية" %}</th><th>{% trans "الحالة" %}</th><th></th></tr></thead>
+        <tbody>
+            {% for c in employee.contracts.all %}
+            <tr>
+                <td>{{ c.contract_number }}</td>
+                <td>{{ c.get_contract_type_display }}</td>
+                <td>{{ c.start_date|date:"Y-m-d" }}</td>
+                <td>{{ c.end_date|date:"Y-m-d"|default:"—" }}</td>
+                <td><span class="badge badge-{{ c.status }}">{{ c.status }}</span></td>
+                <td><a class="btn btn-sm" href="{% url 'employees:contract_edit' c.pk %}">{% trans "تعديل" %}</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="empty">{% trans "لا عقود" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+<section class="card">
+    <h2>{% trans "الوثائق" %}</h2>
+    <table class="table">
+        <thead><tr><th>{% trans "العنوان" %}</th><th>{% trans "النوع" %}</th><th>{% trans "الانتهاء" %}</th><th>{% trans "الحالة" %}</th><th></th></tr></thead>
+        <tbody>
+            {% for d in employee.documents.all %}
+            <tr>
+                <td>{{ d.title }}</td>
+                <td>{{ d.document_type }}</td>
+                <td>{{ d.expiry_date|date:"Y-m-d"|default:"—" }}</td>
+                <td><span class="badge badge-{{ d.status }}">{{ d.status }}</span></td>
+                <td><a class="btn btn-sm" href="{% url 'employees:document_download' d.pk %}">{% trans "تنزيل" %}</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="empty">{% trans "لا مستندات" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
 {% endblock %}

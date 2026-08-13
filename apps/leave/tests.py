@@ -28,6 +28,8 @@ from apps.leave.services import (
     approve_request,
     calculate_leave_days,
     cancel_request,
+    carryover_balance,
+    escalate_request,
     reject_request,
     submit_request,
 )
@@ -177,6 +179,75 @@ class LeaveRequestFlowTests(TestCase):
         self.assertEqual(self.balance.adjusted, 1)
 
 
+class LeaveCarryoverAndEscalationTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.branch = _branch()
+        cls.employee = Employee.objects.create(
+            employee_code="E-CE", first_name_ar="ر", last_name_ar="خ",
+            branch=cls.branch,
+        )
+        cls.approver = User.objects.create_user(username="ce_approver", password="pass")
+
+    def test_carryover_moves_remaining_capped(self):
+        annual = _annual(carryover_allowed=True, max_carryover_days=15)
+        LeaveBalance.objects.create(
+            employee=self.employee, leave_type=annual, year=2025, granted=30, used=18
+        )
+        bal = carryover_balance(self.employee, annual, 2025, 2026, user=None)
+        # المتبقي 12 ≤ سقف 15 → يُرحل كاملًا
+        self.assertEqual(bal.year, 2026)
+        self.assertEqual(float(bal.carried_from), 12)
+        self.assertEqual(float(bal.granted), 30)  # منح السنة الجديدة تلقائيًا
+
+    def test_carryover_caps_at_max(self):
+        annual = _annual(carryover_allowed=True, max_carryover_days=10)
+        LeaveBalance.objects.create(
+            employee=self.employee, leave_type=annual, year=2025, granted=30, used=2
+        )
+        bal = carryover_balance(self.employee, annual, 2025, 2026)
+        # المتبقي 28 > سقف 10 → يُرحل 10 فقط
+        self.assertEqual(float(bal.carried_from), 10)
+
+    def test_carryover_rejects_non_carryover_type(self):
+        annual = _annual(carryover_allowed=False, max_carryover_days=0)
+        LeaveBalance.objects.create(
+            employee=self.employee, leave_type=annual, year=2025, granted=30, used=0
+        )
+        with self.assertRaises(LeaveError):
+            carryover_balance(self.employee, annual, 2025, 2026)
+
+    def test_carryover_rejects_non_adjacent_years(self):
+        annual = _annual(carryover_allowed=True, max_carryover_days=15)
+        with self.assertRaises(LeaveError):
+            carryover_balance(self.employee, annual, 2024, 2026)
+
+    def test_escalate_moves_to_next_level(self):
+        annual = _annual(requires_approval_levels=2)
+        req = submit_request(self.employee, annual, datetime.date(2026, 8, 10), datetime.date(2026, 8, 14))
+        req = escalate_request(req, self.approver, comment="غير مختص")
+        req.refresh_from_db()
+        self.assertEqual(req.status, LeaveRequest.Status.PENDING)
+        self.assertEqual(req.current_level, 2)
+        self.assertEqual(req.approvals.count(), 1)
+        self.assertEqual(req.approvals.first().action, LeaveApproval.Action.ESCALATED)
+        req = approve_request(req, self.approver)
+        self.assertEqual(req.status, LeaveRequest.Status.APPROVED)
+
+    def test_escalate_rejects_at_top_level(self):
+        annual = _annual(requires_approval_levels=1)
+        req = submit_request(self.employee, annual, datetime.date(2026, 8, 10), datetime.date(2026, 8, 14))
+        with self.assertRaises(LeaveError):
+            escalate_request(req, self.approver)
+
+    def test_submit_rejects_overlapping_request(self):
+        annual = _annual()
+        LeaveBalance.objects.create(employee=self.employee, leave_type=annual, year=2026, granted=30)
+        submit_request(self.employee, annual, datetime.date(2026, 8, 10), datetime.date(2026, 8, 14))
+        with self.assertRaises(LeaveError):
+            submit_request(self.employee, annual, datetime.date(2026, 8, 12), datetime.date(2026, 8, 18))
+
+
 class LeaveViewsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -242,6 +313,20 @@ class LeaveViewsTests(TestCase):
         self.assertEqual(req.status, LeaveRequest.Status.APPROVED)
         bal = LeaveBalance.objects.get(employee=self.employee, leave_type=annual, year=2026)
         self.assertEqual(bal.used, 3)
+
+    def test_hr_escalates_via_queue(self):
+        annual = _annual(requires_approval_levels=2)
+        req = submit_request(self.employee, annual, datetime.date(2026, 9, 7), datetime.date(2026, 9, 9))
+        self.client.force_login(self.hr)
+        resp = self.client.post(
+            reverse("leave:request_approve", args=[req.pk, "escalate"]),
+            {"comment": "تصعيد"},
+        )
+        self.assertEqual(resp.status_code, 302)
+        req.refresh_from_db()
+        self.assertEqual(req.status, LeaveRequest.Status.PENDING)
+        self.assertEqual(req.current_level, 2)
+        self.assertEqual(req.approvals.get(level=1).action, LeaveApproval.Action.ESCALATED)
 
     def test_employee_cannot_see_queue(self):
         self.client.force_login(self.emp_user)

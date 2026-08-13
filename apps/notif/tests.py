@@ -10,10 +10,10 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.auth_app.models import Role, RoleMember, User
-from apps.employees.models import Employee
+from apps.employees.models import Contract, Document, Employee
 from apps.leave.models import LeaveRequest, LeaveType
 from apps.leave.services import approve_request, reject_request, submit_request
-from apps.notif.models import Notification, NotificationPref
+from apps.notif.models import Notification, NotificationPref, ScheduledAlert
 
 
 def make_user(username, is_superuser=False):
@@ -68,6 +68,70 @@ class NotificationServiceTests(TestCase):
         n = notify(self.user, Notification.Type.SYSTEM, "عنوان", related=req)
         self.assertEqual(n.related_model, "leaverequest")
         self.assertEqual(n.related_id, 123)
+
+    def test_email_channel_sends_mail_when_enabled(self):
+        from django.core import mail
+        from django.test import override_settings
+
+        from apps.notif.services import notify
+
+        self.user.email = "emp@lan.local"
+        self.user.save(update_fields=["email"])
+        with override_settings(HRMS_EMAIL_ENABLED=True):
+            notify(self.user, Notification.Type.SYSTEM, "بريد", "نص البريد")
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["emp@lan.local"])
+        self.assertIn("بريد", mail.outbox[0].subject)
+        self.assertEqual(Notification.objects.filter(user=self.user).count(), 1)
+
+    def test_email_disabled_pref_blocks_mail(self):
+        from django.core import mail
+        from django.test import override_settings
+
+        from apps.notif.services import notify
+
+        self.user.email = "emp@lan.local"
+        self.user.save(update_fields=["email"])
+        NotificationPref.objects.create(
+            user=self.user, type=Notification.Type.SYSTEM,
+            channel=NotificationPref.Channel.EMAIL, enabled=False,
+        )
+        with override_settings(HRMS_EMAIL_ENABLED=True):
+            notify(self.user, Notification.Type.SYSTEM, "بريد")
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_email_not_sent_when_feature_off(self):
+        from django.core import mail
+        from django.test import override_settings
+
+        from apps.notif.services import notify
+
+        self.user.email = "emp@lan.local"
+        self.user.save(update_fields=["email"])
+        with override_settings(HRMS_EMAIL_ENABLED=False):
+            notify(self.user, Notification.Type.SYSTEM, "بريد")
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_no_email_address_skips_mail(self):
+        from django.core import mail
+        from django.test import override_settings
+
+        from apps.notif.services import notify
+
+        with override_settings(HRMS_EMAIL_ENABLED=True):
+            notify(self.user, Notification.Type.SYSTEM, "بريد")
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_set_pref_and_email_prefs_map(self):
+        from apps.notif.services import email_prefs, set_notification_pref
+
+        set_notification_pref(self.user, Notification.Type.SYSTEM,
+                              NotificationPref.Channel.EMAIL, False)
+        self.assertFalse(email_prefs(self.user)[Notification.Type.SYSTEM])
+        self.assertTrue(email_prefs(self.user)[Notification.Type.LEAVE_SUBMITTED])  # افتراضي
+        set_notification_pref(self.user, Notification.Type.SYSTEM,
+                              NotificationPref.Channel.EMAIL, True)
+        self.assertTrue(email_prefs(self.user)[Notification.Type.SYSTEM])
 
 
 class LeaveNotificationHooksTests(TestCase):
@@ -194,3 +258,175 @@ class NotificationViewTests(TestCase):
         resp = self.client.post(reverse("notif:mark_read", args=[n.pk]))
         self.assertEqual(resp.status_code, 404)
         self.assertFalse(Notification.objects.get(pk=n.pk).is_read)
+
+    def test_prefs_page_requires_login(self):
+        resp = self.client.get(reverse("notif:prefs"))
+        self.assertEqual(resp.status_code, 302)
+
+    def test_prefs_page_lists_types(self):
+        self.client.force_login(self.emp_user)
+        resp = self.client.get(reverse("notif:prefs"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "بريد")
+
+    def test_prefs_save_email_prefs(self):
+        from apps.notif.services import email_prefs
+
+        self.client.force_login(self.emp_user)
+        resp = self.client.post(reverse("notif:prefs"), {
+            "email": [Notification.Type.LEAVE_SUBMITTED, Notification.Type.LEAVE_APPROVED],
+        })
+        self.assertRedirects(resp, reverse("notif:prefs"))
+        prefs = email_prefs(self.emp_user)
+        self.assertTrue(prefs[Notification.Type.LEAVE_SUBMITTED])
+        self.assertTrue(prefs[Notification.Type.LEAVE_APPROVED])
+        self.assertFalse(prefs[Notification.Type.SYSTEM])
+
+
+class ScheduledAlertScannerTests(TestCase):
+    """ماسح التنبيهات المجدولة: عقود/وثائق/تجربة + منع التكرار."""
+
+    def setUp(self):
+        self.hr = make_user("hr_alerts", is_superuser=True)
+        self.emp_user = make_user("emp_alerts")
+        self.emp = Employee.objects.create(
+            employee_code="EMP-AL1",
+            first_name_ar="تتبع",
+            last_name_ar="تنبيهات",
+            hire_date=date.today() - timedelta(days=20),
+            user=self.emp_user,
+            employment_status=Employee.EmploymentStatus.PROBATION,
+        )
+        self.cdd = Contract.objects.create(
+            contract_number="CTR-AL-1",
+            employee=self.emp,
+            contract_type=Contract.ContractType.CDD,
+            start_date=date.today() - timedelta(days=100),
+            end_date=date.today() + timedelta(days=10),
+            gross_salary=50000,
+            base_salary=45000,
+        )
+
+    def _doc(self, days=10, title="جواز سفر"):
+        return Document.objects.create(
+            employee=self.emp,
+            document_type="passport",
+            title=title,
+            file="employees/documents/passport.pdf",
+            expiry_date=date.today() + timedelta(days=days),
+        )
+
+    def test_contract_expiry_fires_notification(self):
+        from apps.notif.scheduler import run_all
+
+        stats = run_all()
+        self.assertEqual(stats["contracts"], 1)
+        n = Notification.objects.filter(
+            user=self.hr, type=Notification.Type.CONTRACT_EXPIRING
+        ).first()
+        self.assertIsNotNone(n)
+        self.assertIn("CTR-AL-1", n.title + n.body)
+
+    def test_document_expiry_fires_notification(self):
+        from apps.notif.scheduler import run_all
+
+        self._doc(days=15)
+        stats = run_all()
+        self.assertEqual(stats["documents"], 1)
+        n = Notification.objects.filter(
+            user=self.hr, type=Notification.Type.DOCUMENT_EXPIRING
+        ).first()
+        self.assertIsNotNone(n)
+
+    def test_probation_end_fires_notification(self):
+        from apps.notif.scheduler import run_all
+
+        # التجربة انتهت من 90 يومًا؟ اجعل تاريخ التوظيف قريبًا من النهاية
+        self.emp.hire_date = date.today() - timedelta(days=85)
+        self.emp.save()
+        stats = run_all()
+        self.assertEqual(stats["probation"], 1)
+        n = Notification.objects.filter(
+            user=self.hr, type=Notification.Type.PROBATION_END
+        ).first()
+        self.assertIsNotNone(n)
+
+    def test_idempotent_second_run_fires_nothing(self):
+        from apps.notif.scheduler import run_all
+
+        run_all()
+        first_alert_count = ScheduledAlert.objects.count()
+        first_notif_count = Notification.objects.count()
+        stats = run_all()
+        self.assertEqual(stats["contracts"], 0)
+        self.assertEqual(ScheduledAlert.objects.count(), first_alert_count)
+        self.assertEqual(Notification.objects.count(), first_notif_count)
+
+    def test_outside_window_ignored(self):
+        from apps.notif.scheduler import run_all
+
+        self.cdd.end_date = date.today() + timedelta(days=90)
+        self.cdd.save()
+        self._doc(days=90)
+        stats = run_all()
+        self.assertEqual(stats["contracts"], 0)
+        self.assertEqual(stats["documents"], 0)
+
+    def test_expired_contract_ignored(self):
+        from apps.notif.scheduler import run_all
+
+        self.cdd.end_date = date.today() - timedelta(days=1)
+        self.cdd.save()
+        stats = run_all()
+        self.assertEqual(stats["contracts"], 0)
+
+    def test_renewed_contract_not_re_alerted(self):
+        """عقد استُبدل بعقد تجديد (renewal) لا يولّد تنبيها."""
+        from apps.notif.scheduler import run_all
+
+        Contract.objects.create(
+            contract_number="CTR-AL-2",
+            employee=self.emp,
+            contract_type=Contract.ContractType.CDD,
+            start_date=date.today() + timedelta(days=11),
+            end_date=date.today() + timedelta(days=310),
+            gross_salary=50000,
+            base_salary=45000,
+            previous_contract=self.cdd,
+        )
+        stats = run_all()
+        self.assertEqual(stats["contracts"], 0)
+        self.assertFalse(
+            ScheduledAlert.objects.filter(alert_type="contract_expiry").exists()
+        )
+
+    def test_only_hr_recipients_notified(self):
+        """موظف عادي بلا صلاحية HR لا يتلقى تنبيهات الانتهاء."""
+        from apps.notif.scheduler import run_all
+
+        outsider = make_user("outsider_alerts")
+        run_all()
+        self.assertFalse(
+            Notification.objects.filter(user=outsider).exists()
+        )
+        self.assertTrue(
+            Notification.objects.filter(user=self.hr, type=Notification.Type.CONTRACT_EXPIRING).exists()
+        )
+
+    def test_dry_run_creates_nothing(self):
+        """وضع التجربة يعرض الإحصاء دون إنشاء سجلات أو إشعارات."""
+        from apps.notif.scheduler import run_all
+
+        stats = run_all(commit=False)
+        self.assertEqual(stats["contracts"], 1)
+        self.assertEqual(ScheduledAlert.objects.count(), 0)
+        self.assertEqual(Notification.objects.count(), 0)
+
+    def test_contract_expiry_includes_employee_in_payload(self):
+        from apps.notif.scheduler import run_all
+
+        run_all()
+        alert = ScheduledAlert.objects.filter(alert_type="contract_expiry").first()
+        self.assertIsNotNone(alert)
+        self.assertEqual(alert.payload_json["contract"], "CTR-AL-1")
+        self.assertEqual(alert.payload_json["employee"], str(self.emp))

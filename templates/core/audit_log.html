@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "سجل التدقيق" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "سجل التدقيق" %}</h1>
+    <div class="filters">
+        <form method="get" class="filter-form">
+            <select name="action">
+                <option value="">{% trans "كل الإجراءات" %}</option>
+                {% for value, label in actions %}
+                <option value="{{ value }}" {% if action == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="model" value="{{ model }}" placeholder="{% trans "النموذج..." %}" class="small-input">
+            <input type="text" name="q" value="{{ q }}" placeholder="{% trans "بحث..." %}" class="small-input">
+            <button class="btn btn-sm" type="submit">{% trans "تصفية" %}</button>
+        </form>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr><th>{% trans "الوقت" %}</th><th>{% trans "المستخدم" %}</th><th>{% trans "الإجراء" %}</th><th>{% trans "النموذج" %}</th><th>{% trans "الوصف" %}</th><th>{% trans "IP" %}</th></tr>
+    </thead>
+    <tbody>
+        {% for e in entries %}
+        <tr>
+            <td>{{ e.created_at|date:"Y-m-d H:i:s" }}</td>
+            <td>{{ e.user|default:"نظام" }}</td>
+            <td><span class="badge badge-{{ e.action }}">{{ e.get_action_display }}</span></td>
+            <td>{{ e.model_name }}</td>
+            <td>{{ e.object_repr }}</td>
+            <td>{{ e.ip|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="empty">{% trans "لا سجلات" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&action={{ action }}&model={{ model }}&q={{ q }}">{% trans "السابق" %}</a>{% endif %}
+    <span>{% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}صفحة {{ n }} / {{ total }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&action={{ action }}&model={{ model }}&q={{ q }}">{% trans "التالي" %}</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "العقود" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "العقود" %}</h1>
+    <div class="filters">
+        <form method="get" class="filter-form">
+            <select name="status">
+                <option value="">{% trans "كل الحالات" %}</option>
+                <option value="active" {% if status == "active" %}selected{% endif %}>{% trans "سارية" %}</option>
+                <option value="expiring" {% if status == "expiring" %}selected{% endif %}>{% trans "تنتهي خلال 30 يوم" %}</option>
+                <option value="expired" {% if status == "expired" %}selected{% endif %}>{% trans "منتهية" %}</option>
+            </select>
+            <button class="btn btn-sm" type="submit">{% trans "تصفية" %}</button>
+        </form>
+    </div>
+    <div class="toolbar">
+        <a class="btn btn-primary" href="{% url 'employees:contract_create' %}">+ {% trans "عقد جديد" %}</a>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الرقم" %}</th><th>{% trans "الموظف" %}</th><th>{% trans "النوع" %}</th>
+            <th>{% trans "البداية" %}</th><th>{% trans "النهاية" %}</th><th>{% trans "الأجر" %}</th>
+            <th>{% trans "الحالة" %}</th><th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in contracts %}
+        <tr>
+            <td>{{ c.contract_number }}</td>
+            <td><a href="{% url 'employees:employee_detail' c.employee.pk %}">{{ c.employee }}</a></td>
+            <td>{{ c.get_contract_type_display }}</td>
+            <td>{{ c.start_date|date:"Y-m-d" }}</td>
+            <td>{{ c.end_date|date:"Y-m-d"|default:"—" }}</td>
+            <td>{{ c.gross_salary }} {{ c.currency }}</td>
+            <td>
+                <span class="badge badge-{{ c.status }}">
+                    {% if c.status == "expiring" %}{% trans "تنتهي خلال" %} {{ c.days_to_expiry }}{% else %}{{ c.status }}{% endif %}
+                </span>
+            </td>
+            <td class="actions">
+                <a class="btn btn-sm" href="{% url 'employees:contract_edit' c.pk %}">{% trans "تعديل" %}</a>
+                <a class="btn btn-sm" href="{% url 'employees:contract_create' %}?renew={{ c.pk }}">{% trans "تجديد" %}</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="empty">{% trans "لا عقود" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&status={{ status }}">{% trans "السابق" %}</a>{% endif %}
+    <span>{% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}صفحة {{ n }} / {{ total }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&status={{ status }}">{% trans "التالي" %}</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

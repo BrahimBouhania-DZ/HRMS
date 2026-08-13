@@ -128,12 +128,15 @@ class ScanDecisionTests(TestCase):
         self.assertEqual(dup.decision, AttendanceScan.Decision.REJECTED)
 
     def test_third_scan_after_checkout_is_warning(self):
-        first = decide_and_record_scan(self.employee, self.qr)
+        start = datetime.datetime.combine(
+            timezone.localdate(), self.shift.start_time, tzinfo=timezone.get_current_timezone()
+        ) - timezone.timedelta(minutes=10)
+        first = decide_and_record_scan(self.employee, self.qr, scanned_at=start)
         decide_and_record_scan(
-            self.employee, self.qr, scanned_at=first.scanned_at + timezone.timedelta(hours=8)
+            self.employee, self.qr, scanned_at=start + timezone.timedelta(hours=8)
         )
         third = decide_and_record_scan(
-            self.employee, self.qr, scanned_at=first.scanned_at + timezone.timedelta(hours=9)
+            self.employee, self.qr, scanned_at=start + timezone.timedelta(hours=9)
         )
         self.assertEqual(third.decision, AttendanceScan.Decision.WARNING)
 
@@ -324,3 +327,75 @@ class AttendanceViewsTests(TestCase):
         self.day.refresh_from_db()
         self.assertTrue(self.day.is_corrected)
         self.assertEqual(self.day.worked_minutes, 500)
+
+
+class AutoAbsenceTests(TestCase):
+    """BR-ATT-004 — العلام التلقائي للغياب."""
+
+    def setUp(self):
+        self.branch = Branch.objects.create(code="BR-AA", name_ar="فرع غياب")
+        self.employee = Employee.objects.create(
+            employee_code="AA-1", first_name_ar="س", last_name_ar="ع",
+            branch=self.branch, is_active=True, shift=_shift(),
+            employment_status=Employee.EmploymentStatus.ACTIVE,
+            hire_date=datetime.date(2026, 1, 1),
+        )
+
+    def test_marks_missing_workdays_as_absent(self):
+        from apps.attendance.services import auto_mark_absences
+
+        created = auto_mark_absences(datetime.date(2026, 8, 1), datetime.date(2026, 8, 31), branch=self.branch)
+        # أغسطس 2026: 21 يوم عمل (الاثنين..الجمعة)
+        self.assertEqual(created, 21)
+        self.assertEqual(
+            AttendanceDay.objects.filter(employee=self.employee, work_date__year=2026,
+                                         work_date__month=8, state=AttendanceDay.State.ABSENT).count(),
+            21,
+        )
+
+    def test_is_idempotent(self):
+        from apps.attendance.services import auto_mark_absences
+
+        auto_mark_absences(datetime.date(2026, 8, 1), datetime.date(2026, 8, 31), branch=self.branch)
+        created = auto_mark_absences(datetime.date(2026, 8, 1), datetime.date(2026, 8, 31), branch=self.branch)
+        self.assertEqual(created, 0)
+
+    def test_existing_present_day_is_not_touched(self):
+        from apps.attendance.services import auto_mark_absences
+
+        AttendanceDay.objects.create(
+            employee=self.employee, work_date=datetime.date(2026, 8, 3), state=AttendanceDay.State.PRESENT,
+        )
+        created = auto_mark_absences(datetime.date(2026, 8, 1), datetime.date(2026, 8, 31), branch=self.branch)
+        self.assertEqual(created, 20)
+        self.assertTrue(AttendanceDay.objects.filter(
+            employee=self.employee, work_date=datetime.date(2026, 8, 3), state=AttendanceDay.State.PRESENT).exists())
+
+    def test_approved_leave_marks_leave_not_absent(self):
+        from apps.attendance.services import auto_mark_absences
+        from apps.leave.models import LeaveRequest, LeaveType
+
+        leave_type = LeaveType.objects.create(code="ANNUAL", name_ar="سنوية", days_per_year=30)
+        LeaveRequest.objects.create(
+            employee=self.employee, leave_type=leave_type,
+            from_date=datetime.date(2026, 8, 10), to_date=datetime.date(2026, 8, 14),
+            days=5, status=LeaveRequest.Status.APPROVED,
+        )
+        auto_mark_absences(datetime.date(2026, 8, 1), datetime.date(2026, 8, 31), branch=self.branch)
+        leave_days = AttendanceDay.objects.filter(
+            employee=self.employee, state=AttendanceDay.State.LEAVE).count()
+        absent_days = AttendanceDay.objects.filter(
+            employee=self.employee, state=AttendanceDay.State.ABSENT).count()
+        self.assertEqual(leave_days, 5)
+        self.assertEqual(absent_days, 16)
+
+    def test_public_holiday_skipped(self):
+        from apps.attendance.services import auto_mark_absences
+        from apps.leave.models import PublicHoliday
+
+        PublicHoliday.objects.create(
+            branch=self.branch, name_ar="عيد", date=datetime.date(2026, 8, 10),
+        )
+        created = auto_mark_absences(datetime.date(2026, 8, 1), datetime.date(2026, 8, 31), branch=self.branch)
+        # 2026-08-10 إثنين = يوم عمل لكنه عطلة رسمية
+        self.assertEqual(created, 20)

@@ -18,7 +18,9 @@
         <nav class="nav">
             <a href="{% url 'core:home' %}" class="{% if request.path == '/' %}active{% endif %}">{% trans "الرئيسية" %}</a>
             <a href="{% url 'org:branch_list' %}" class="{% if '/org/' in request.path %}active{% endif %}">{% trans "الفروع" %}</a>
-            <a href="{% url 'employees:employee_list' %}" class="{% if '/employees/' in request.path %}active{% endif %}">{% trans "الموظفون" %}</a>
+            <a href="{% url 'employees:employee_list' %}" class="{% if '/employees/' in request.path and '/contracts' not in request.path and '/documents' not in request.path %}active{% endif %}">{% trans "الموظفون" %}</a>
+            <a href="{% url 'employees:contract_list' %}" class="{% if '/contracts/' in request.path %}active{% endif %}">{% trans "العقود" %}</a>
+            <a href="{% url 'employees:document_list' %}" class="{% if '/documents/' in request.path %}active{% endif %}">{% trans "الوثائق" %}</a>
             <a href="{% url 'attendance:attendance_day_list' %}" class="{% if '/attendance/' in request.path and '/my/' not in request.path %}active{% endif %}">{% trans "الحضور" %}</a>
             <a href="{% url 'leave:my_leave' %}" class="{% if '/leave/' in request.path %}active{% endif %}">{% trans "الإجازات" %}</a>
             <a href="{% url 'notif:list' %}" class="notif-link {% if '/notifications/' in request.path %}active{% endif %}">
@@ -28,7 +30,10 @@
             <a href="{% url 'attendance:my_qr_card' %}" class="{% if request.path == '/attendance/my-card/' %}active{% endif %}">{% trans "بطاقتي" %}</a>
             <a href="{% url 'reports:index' %}" class="{% if '/reports/' in request.path %}active{% endif %}">{% trans "التقارير" %}</a>
             <a href="{% url 'payroll:run_list' %}" class="{% if '/payroll/' in request.path %}active{% endif %}">{% trans "الرواتب" %}</a>
+            <a href="{% url 'perf:cycle_list' %}" class="{% if '/perf/' in request.path %}active{% endif %}">{% trans "الأداء" %}</a>
             {% if user.is_superuser %}<a href="{% url 'devices:list' %}" class="{% if '/devices/' in request.path %}active{% endif %}">{% trans "الأجهزة" %}</a>{% endif %}
+            {% if user.is_superuser %}<a href="{% url 'core:audit_log' %}" class="{% if '/audit/' in request.path %}active{% endif %}">{% trans "سجل التدقيق" %}</a>{% endif %}
+            {% if user.is_superuser %}<a href="{% url 'backup:page' %}" class="{% if '/backup/' in request.path %}active{% endif %}">{% trans "النسخ الاحتياطي" %}</a>{% endif %}
             <form method="get" action="{% url 'core:search' %}" class="topbar-search">
                 <input type="search" name="q" placeholder="{% trans "بحث..." %}" value="{{ q|default:'' }}">
             </form>

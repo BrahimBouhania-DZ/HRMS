@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import CompanySettings
+from .models import AuditLog, CompanySettings
 
 
 @admin.register(CompanySettings)
@@ -28,3 +28,24 @@ class CompanySettingsAdmin(admin.ModelAdmin):
 admin.site.site_header = "HRMS — نظام إدارة الموارد البشرية"
 admin.site.site_title = "HRMS"
 admin.site.index_title = "لوحة تحكم الموارد البشرية"
+admin.site.index_template = "admin/index.html"
+
+
+@admin.register(AuditLog)
+class AuditLogAdmin(admin.ModelAdmin):
+    """سجل تدقيق — للقراءة فقط (append-only)."""
+
+    list_display = ("created_at", "user", "action", "model_name", "object_repr", "ip")
+    list_filter = ("action", "model_name", "created_at")
+    search_fields = ("object_repr", "user__username", "detail")
+    list_select_related = ("user",)
+    readonly_fields = ("created_at", "user", "action", "model_name", "object_id", "object_repr", "detail", "ip")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

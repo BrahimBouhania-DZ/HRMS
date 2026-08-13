@@ -4,12 +4,48 @@
 {% block content %}
 <h1>{{ title }}</h1>
 
+{% if summary %}
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">{% trans "أيام حضور" %}</div><div class="stat-value">{{ summary.present }}</div></div>
+    <div class="stat-card"><div class="stat-label">{% trans "أيام غياب" %}</div><div class="stat-value">{{ summary.absent }}</div></div>
+    <div class="stat-card"><div class="stat-label">{% trans "أيام إجازة" %}</div><div class="stat-value">{{ summary.leave }}</div></div>
+    <div class="stat-card"><div class="stat-label">{% trans "مرات تأخر" %}</div><div class="stat-value">{{ summary.late_times }}</div></div>
+    <div class="stat-card"><div class="stat-label">{% trans "دقائق تأخر" %}</div><div class="stat-value">{{ summary.late_minutes }}</div></div>
+    <div class="stat-card"><div class="stat-label">{% trans "ساعات إضافية" %}</div><div class="stat-value">{{ summary.overtime_hours }}</div></div>
+    <div class="stat-card"><div class="stat-label">{% trans "نسبة الحضور" %}</div><div class="stat-value">{{ summary.attendance_rate }}%</div></div>
+</div>
+{% endif %}
+
 <form method="get" class="filter-form">
     {% if options.period_codes %}
     <select name="period_code">
         <option value="">{% trans "كل الفترات" %}</option>
         {% for p in options.period_codes %}
         <option value="{{ p }}" {% if filters.period_code == p %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    {% if show_cycle_filter %}
+    <select name="cycle">
+        <option value="">{% trans "كل الدورات" %}</option>
+        {% for c in options.cycles %}
+        <option value="{{ c.pk }}" {% if filters.cycle == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name_ar }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    {% if show_kind_filter %}
+    <select name="kind">
+        <option value="">{% trans "كل البنود" %}</option>
+        {% for value, label in options.element_kinds %}
+        <option value="{{ value }}" {% if filters.kind == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    {% if show_eos_status_filter %}
+    <select name="status">
+        <option value="">{% trans "كل الحالات" %}</option>
+        {% for value, label in options.eos_statuses %}
+        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
     </select>
     {% endif %}
@@ -76,6 +112,7 @@
 </form>
 
 <div class="head-actions">
+    <button class="btn btn-sm" type="button" onclick="window.print()">{% trans "🖨 طباعة" %}</button>
     <a class="btn btn-sm" href="{% url 'reports:export' request.resolver_match.url_name 'csv' %}?{{ request.GET.urlencode }}">{% trans "تصدير CSV" %}</a>
     <a class="btn btn-sm" href="{% url 'reports:export' request.resolver_match.url_name 'xlsx' %}?{{ request.GET.urlencode }}">{% trans "تصدير Excel" %}</a>
     <a class="btn btn-sm btn-primary" href="{% url 'reports:export' request.resolver_match.url_name 'pdf' %}?{{ request.GET.urlencode }}">{% trans "تصدير PDF" %}</a>

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "مراجعاتي" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "مراجعاتي" %} <small class="muted">({% trans "تقييم ذاتي" %})</small></h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الدورة" %}</th>
+            <th>{% trans "القالب" %}</th>
+            <th>{% trans "درجتي" %}</th>
+            <th>{% trans "درجة المدير" %}</th>
+            <th>{% trans "النهائي" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for review in reviews %}
+        <tr>
+            <td>{{ review.cycle }}</td>
+            <td>{{ review.template }}</td>
+            <td>{{ review.self_score|default:"—" }}</td>
+            <td>{{ review.manager_score|default:"—" }}</td>
+            <td>{{ review.final_score|default:"—" }}</td>
+            <td>{{ review.get_status_display }}</td>
+            <td>
+                {% if review.status == "pending_self" %}
+                <a class="btn btn-sm" href="{% url 'perf:self_review' review.pk %}">{% trans "قيّم نفسك" %}</a>
+                {% else %}
+                <a class="btn btn-sm" href="{% url 'perf:review_detail' review.pk %}">{% trans "عرض" %}</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">{% trans "لا توجد مراجعات لك بعد." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

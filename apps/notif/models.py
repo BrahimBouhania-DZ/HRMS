@@ -17,6 +17,9 @@ class Notification(models.Model):
         LEAVE_REJECTED = "leave_rejected", _("رفض إجازة")
         LEAVE_CANCELLED = "leave_cancelled", _("إلغاء إجازة")
         ATTENDANCE_WARNING = "attendance_warning", _("تنبيه حضور")
+        CONTRACT_EXPIRING = "contract_expiring", _("انتهاء عقد")
+        DOCUMENT_EXPIRING = "document_expiring", _("انتهاء صلاحية وثيقة")
+        PROBATION_END = "probation_end", _("نهاية فترة التجربة")
         SYSTEM = "system", _("نظام")
 
     user = models.ForeignKey(
@@ -73,16 +76,27 @@ class NotificationPref(models.Model):
 
 
 class ScheduledAlert(models.Model):
-    """T-043 — تنبيه مؤجّل (تنفيذ v2 عبر مهام خلفية)."""
+    """T-043 — تنبيه مؤجّل (تنفيذ v2 عبر مهام خلفية).
+
+    السجل وحيد لكل (alert_type + target_date + reference): يُمنع التكرار
+    عبر الجدولة اليومية — كل سجل يمثل تنبيهًا وُلد لموضوع معين.
+    """
 
     alert_type = models.CharField(_("نوع التنبيه"), max_length=30)
     target_date = models.DateField(_("تاريخ الاستهداف"))
+    reference = models.CharField(_("المرجع"), max_length=200, default="", blank=True)
     payload_json = models.JSONField(_("الحمولة"), default=dict, blank=True)
     fired_at = models.DateTimeField(_("أُطلق في"), null=True, blank=True)
 
     class Meta:
         verbose_name = _("تنبيه مؤجل")
         verbose_name_plural = _("التنبيهات المؤجلة")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["alert_type", "target_date", "reference"],
+                name="uniq_scheduled_alert",
+            ),
+        ]
 
     def __str__(self):
-        return f"{self.alert_type} @ {self.target_date}"
+        return f"{self.alert_type} @ {self.target_date} ({self.reference})"

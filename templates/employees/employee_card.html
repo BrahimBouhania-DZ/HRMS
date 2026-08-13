@@ -6,7 +6,7 @@
 <style>
     .card-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
     @media print {
-        @page { size: 85.6mm 54mm; margin: 0; }
+        @page { size: 100mm 70mm; margin: 0; }
         body { background: #fff; }
         .no-print { display: none !important; }
         .id-card { border-color: #000; border-radius: 0; }
@@ -15,7 +15,7 @@
 
 <div class="card-toolbar no-print">
     <button class="btn btn-primary" type="button" onclick="window.print()">{% trans "طباعة البطاقة" %}</button>
-    <a class="btn btn-gold" href="{% url 'employees:employee_card_print' employee.pk %}">{% trans "طباعة (4 في الصفحة)" %}</a>
+    <a class="btn btn-gold" href="{% url 'employees:employee_card_print' employee.pk %}">{% trans "طباعة (6 في الصفحة)" %}</a>
     <a class="btn" href="{% url 'employees:employee_detail' employee.pk %}">{% trans "ملف الموظف" %}</a>
     <a class="btn" href="{% url 'employees:employee_list' %}">{% trans "قائمة الموظفين" %}</a>
     {% if can_manage %}

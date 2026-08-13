@@ -252,3 +252,173 @@ class PayrollReportTests(TestCase):
         resp = self.client.get(reverse("reports:rep30"), {"period_code": "1999-01"})
         self.assertContains(resp, "لا بيانات مطابقة")
         self.assertNotContains(resp, "<td>2026-08</td>")
+
+
+class ReportV2Tests(TestCase):
+    """REP-04/31/33/42/43/50/51/53 + حماية التقارير الحساسة."""
+
+    @classmethod
+    def setUpTestData(cls):
+        Permission.objects.get_or_create(code="reports.view", defaults={"module": "core", "name_ar": "التقارير"})
+        Permission.objects.get_or_create(code="payroll.payslip.view", defaults={"module": "payroll", "name_ar": "قسائم"})
+        Permission.objects.get_or_create(code="system.audit.view", defaults={"module": "core", "name_ar": "تدقيق"})
+        Permission.objects.get_or_create(code="system.backup.manage", defaults={"module": "core", "name_ar": "نسخ"})
+        Permission.objects.get_or_create(code="device.manage", defaults={"module": "devices", "name_ar": "أجهزة"})
+        cls.admin = User.objects.create_superuser(username="repv2_admin", password="pass")
+        cls.peon = User.objects.create_user(username="repv2_peon", password="pass")
+        cls.branch = Branch.objects.create(code="BR-V2", name_ar="فرع V2")
+        cls.dept = Department.objects.create(code="DEP-V2", name_ar="قسم V2", branch=cls.branch)
+        cls.emp = Employee.objects.create(
+            employee_code="V2-001", first_name_ar="فائز", last_name_ar="V",
+            branch=cls.branch, department=cls.dept, hire_date=datetime.date(2023, 1, 1),
+        )
+        from apps.employees.models import Contract
+
+        cls.contract = Contract.objects.create(
+            contract_number="CTR-V2", employee=cls.emp,
+            contract_type=Contract.ContractType.CDD,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date.today() + datetime.timedelta(days=10),
+            gross_salary=Decimal("50000"), base_salary=Decimal("45000"),
+        )
+        from apps.payroll.models import PayRun, Payslip, PayElement, PayrollLine, EndOfService
+
+        cls.payrun = PayRun.objects.create(period_code="2026-08", branch=cls.branch,
+                                           status=PayRun.Status.FROZEN)
+        Payslip.objects.create(pay_run=cls.payrun, employee=cls.emp,
+                               basic_salary=Decimal("45000"),
+                               total_earnings=Decimal("50000"),
+                               total_deductions=Decimal("5000"),
+                               net=Decimal("45000"))
+        cls.bonus = PayElement.objects.create(
+            code="V2-BONUS", name_ar="مكافأة", kind=PayElement.Kind.EARNING,
+            calculation=PayElement.Calculation.FIXED, amount=Decimal("5000"),
+        )
+        cls.deduct = PayElement.objects.create(
+            code="V2-DED", name_ar="خصم غياب", kind=PayElement.Kind.DEDUCTION,
+            calculation=PayElement.Calculation.FIXED, amount=Decimal("1000"),
+        )
+        PayrollLine.objects.create(pay_run=cls.payrun, employee=cls.emp,
+                                   element=cls.bonus, amount=Decimal("5000"))
+        PayrollLine.objects.create(pay_run=cls.payrun, employee=cls.emp,
+                                   element=cls.deduct, amount=Decimal("1000"))
+        EndOfService.objects.create(
+            employee=cls.emp, termination_date=datetime.date(2026, 7, 31),
+            total_years=Decimal("3.5"), service_reward=Decimal("40000"),
+            unused_leave_comp=Decimal("5000"), notice_period=Decimal("0"),
+            deductions=Decimal("2000"), net=Decimal("43000"),
+            status=EndOfService.Status.APPROVED,
+        )
+        from apps.perf.models import PerfCycle, PerfReview, PipPlan
+
+        cls.cycle = PerfCycle.objects.create(
+            name_ar="دورة V2", period_start=datetime.date(2026, 1, 1),
+            period_end=datetime.date(2026, 6, 30),
+        )
+        cls.review = PerfReview.objects.create(
+            employee=cls.emp, cycle=cls.cycle,
+            self_score=Decimal("80"), manager_score=Decimal("90"),
+            final_score=Decimal("85"), status=PerfReview.Status.DONE,
+        )
+        PipPlan.objects.create(
+            review=cls.review, start_date=datetime.date(2026, 7, 1),
+            end_date=datetime.date(2026, 8, 1), action_items="تدريب",
+        )
+        from apps.backup.models import BackupJob
+
+        BackupJob.objects.create(kind=BackupJob.Kind.DAILY, status=BackupJob.Status.SUCCESS)
+        from apps.core.models import AuditLog
+
+        AuditLog.objects.create(action=AuditLog.Action.CREATE, model_name="employee",
+                                object_repr="V2-001", detail="اختبار")
+        AuditLog.objects.create(action=AuditLog.Action.LOGIN, model_name="auth",
+                                object_repr="repv2_admin", ip="10.0.0.1")
+        from apps.devices.models import QrDevice
+        from apps.attendance.models import AttendanceScan
+
+        cls.device = QrDevice.objects.create(
+            device_code="QR-V2", branch=cls.branch, api_key_hash="h", status=QrDevice.Status.ACTIVE,
+        )
+        AttendanceScan.objects.create(
+            employee=cls.emp, device=cls.device, decision=AttendanceScan.Decision.CHECK_IN,
+        )
+
+    def setUp(self):
+        self.client.force_login(self.admin)
+
+    def test_rep04_lists_expiring_contracts(self):
+        resp = self.client.get(reverse("reports:rep04"))
+        self.assertContains(resp, "V2-001")
+
+    def test_rep31_detail(self):
+        resp = self.client.get(reverse("reports:rep31"))
+        self.assertContains(resp, "V2-001")
+        self.assertContains(resp, "45000")
+
+    def test_rep33_cost(self):
+        resp = self.client.get(reverse("reports:rep33"))
+        self.assertContains(resp, "فرع V2")
+        self.assertContains(resp, "45000")
+
+    def test_rep34_bonuses_deductions(self):
+        resp = self.client.get(reverse("reports:rep34"))
+        self.assertContains(resp, "مكافأة")
+        self.assertContains(resp, "خصم غياب")
+        resp = self.client.get(reverse("reports:rep34"), {"kind": "earning"})
+        self.assertContains(resp, "مكافأة")
+        self.assertNotContains(resp, "خصم غياب")
+
+    def test_rep35_end_of_service(self):
+        resp = self.client.get(reverse("reports:rep35"))
+        self.assertContains(resp, "V2-001")
+        self.assertContains(resp, "43000")
+        resp = self.client.get(reverse("reports:rep35"), {"status": "approved"})
+        self.assertContains(resp, "V2-001")
+
+    def test_rep52_daily_activity(self):
+        resp = self.client.get(reverse("reports:rep52"))
+        self.assertContains(resp, "repv2_admin")
+        self.assertContains(resp, "10.0.0.1")
+
+    def test_rep54_device_status(self):
+        resp = self.client.get(reverse("reports:rep54"))
+        self.assertContains(resp, "QR-V2")
+        self.assertContains(resp, "فرع V2")
+
+    def test_rep42_perf_results(self):
+        resp = self.client.get(reverse("reports:rep42"))
+        self.assertContains(resp, "85")
+
+    def test_rep43_pip(self):
+        resp = self.client.get(reverse("reports:rep43"))
+        self.assertContains(resp, "V2-001")
+
+    def test_rep50_audit(self):
+        resp = self.client.get(reverse("reports:rep50"))
+        self.assertContains(resp, "اختبار")
+
+    def test_rep51_users(self):
+        resp = self.client.get(reverse("reports:rep51"))
+        self.assertContains(resp, "repv2_admin")
+
+    def test_rep53_backup(self):
+        resp = self.client.get(reverse("reports:rep53"))
+        self.assertContains(resp, "يومي")
+
+    def test_financial_guards(self):
+        self.client.force_login(self.peon)
+        self.assertEqual(self.client.get(reverse("reports:rep31")).status_code, 403)
+        self.assertEqual(self.client.get(reverse("reports:rep33")).status_code, 403)
+        self.assertEqual(self.client.get(reverse("reports:rep34")).status_code, 403)
+        self.assertEqual(self.client.get(reverse("reports:rep35")).status_code, 403)
+        self.assertEqual(self.client.get(reverse("reports:rep50")).status_code, 403)
+        self.assertEqual(self.client.get(reverse("reports:rep52")).status_code, 403)
+        self.assertEqual(self.client.get(reverse("reports:rep53")).status_code, 403)
+        self.assertEqual(self.client.get(reverse("reports:rep54")).status_code, 403)
+
+    def test_rep42_export_csv(self):
+        resp = self.client.get(reverse("reports:export", args=["rep42", "csv"]))
+        self.assertEqual(resp.status_code, 200)
+        rows = list(csv.reader(io.StringIO(resp.content.decode("utf-8"))))
+        self.assertEqual(rows[0][0], "الموظف")
+        self.assertIn("V2-001", rows[1][0])

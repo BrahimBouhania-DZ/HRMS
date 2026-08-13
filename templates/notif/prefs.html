@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "تفضيلات الإشعارات" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "تفضيلات البريد (LAN)" %}</h1>
+<p class="muted">{% trans "فعّل البريد الإلكتروني للأنواع التي تريد استلامها — تُرسل عبر خادم البريد داخل الشبكة." %}</p>
+<form method="post" novalidate>
+    {% csrf_token %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{% trans "النوع" %}</th>
+                <th>{% trans "بريد" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for value, label, enabled in types %}
+            <tr>
+                <td>{{ label }}</td>
+                <td>
+                    <input type="checkbox" name="email" value="{{ value }}" {% if enabled %}checked{% endif %}>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{% trans "حفظ" %}</button>
+        <a class="btn" href="{% url 'notif:list' %}">{% trans "إلغاء" %}</a>
+    </div>
+</form>
+{% endblock %}

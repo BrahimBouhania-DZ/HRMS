@@ -19,5 +19,6 @@ class NotificationPrefAdmin(admin.ModelAdmin):
 
 @admin.register(ScheduledAlert)
 class ScheduledAlertAdmin(admin.ModelAdmin):
-    list_display = ("alert_type", "target_date", "fired_at")
+    list_display = ("alert_type", "target_date", "reference", "fired_at")
     list_filter = ("alert_type", "fired_at")
+    search_fields = ("reference",)

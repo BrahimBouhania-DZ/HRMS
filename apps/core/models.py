@@ -72,3 +72,51 @@ class CompanySettings(models.Model):
     def get_default(cls):
         """أول سجل (يُستخدم في المعالج العام للقوالب)."""
         return cls.objects.first()
+
+
+class AuditLog(models.Model):
+    """T-021 — سجل تدقيق عام (append-only): كل عملية كتابة عبر الإشارات.
+
+    لا يُحذف ولا يُعدَّل (delete() مرفوع استثناء، والإدارة للقراءة فقط).
+    المرجع: docs/09-security.md + docs/10-roadmap.md v2 (Audit).
+    """
+
+    class Action(models.TextChoices):
+        CREATE = "create", _("إضافة")
+        UPDATE = "update", _("تعديل")
+        DELETE = "delete", _("حذف")
+        LOGIN = "login", _("دخول")
+        LOGOUT = "logout", _("خروج")
+        EXPORT = "export", _("تصدير")
+        IMPORT = "import", _("استيراد")
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("المستخدم"),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="audit_entries",
+    )
+    action = models.CharField(_("الإجراء"), max_length=20, choices=Action.choices)
+    model_name = models.CharField(_("النموذج"), max_length=150, blank=True)
+    object_id = models.CharField(_("المعرّف"), max_length=50, blank=True)
+    object_repr = models.CharField(_("الوصف"), max_length=255, blank=True)
+    detail = models.TextField(_("التفاصيل"), blank=True)
+    ip = models.GenericIPAddressField(_("العنوان IP"), null=True, blank=True)
+    created_at = models.DateTimeField(_("في"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("سجل تدقيق")
+        verbose_name_plural = _("سجل التدقيق")
+        ordering = ("-created_at",)
+        indexes = [
+            models.Index(fields=["model_name", "-created_at"]),
+            models.Index(fields=["user", "-created_at"]),
+        ]
+
+    def delete(self, *args, **kwargs):
+        raise NotImplementedError(_("سجل التدقيق غير قابل للحذف (append-only)"))
+
+    def __str__(self):
+        return f"{self.action} {self.model_name} #{self.object_id} — {self.user or 'نظام'}"

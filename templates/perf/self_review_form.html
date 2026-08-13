@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "التقييم الذاتي" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% blocktrans with c=review.cycle %}التقييم الذاتي — {{ c }}{% endblocktrans %}</h1>
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{% trans "حفظ" %}</button>
+        <a class="btn" href="{% url 'perf:my_reviews' %}">{% trans "إلغاء" %}</a>
+    </div>
+</form>
+{% endblock %}

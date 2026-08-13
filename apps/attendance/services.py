@@ -3,7 +3,7 @@
 المرجع: docs/06-qr-system.md §5 (خوارزمية القرار) و §6 (منع التكرار).
 """
 
-from datetime import datetime
+import datetime
 
 from django.db import transaction
 from django.db.models.fields import TimeField
@@ -17,6 +17,103 @@ from .models import AttendanceDay, AttendanceScan
 
 # نافذة منع التكرار (ثوانٍ)
 SCAN_COOLDOWN_SECONDS = 60
+
+
+def auto_mark_absences(from_date, to_date, branch=None, employee=None, user=None):
+    """BR-ATT-004 — تعليم أيام العمل التي لا يوجد لها مسح كغياب.
+
+    يُستثنى من العلام:
+        - أيام نهاية الأسبوع والعطل الرسمية (نفس قاعدة official_workdays).
+        - الأيام المغطاة بإجازة معتمدة → تُسجَّل LEAVE.
+        - الأيام المغطاة بمهمة معتمدة → تُسجَّل MISSION.
+    العلام idempotent: لا يلمس الأيام الموجودة فعلًا.
+
+    تُرجع عدد الأيام المنشأة.
+    """
+    from apps.leave.models import LeaveRequest
+    from apps.leave.services import _holiday_dates
+
+    from .models import AttendanceException
+
+    qs = Employee.objects.filter(
+        is_active=True,
+        employment_status__in=(
+            Employee.EmploymentStatus.ACTIVE,
+            Employee.EmploymentStatus.PROBATION,
+        ),
+        hire_date__lte=to_date,
+    )
+    if branch:
+        qs = qs.filter(branch=branch)
+    if employee:
+        qs = qs.filter(pk=employee.pk)
+    qs = qs.order_by("employee_code")
+
+    holidays = _holiday_dates(branch, from_date, to_date)
+    weekdays = set(range(5))  # الاثنين..الجمعة (متوافق مع official_workdays)
+
+    # إجازات معتمدة تغطي الفترة → تواريخ لكل موظف
+    leaves_by_emp = {}
+    for req in LeaveRequest.objects.filter(
+        status=LeaveRequest.Status.APPROVED,
+        from_date__lte=to_date,
+        to_date__gte=from_date,
+    ).values("employee_id", "from_date", "to_date"):
+        d = max(req["from_date"], from_date)
+        e = min(req["to_date"], to_date)
+        dates = leaves_by_emp.setdefault(req["employee_id"], set())
+        while d <= e:
+            dates.add(d)
+            d += datetime.timedelta(days=1)
+
+    # مهام معتمدة تغطي الفترة → تواريخ لكل موظف
+    missions_by_emp = {}
+    for ex in AttendanceException.objects.filter(
+        status=AttendanceException.Status.APPROVED,
+        type=AttendanceException.Type.MISSION,
+        from_time__date__lte=to_date,
+        to_time__date__gte=from_date,
+    ).values("employee_id", "from_time", "to_time"):
+        d = max(ex["from_time"].date(), from_date)
+        e = min(ex["to_time"].date(), to_date)
+        dates = missions_by_emp.setdefault(ex["employee_id"], set())
+        while d <= e:
+            dates.add(d)
+            d += datetime.timedelta(days=1)
+
+    emp_ids = list(qs.values_list("id", flat=True))
+    existing = set(
+        AttendanceDay.objects.filter(
+            employee_id__in=emp_ids,
+            work_date__gte=from_date,
+            work_date__lte=to_date,
+        ).values_list("employee_id", "work_date")
+    )
+
+    created = 0
+    for emp in qs:
+        leave_dates = leaves_by_emp.get(emp.pk, set())
+        mission_dates = missions_by_emp.get(emp.pk, set())
+        d = max(from_date, emp.hire_date or from_date)
+        while d <= to_date:
+            if d.weekday() in weekdays and d not in holidays and (emp.pk, d) not in existing:
+                if d in leave_dates:
+                    state = AttendanceDay.State.LEAVE
+                elif d in mission_dates:
+                    state = AttendanceDay.State.MISSION
+                else:
+                    state = AttendanceDay.State.ABSENT
+                AttendanceDay.objects.create(
+                    employee=emp,
+                    work_date=d,
+                    branch=emp.branch,
+                    shift=emp.shift,
+                    state=state,
+                    created_by=user,
+                )
+                created += 1
+            d += datetime.timedelta(days=1)
+    return created
 
 
 def decide_and_record_scan(
@@ -131,7 +228,7 @@ def _as_time(value):
 
 def _shift_datetime(work_date, shift, attr):
     t = _as_time(getattr(shift, attr))
-    return datetime.combine(work_date, t, tzinfo=timezone.get_current_timezone())
+    return datetime.datetime.combine(work_date, t, tzinfo=timezone.get_current_timezone())
 
 
 def _update_worked_and_late(day: AttendanceDay) -> None:

@@ -81,6 +81,15 @@ def submit_request(employee, leave_type, from_date, to_date, reason="", requeste
         if balance.remaining < days:
             raise LeaveError(_("الرصيد غير كافٍ (المتبقي %s يوم)") % (balance.remaining,))
 
+    overlapping = LeaveRequest.objects.filter(
+        employee=employee,
+        status__in=(LeaveRequest.Status.PENDING, LeaveRequest.Status.APPROVED),
+        from_date__lte=to_date,
+        to_date__gte=from_date,
+    ).exists()
+    if overlapping:
+        raise LeaveError(_("يوجد طلب إجازة معلق أو معتمد يتداخل مع هذه الفترة"))
+
     request = LeaveRequest.objects.create(
         employee=employee,
         leave_type=leave_type,
@@ -176,6 +185,55 @@ def adjust_balance(employee, leave_type, year, amount, user) -> LeaveBalance:
     balance.updated_by = user
     balance.save(update_fields=["adjusted", "updated_at", "updated_by"])
     return balance
+
+
+def carryover_balance(employee, leave_type, from_year, to_year, user=None) -> LeaveBalance:
+    """ترحيل المتبقي من سنة إلى التي تليها (ضمن سقف max_carryover_days)."""
+    if to_year != from_year + 1:
+        raise LeaveError(_("الترحيل يتم من سنة إلى السنة التي تليها فقط"))
+    if not leave_type.carryover_allowed:
+        raise LeaveError(_("نوع الإجازة لا يسمح بالترحيل"))
+
+    target = get_or_create_balance(employee, leave_type, to_year)
+    previous = get_or_create_balance(employee, leave_type, from_year)
+    carry = Decimal(str(previous.remaining))
+    if carry <= 0:
+        return target
+
+    cap = Decimal(str(leave_type.max_carryover_days))
+    if cap > 0 and carry > cap:
+        carry = cap
+    target.carried_from = (target.carried_from or 0) + carry
+    target.updated_by = user
+    target.save(update_fields=["carried_from", "updated_at", "updated_by"])
+    return target
+
+
+def escalate_request(request: LeaveRequest, approver, comment="") -> LeaveRequest:
+    """تصعيد الطلب إلى المستوى التالي دون اعتماد نهائي (action=escalated)."""
+    if request.status != LeaveRequest.Status.PENDING:
+        raise LeaveError(_("الطلب ليس قيد الانتظار"))
+    level = request.current_level
+    if LeaveApproval.objects.filter(leave_request=request, level=level).exists():
+        raise LeaveError(_("هذا المستوى أُعتمد مسبقًا"))
+    if level >= request.leave_type.requires_approval_levels:
+        raise LeaveError(_("لا يوجد مستوى أعلى — اعتمد أو ارفض الطلب"))
+
+    LeaveApproval.objects.create(
+        leave_request=request,
+        level=level,
+        approver=approver,
+        action=LeaveApproval.Action.ESCALATED,
+        comment=comment,
+        updated_by=approver,
+    )
+    request.current_level = level + 1
+    request.updated_by = approver
+    request.save(update_fields=["current_level", "updated_at", "updated_by"])
+    from apps.notif.services import notify_leave_submitted
+
+    notify_leave_submitted(request, approver)
+    return request
 
 
 def _deduct_balance(request: LeaveRequest) -> None:

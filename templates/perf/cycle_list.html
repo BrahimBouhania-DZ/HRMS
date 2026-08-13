@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "دورات التقييم" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "دورات التقييم" %}</h1>
+<div class="toolbar">
+    <a class="btn btn-primary" href="{% url 'perf:cycle_create' %}">{% trans "دورة جديدة" %}</a>
+    <a class="btn" href="{% url 'perf:template_list' %}">{% trans "قوالب التقييم" %}</a>
+    <a class="btn" href="{% url 'perf:review_list' %}">{% trans "مراجعات (تقييم المدير)" %}</a>
+    <a class="btn" href="{% url 'perf:my_reviews' %}">{% trans "مراجعاتي" %}</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الدورة" %}</th>
+            <th>{% trans "الفترة" %}</th>
+            <th>{% trans "موعد التقييم الذاتي" %}</th>
+            <th>{% trans "موعد تقييم المدير" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cycle in cycles %}
+        <tr>
+            <td>{{ cycle }}</td>
+            <td>{{ cycle.period_start|date:"SHORT_DATE_FORMAT" }} → {{ cycle.period_end|date:"SHORT_DATE_FORMAT" }}</td>
+            <td>{{ cycle.self_review_deadline|date:"SHORT_DATE_FORMAT"|default:"—" }}</td>
+            <td>{{ cycle.manager_review_deadline|date:"SHORT_DATE_FORMAT"|default:"—" }}</td>
+            <td>{{ cycle.get_status_display }}</td>
+            <td>
+                {% if cycle.status == "draft" %}
+                <form method="post" action="{% url 'perf:cycle_open' cycle.pk %}" class="inline-form">
+                    {% csrf_token %}
+                    <select name="template" required>
+                        <option value="">{% trans "اختر قالبًا..." %}</option>
+                        {% for t in templates %}
+                        <option value="{{ t.pk }}">{{ t }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-sm" type="submit">{% trans "فتح وتوليد المراجعات" %}</button>
+                </form>
+                {% endif %}
+                {% if cycle.status == "open" %}
+                <form method="post" action="{% url 'perf:cycle_close' cycle.pk %}" class="inline-form">
+                    {% csrf_token %}
+                    <button class="btn btn-sm" type="submit" onclick="return confirm('{% trans "إغلاق الدورة؟" %}')">{% trans "إغلاق" %}</button>
+                </form>
+                {% endif %}
+                <span class="muted">{{ cycle.reviews.count }} {% trans "مراجعة" %}</span>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">{% trans "لا توجد دورات بعد." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

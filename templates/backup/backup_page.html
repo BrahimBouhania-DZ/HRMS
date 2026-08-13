@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "النسخ الاحتياطي والاستعادة" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "النسخ الاحتياطي والاستعادة" %}</h1>
+    <form method="post" class="inline-form">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit" name="action" value="backup">{% trans "إنشاء نسخة الآن" %}</button>
+    </form>
+</div>
+
+<div class="grid grid-2">
+    <div class="card">
+        <h3>{% trans "الإعدادات" %}</h3>
+        <table class="table">
+            <tr><td>{% trans "الوجهة" %}</td><td>{{ settings.backup_dir }}</td></tr>
+            <tr><td>{% trans "الاحتفاظ" %}</td><td>{{ settings.retention_count }} {% trans "نسخة" %}</td></tr>
+            <tr><td>{% trans "التشفير" %}</td><td>{{ settings.encrypt|yesno:_("مفعّل,معطّل") }}</td></tr>
+            <tr><td>{% trans "النسخ التلقائي" %}</td><td>{{ settings.enabled|yesno:_("مفعّل,معطّل") }}</td></tr>
+            <tr><td>{% trans "إشعارات (IT)" %}</td><td>{{ settings.notify_user|default:_("غير محدد") }}</td></tr>
+        </table>
+        <p class="muted">{% trans "الجدولة التلقائية عبر cron: daily 02:00 → manage.py backup_db --kind daily" %}</p>
+    </div>
+
+    <div class="card">
+        <h3>{% trans "النسخ المتاحة" %}</h3>
+        <table class="table">
+            <thead><tr><th>{% trans "الملف" %}</th><th>{% trans "التاريخ" %}</th><th>{% trans "الحجم" %}</th><th>{% trans "إجراءات" %}</th></tr></thead>
+            <tbody>
+                {% for b in backups %}
+                <tr>
+                    <td>{{ b.name }}</td>
+                    <td>{{ b.created|slice:":19" }}</td>
+                    <td>{{ b.size|filesizeformat }}</td>
+                    <td class="actions">
+                        <a class="btn btn-sm" href="/backup/download/?name={{ b.name }}">{% trans "تحميل" %}</a>
+                        <form method="post" class="inline-form" onsubmit="return confirm('{% trans "تنفيذ استعادة فعلية؟ سيُستبدل المحتوى الحالي." %}')">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="restore">
+                            <input type="hidden" name="path" value="{{ b.path }}">
+                            <button class="btn btn-sm" type="submit">{% trans "استعادة" %}</button>
+                        </form>
+                        <form method="post" class="inline-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="restore">
+                            <input type="hidden" name="path" value="{{ b.path }}">
+                            <input type="hidden" name="dry_run" value="1">
+                            <button class="btn btn-sm" type="submit">{% trans "اختبار استعادة" %}</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="empty">{% trans "لا نسخ بعد" %}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <h3>{% trans "سجل النسخ" %}</h3>
+    <table class="table">
+        <thead><tr><th>{% trans "الوقت" %}</th><th>{% trans "النوع" %}</th><th>{% trans "الحالة" %}</th><th>{% trans "الملف" %}</th><th>{% trans "المدة" %}</th></tr></thead>
+        <tbody>
+            {% for j in jobs %}
+            <tr>
+                <td>{{ j.started_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ j.get_kind_display }}</td>
+                <td><span class="badge badge-{{ j.status }}">{{ j.get_status_display }}</span></td>
+                <td>{{ j.file_path }}</td>
+                <td>{{ j.duration_seconds|floatformat:1 }}s</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="empty">{% trans "لا سجلات" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h3>{% trans "سجل الاستعادة" %}</h3>
+    <table class="table">
+        <thead><tr><th>{% trans "الوقت" %}</th><th>{% trans "الملف" %}</th><th>{% trans "الحالة" %}</th><th>{% trans "checksum" %}</th></tr></thead>
+        <tbody>
+            {% for r in restores %}
+            <tr>
+                <td>{{ r.restored_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ r.source_file }}</td>
+                <td><span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+                <td>{{ r.checksum_verified|yesno:_("نعم,لا") }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="empty">{% trans "لا سجلات" %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

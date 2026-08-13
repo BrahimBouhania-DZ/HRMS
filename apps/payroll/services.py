@@ -14,6 +14,7 @@
 
 import calendar
 import datetime
+from decimal import Decimal
 
 from django.db import transaction
 from django.utils import timezone
@@ -23,16 +24,28 @@ from apps.attendance.models import AttendanceDay
 from apps.leave.models import PublicHoliday
 from apps.org.models import Branch
 
-from .models import EndOfService, PayElement, PayrollLine, PayRun, Payslip
+from .models import EndOfService, PayElement, PayrollLine, PayRun, Payslip, PayrollSettings
 
 
 class PayrollError(Exception):
     """خطأ منطقي في دورة الرواتب (يُعرض للمستخدم)."""
 
 
+def get_payroll_settings() -> PayrollSettings:
+    """إعدادات الحساب الآلي (تُنشأ افتراضيًا عند أول استخدام)."""
+    settings_row, _ = PayrollSettings.objects.get_or_create(pk=1, defaults={
+        "salary_base_days": 0,
+        "absence_deduction_enabled": True,
+        "absence_grace_days": 0,
+        "auto_mark_absent": False,
+        "eos_reward_factor": Decimal("0.50"),
+    })
+    return settings_row
+
+
 # ---- تكوين قابل للتعديل (BR-PAY-005) --------------------------------------
 
-# عامل مكافأة نهاية الخدمة: (سنوات الخدمة × الأجر اليومي × هذا العامل)
+# (احتياطي ثابت؛ القيمة الفعلية تُقرأ من PayrollSettings.eos_reward_factor)
 EOS_REWARD_FACTOR = 0.5
 
 
@@ -88,7 +101,16 @@ def generate_payrun(period_code: str, branch: Branch, user, *, force=False) -> P
 
     from apps.employees.models import Employee
 
-    workdays = official_workdays(period_code, branch)
+    settings_row = get_payroll_settings()
+
+    # العلام التلقائي للغياب (BR-ATT-004) — قبل احتساب الأيام
+    if settings_row.auto_mark_absent:
+        from apps.attendance.services import auto_mark_absences
+
+        auto_mark_absences(start, end, branch=branch, user=user)
+
+    # أيام أساس الأجر اليومي: مُكوَّنة يدويًا أو تلقائيًا من التقويم (BR-PAY-002)
+    workdays = settings_row.salary_base_days or official_workdays(period_code, branch)
     elements = list(PayElement.objects.filter(is_active=True).order_by("code"))
 
     employees = Employee.objects.filter(
@@ -130,15 +152,23 @@ def generate_payrun(period_code: str, branch: Branch, user, *, force=False) -> P
                 amount=signed, created_by=user, updated_by=user,
             ))
 
-        # خصم الغياب (BR-PAY-002): (الأساسي / أيام العمل) × أيام الغياب
-        if absent and workdays:
-            daily = base / workdays
-            absence_deduction = daily * absent
-            lines.append(PayrollLine(
-                pay_run=payrun, employee=emp, element=None,
-                amount=-absence_deduction, note=_("خصم غياب %(days)s يوم") % {"days": absent},
-                created_by=user, updated_by=user,
-            ))
+        # خصم الغياب (BR-PAY-002): (الأساسي / أيام الأساس) × الأيام القابلة للخصم
+        if settings_row.absence_deduction_enabled and workdays:
+            deductible = max(absent - settings_row.absence_grace_days, 0)
+            if deductible:
+                daily = base / workdays
+                absence_deduction = daily * deductible
+                if settings_row.absence_grace_days:
+                    note = _("خصم غياب %(days)s يوم (بعد سماح %(grace)s يوم)") % {
+                        "days": deductible, "grace": settings_row.absence_grace_days,
+                    }
+                else:
+                    note = _("خصم غياب %(days)s يوم") % {"days": deductible}
+                lines.append(PayrollLine(
+                    pay_run=payrun, employee=emp, element=None,
+                    amount=-absence_deduction, note=note,
+                    created_by=user, updated_by=user,
+                ))
 
         earnings = sum(l.amount for l in lines if l.amount > 0)
         deductions = -sum(l.amount for l in lines if l.amount < 0)
@@ -224,13 +254,19 @@ def bank_rows(payrun: PayRun) -> list[dict]:
 
 # ---- نهاية الخدمة (BR-PAY-005) ---------------------------------------------
 
-def calculate_end_of_service(employee, termination_date, user, *, reward_factor: float = EOS_REWARD_FACTOR) -> EndOfService:
+def calculate_end_of_service(employee, termination_date, user, *, reward_factor: float = None) -> EndOfService:
     """يحسب نهاية الخدمة آليًا ويُنشئ سجلًا بحالة مسودة.
 
-    reward = سنوات الخدمة × الأجر اليومي × العامل (قابل للتكوين)
+    reward = سنوات الخدمة × الأجر اليومي × العامل (من PayrollSettings إن لم يُمرَّر)
     unused_leave = (أيام إجازة متبقية) × الأجر اليومي
     notice = شهر أساسي واحد افتراضي.
     """
+    from apps.leave.models import LeaveBalance, LeaveType
+    from django.db.models import Sum
+
+    if reward_factor is None:
+        settings_row = get_payroll_settings()
+        reward_factor = float(settings_row.eos_reward_factor)
     from apps.leave.models import LeaveBalance, LeaveType
     from django.db.models import Sum
 

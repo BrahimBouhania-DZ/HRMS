@@ -141,6 +141,56 @@ class PayrollServiceTests(TestCase):
         self.assertEqual(eos.status, EndOfService.Status.DRAFT)
         self.assertGreater(float(eos.net), 0)
 
+    def test_salary_base_days_override(self):
+        from apps.payroll.models import PayrollSettings
+
+        AttendanceDay.objects.create(employee=self.emp, work_date=datetime.date(2026, 8, 3),
+                                     state=AttendanceDay.State.ABSENT)
+        settings_row, _ = PayrollSettings.objects.get_or_create(
+            pk=1, defaults={"salary_base_days": 26, "absence_grace_days": 0,
+                            "absence_deduction_enabled": True, "auto_mark_absent": False,
+                            "eos_reward_factor": "0.50"})
+        settings_row.salary_base_days = 26
+        settings_row.save(update_fields=["salary_base_days"])
+
+        run = generate_payrun("2026-08", self.branch, self.user)
+        slip = run.payslips.get(employee=self.emp)
+        # خصم = (60000/26)×1 بدلاً من (60000/21)
+        self.assertAlmostEqual(float(slip.total_deductions), 60000 / 26, places=2)
+
+    def test_absence_grace_days_exempts_deduction(self):
+        from apps.payroll.models import PayrollSettings
+
+        AttendanceDay.objects.create(employee=self.emp, work_date=datetime.date(2026, 8, 3),
+                                     state=AttendanceDay.State.ABSENT)
+        settings_row, _ = PayrollSettings.objects.get_or_create(
+            pk=1, defaults={"salary_base_days": 0, "absence_grace_days": 0,
+                            "absence_deduction_enabled": True, "auto_mark_absent": False,
+                            "eos_reward_factor": "0.50"})
+        settings_row.absence_grace_days = 2  # سماح 2 أيام ← غياب واحد لا يُخصم
+        settings_row.save(update_fields=["absence_grace_days"])
+
+        run = generate_payrun("2026-08", self.branch, self.user)
+        self.assertFalse(
+            PayrollLine.objects.filter(pay_run=run, note__startswith="خصم غياب").exists())
+
+    def test_auto_mark_absent_on_generate(self):
+        from apps.payroll.models import PayrollSettings
+
+        settings_row, _ = PayrollSettings.objects.get_or_create(
+            pk=1, defaults={"salary_base_days": 0, "absence_grace_days": 0,
+                            "absence_deduction_enabled": True, "auto_mark_absent": False,
+                            "eos_reward_factor": "0.50"})
+        settings_row.auto_mark_absent = True
+        settings_row.save(update_fields=["auto_mark_absent"])
+
+        run = generate_payrun("2026-08", self.branch, self.user)
+        slip = run.payslips.get(employee=self.emp)
+        # لا أيام حضور مُدخلة يدويًا → العلام التلقائي يعيّن أيام العمل كغياب
+        self.assertGreater(slip.absent_days, 0)
+        self.assertEqual(slip.attended_days, 0)
+        self.assertTrue(PayrollLine.objects.filter(pay_run=run, note__startswith="خصم غياب").exists())
+
 
 class PayrollViewTests(TestCase):
     @classmethod

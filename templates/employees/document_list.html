@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "الوثائق" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h1>{% trans "الوثائق" %}</h1>
+    <div class="filters">
+        <form method="get" class="filter-form">
+            <select name="status">
+                <option value="">{% trans "كل الحالات" %}</option>
+                <option value="expiring" {% if status == "expiring" %}selected{% endif %}>{% trans "تنتهي خلال 30 يوم" %}</option>
+                <option value="expired" {% if status == "expired" %}selected{% endif %}>{% trans "منتهية" %}</option>
+            </select>
+            <button class="btn btn-sm" type="submit">{% trans "تصفية" %}</button>
+        </form>
+    </div>
+    <div class="toolbar">
+        <a class="btn btn-primary" href="{% url 'employees:document_upload' %}">+ {% trans "رفع مستند" %}</a>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "العنوان" %}</th><th>{% trans "الموظف" %}</th><th>{% trans "النوع" %}</th>
+            <th>{% trans "الإصدار" %}</th><th>{% trans "الانتهاء" %}</th><th>{% trans "الحالة" %}</th><th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in documents %}
+        <tr>
+            <td>{{ d.title }}</td>
+            <td><a href="{% url 'employees:employee_detail' d.employee.pk %}">{{ d.employee }}</a></td>
+            <td>{{ d.document_type }}</td>
+            <td>{{ d.issued_date|date:"Y-m-d"|default:"—" }}</td>
+            <td>{{ d.expiry_date|date:"Y-m-d"|default:"—" }}</td>
+            <td><span class="badge badge-{{ d.status }}">{{ d.status }}</span></td>
+            <td class="actions">
+                <a class="btn btn-sm" href="{% url 'employees:document_download' d.pk %}">{% trans "تنزيل" %}</a>
+                <a class="btn btn-sm" href="{% url 'employees:document_edit' d.pk %}">{% trans "تعديل" %}</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="empty">{% trans "لا مستندات" %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&status={{ status }}">{% trans "السابق" %}</a>{% endif %}
+    <span>{% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}صفحة {{ n }} / {{ total }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&status={{ status }}">{% trans "التالي" %}</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

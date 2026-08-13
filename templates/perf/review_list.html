@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "مراجعات الأداء" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "مراجعات الأداء" %} <small class="muted">({% trans "تقييم المدير" %})</small></h1>
+<div class="toolbar">
+    <form method="get" class="inline-form">
+        <select name="status">
+            <option value="">{% trans "كل الحالات" %}</option>
+            {% for value, label in view.model.Status.choices %}
+            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-sm" type="submit">{% trans "تصفية" %}</button>
+    </form>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الموظف" %}</th>
+            <th>{% trans "الدورة" %}</th>
+            <th>{% trans "الذاتي" %}</th>
+            <th>{% trans "المدير" %}</th>
+            <th>{% trans "النهائي" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for review in reviews %}
+        <tr>
+            <td>{{ review.employee }}</td>
+            <td>{{ review.cycle }}</td>
+            <td>{{ review.self_score|default:"—" }}</td>
+            <td>{{ review.manager_score|default:"—" }}</td>
+            <td>{{ review.final_score|default:"—" }}</td>
+            <td>{{ review.get_status_display }}</td>
+            <td><a class="btn btn-sm" href="{% url 'perf:review_detail' review.pk %}">{% trans "فتح" %}</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">{% trans "لا توجد مراجعات." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">{% trans "السابق" %}</a>{% endif %}
+    <span>{% blocktrans with n=page_obj.number t=page_obj.paginator.num_pages %}صفحة {{ n }} من {{ t }}{% endblocktrans %}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">{% trans "التالي" %}</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

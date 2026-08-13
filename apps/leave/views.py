@@ -21,8 +21,9 @@ from .services import (
     LeaveError,
     adjust_balance,
     approve_request,
-    cancel_request,
     calculate_leave_days,
+    cancel_request,
+    escalate_request,
     reject_request,
 )
 
@@ -171,6 +172,9 @@ class LeaveRequestApproveView(PermissionRequiredMixin, View):
             elif action == "reject":
                 reject_request(lreq, request.user, comment)
                 messages.warning(request, _("تم رفض الطلب"))
+            elif action == "escalate":
+                escalate_request(lreq, request.user, comment)
+                messages.info(request, _("تم تصعيد الطلب للمستوى التالي"))
             else:
                 messages.error(request, _("إجراء غير معروف"))
         except LeaveError as exc:

@@ -124,3 +124,75 @@ class UnifiedSearchTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "مريم")
         self.assertContains(resp, "نتائج البحث")
+
+
+class AuditLogTests(TestCase):
+    """سجل التدقيق (v2) — تسجيل عمليات الكتابة + حماية append-only + الصلاحية."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.superuser = User.objects.create_superuser(username="aud_admin", password="pass")
+
+    def test_create_and_update_and_delete_recorded(self):
+        from apps.core.models import AuditLog
+        from apps.org.models import Branch
+
+        branch = Branch.objects.create(code="AU-1", name_ar="فرع")
+        self.assertEqual(AuditLog.objects.filter(model_name="org.Branch", object_id=str(branch.pk)).count(), 1)
+
+        branch.name_ar = "فرع محدث"
+        branch.save()
+        self.assertEqual(
+            AuditLog.objects.filter(model_name="org.Branch", object_id=str(branch.pk), action="update").count(), 1
+        )
+
+        pk = branch.pk
+        branch.delete()
+        self.assertTrue(
+            AuditLog.objects.filter(model_name="org.Branch", object_id=str(pk), action="delete").exists()
+        )
+
+    def test_auditlog_itself_not_recorded(self):
+        from apps.core.models import AuditLog
+        from apps.org.models import Branch
+
+        Branch.objects.create(code="AU-3", name_ar="فرع")
+        count = AuditLog.objects.count()
+        entry = AuditLog.objects.first()
+        entry.object_repr = "تعديل غير مسموح"  # لن يُسجَّل تعديل عليه
+        entry.save()
+        self.assertEqual(AuditLog.objects.count(), count)
+
+    def test_delete_raises(self):
+        from apps.core.models import AuditLog
+        from apps.org.models import Branch
+
+        Branch.objects.create(code="AU-4", name_ar="فرع")
+        with self.assertRaises(NotImplementedError):
+            AuditLog.objects.first().delete()
+
+    def test_login_recorded(self):
+        from apps.core.models import AuditLog
+        from apps.org.models import Branch
+
+        Branch.objects.create(code="AU-2", name_ar="فرع")
+        self.client.login(username="aud_admin", password="pass")
+        self.assertTrue(AuditLog.objects.filter(action="login", user__username="aud_admin").exists())
+
+    def test_audit_view_requires_permission(self):
+        from django.contrib.auth import get_user_model
+
+        from apps.auth_app.models import Permission
+
+        User = get_user_model()
+        plain = User.objects.create_user(username="au_plain", password="pass")
+        self.client.force_login(plain)
+        self.assertEqual(self.client.get(reverse("core:audit_log")).status_code, 403)
+
+        perm = Permission.objects.create(code="system.audit.view", module="core", name_ar="سجل")
+        role, _ = Role.objects.get_or_create(code="auditor", name_ar="مدقق")
+        role.permission_links.create(permission=perm)
+        RoleMember.objects.create(user=plain, role=role)
+        resp = self.client.get(reverse("core:audit_log"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "سجل التدقيق")

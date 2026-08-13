@@ -60,9 +60,29 @@ LOCAL_APPS = [
     "apps.notif",
     "apps.devices",
     "apps.reports",
+    "apps.backup",
+    "apps.perf",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
+
+# ---- النسخ الاحتياطي ------------------------------------------------------
+# عبارة مرور اشتقاق مفتاح AES-256 لتشفير النسخ — تُضبط في .env في الإنتاج.
+HRMS_BACKUP_KEY = _env("HRMS_BACKUP_KEY", "")
+
+# ---- البريد (LAN Email) ---------------------------------------------------
+# بريد إشعارات داخل الشبكة — خادم SMTP محلي/LAN تُضبط معطياته في .env.
+# HRMS_EMAIL_ENABLED=False ⇒ تُسجَّل الرسائل على وحدة التحكم (dev) ولا تُرسل.
+HRMS_EMAIL_ENABLED = _env("HRMS_EMAIL_ENABLED", "False") == "True"
+EMAIL_BACKEND = _env("DJANGO_EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+EMAIL_HOST = _env("DJANGO_EMAIL_HOST", "localhost")
+EMAIL_PORT = int(_env("DJANGO_EMAIL_PORT", "25"))
+EMAIL_HOST_USER = _env("DJANGO_EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = _env("DJANGO_EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = _env("DJANGO_EMAIL_USE_TLS", "False") == "True"
+EMAIL_USE_SSL = _env("DJANGO_EMAIL_USE_SSL", "False") == "True"
+EMAIL_TIMEOUT = int(_env("DJANGO_EMAIL_TIMEOUT", "15"))
+DEFAULT_FROM_EMAIL = _env("DJANGO_DEFAULT_FROM_EMAIL", "HRMS <hrms@lan.local>")
 
 # ---- الوسيطات -----------------------------------------------------------
 MIDDLEWARE = [
@@ -74,6 +94,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.core.middleware.AuditContextMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

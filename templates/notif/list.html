@@ -5,6 +5,7 @@
 <div class="page-head">
     <h1>{% trans "مركز الإشعارات" %}</h1>
     <div class="head-actions">
+        <a class="btn btn-sm" href="{% url 'notif:prefs' %}">{% trans "تفضيلات البريد" %}</a>
         {% if notifications %}
         <form method="post" action="{% url 'notif:mark_all_read' %}" class="inline-form">
             {% csrf_token %}

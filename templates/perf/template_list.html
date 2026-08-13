@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "قوالب التقييم" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "قوالب التقييم" %}</h1>
+<div class="toolbar">
+    <a class="btn btn-primary" href="{% url 'perf:template_create' %}">{% trans "قالب جديد" %}</a>
+    <a class="btn" href="{% url 'perf:cycle_list' %}">{% trans "الدورات" %}</a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "القالب" %}</th>
+            <th>{% trans "المعايير" %}</th>
+            <th>{% trans "نشط" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for template in templates %}
+        <tr>
+            <td>{{ template }}</td>
+            <td>{{ template.criteria_json|length }} {% trans "معيار" %}</td>
+            <td>{% if template.is_active %}{% trans "نعم" %}{% else %}{% trans "لا" %}{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">{% trans "لا توجد قوالب." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
