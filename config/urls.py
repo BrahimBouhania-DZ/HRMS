@@ -22,6 +22,7 @@ urlpatterns = [
     path("perf/", include("apps.perf.urls", namespace="perf")),
     path("training/", include("apps.training.urls", namespace="training")),
     path("ai/", include("apps.ai.urls", namespace="ai")),
+    path("api/v1/", include("apps.api.urls", namespace="api")),
 ]
 
 if settings.DEBUG:

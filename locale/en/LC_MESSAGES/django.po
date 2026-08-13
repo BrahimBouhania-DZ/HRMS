@@ -5574,3 +5574,38 @@ msgstr "Page %(page)s of %(pages)s"
 #: templates/reports/pdf_report.html
 msgid "لا بيانات."
 msgstr "No data."
+#: apps/api/apps.py
+msgid "واجهة API للموبايل والأجهزة"
+msgstr "Mobile & devices API"
+
+#: apps/api/authentication.py
+msgid "X-Device-Code و X-API-Key مطلوبان معًا"
+msgstr "X-Device-Code and X-API-Key are both required"
+
+#: apps/api/authentication.py
+msgid "جهاز غير معروف أو غير نشط"
+msgstr "Unknown or inactive device"
+
+#: apps/api/authentication.py
+msgid "مفتاح API غير صالح"
+msgstr "Invalid API key"
+
+#: apps/api/serializers.py
+msgid "بيانات الدخول غير صحيحة"
+msgstr "Invalid credentials"
+
+#: apps/api/serializers.py
+msgid "الحساب معطّل"
+msgstr "Account disabled"
+
+#: apps/api/serializers.py
+msgid "لا يملك هذا الحساب ملف موظف (واجهة الموبايل للموظفين)"
+msgstr "This account has no employee record (mobile API is for employees only)"
+
+#: apps/api/views.py
+msgid "لا يملك الحساب ملف موظف"
+msgstr "The account has no employee record"
+
+#: apps/api/views.py
+msgid "صيغة التاريخ YYYY-MM-DD"
+msgstr "Date format YYYY-MM-DD"

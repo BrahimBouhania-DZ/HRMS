@@ -49,6 +49,11 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "rest_framework.authtoken",
+]
+
 LOCAL_APPS = [
     "apps.core",
     "apps.auth_app",
@@ -64,9 +69,10 @@ LOCAL_APPS = [
     "apps.perf",
     "apps.training",
     "apps.ai",
+    "apps.api",
 ]
 
-INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 # ---- النسخ الاحتياطي ------------------------------------------------------
 # عبارة مرور اشتقاق مفتاح AES-256 لتشفير النسخ — تُضبط في .env في الإنتاج.
@@ -167,5 +173,23 @@ SESSION_COOKIE_NAME = "hrms_session"
 LOGIN_URL = "auth_app:login"
 LOGIN_REDIRECT_URL = "core:home"
 LOGOUT_REDIRECT_URL = "auth_app:login"
+
+# ---- واجهة API (DRF) ------------------------------------------------------
+_DRF_RENDERERS = ["rest_framework.renderers.JSONRenderer"]
+if DEBUG:
+    _DRF_RENDERERS.append("rest_framework.renderers.BrowsableAPIRenderer")
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
+    "DEFAULT_RENDERER_CLASSES": _DRF_RENDERERS,
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

@@ -110,6 +110,45 @@ python manage.py train_ai_models --all         # + نموذج مخاطر الغ�
 
 ---
 
+## 📱 واجهة API للموبايل والأجهزة (v4)
+
+واجهة REST (Django REST Framework) تحت `http://127.0.0.1:8000/api/v1/` — للموظفين (Token) والقارئات الثابتة (مفتاح API).
+
+| المسار | الطريقة | الوصف |
+|---|---|---|
+| `auth/login/` | POST | `{username, password}` → `{token, employee}` (للموظفين فقط) |
+| `auth/logout/` | POST | إبطال الرمز الحالي |
+| `scan/` | POST | `{payload}` → دخول/خروج (موظف بصلاحية `attendance.scan` أو جهاز) |
+| `me/` | GET | ملفي + رمز QR النشط + حالة اليوم |
+| `me/attendance/` | GET | أيام الحضور (`?from=YYYY-MM-DD&to=YYYY-MM-DD`) |
+
+**تسجيل الدخول:**
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/auth/login/ \
+  -H "Content-Type: application/json" \
+  -d '{"username":"emp-101","password":"Demo@2026!"}'
+```
+
+**مسح QR (موظف):**
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/scan/ \
+  -H "Authorization: Token <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"payload":"<نص QR>"}'
+```
+
+**مسح QR (قارئ ثابت)** — تُعرَّف الأجهزة من صفحة الأجهزة (مفتاح API يُعرض مرة واحدة):
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/scan/ \
+  -H "X-Device-Code: <code>" -H "X-API-Key: <key>" \
+  -H "Content-Type: application/json" \
+  -d '{"payload":"<نص QR>"}'
+```
+
+الرد: `{ok, decision, detail, employee, time}` — `decision` ∈ `check_in | check_out | rejected | warning`.
+
+---
+
 ## ✅ الاختبارات
 
 ```bash

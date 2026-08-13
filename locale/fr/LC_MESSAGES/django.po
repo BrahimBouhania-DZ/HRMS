@@ -5585,3 +5585,38 @@ msgstr "Page %(page)s sur %(pages)s"
 #: templates/reports/pdf_report.html
 msgid "لا بيانات."
 msgstr "Aucune donnée."
+#: apps/api/apps.py
+msgid "واجهة API للموبايل والأجهزة"
+msgstr "API mobile et appareils"
+
+#: apps/api/authentication.py
+msgid "X-Device-Code و X-API-Key مطلوبان معًا"
+msgstr "X-Device-Code et X-API-Key sont requis ensemble"
+
+#: apps/api/authentication.py
+msgid "جهاز غير معروف أو غير نشط"
+msgstr "Appareil inconnu ou inactif"
+
+#: apps/api/authentication.py
+msgid "مفتاح API غير صالح"
+msgstr "Clé API invalide"
+
+#: apps/api/serializers.py
+msgid "بيانات الدخول غير صحيحة"
+msgstr "Identifiants de connexion incorrects"
+
+#: apps/api/serializers.py
+msgid "الحساب معطّل"
+msgstr "Compte désactivé"
+
+#: apps/api/serializers.py
+msgid "لا يملك هذا الحساب ملف موظف (واجهة الموبايل للموظفين)"
+msgstr "Ce compte n'a pas de dossier employé (l'API mobile est réservée aux employés)"
+
+#: apps/api/views.py
+msgid "لا يملك الحساب ملف موظف"
+msgstr "Le compte ne dispose pas d'un dossier employé"
+
+#: apps/api/views.py
+msgid "صيغة التاريخ YYYY-MM-DD"
+msgstr "Format de date AAAA-MM-JJ"
