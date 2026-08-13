@@ -4,6 +4,7 @@ import csv
 import datetime
 import io
 from decimal import Decimal
+from pathlib import Path
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -14,6 +15,7 @@ from apps.attendance.models import AttendanceDay
 from apps.employees.models import Employee
 from apps.leave.models import LeaveBalance, LeaveRequest, LeaveType
 from apps.org.models import Branch, Department
+from apps.reports.scheduling import run_scheduled_reports
 
 User = get_user_model()
 
@@ -422,3 +424,92 @@ class ReportV2Tests(TestCase):
         rows = list(csv.reader(io.StringIO(resp.content.decode("utf-8"))))
         self.assertEqual(rows[0][0], "الموظف")
         self.assertIn("V2-001", rows[1][0])
+
+
+class ScheduledReportTests(TestCase):
+    """التقارير المجدولة (T-REP-5): التنفيذ + الإشعارات + التنزيل."""
+
+    @classmethod
+    def setUpTestData(cls):
+        Permission.objects.get_or_create(code="reports.view", defaults={"module": "core", "name_ar": "التقارير"})
+        Permission.objects.get_or_create(code="reports.export", defaults={"module": "core", "name_ar": "تصدير"})
+        cls.admin = User.objects.create_superuser(username="sch_admin", password="pass")
+        cls.recipient = User.objects.create_user(username="sch_rec", password="pass")
+        cls.branch = Branch.objects.create(code="BR-S", name_ar="فرع S")
+        cls.dept = Department.objects.create(code="DEP-S", name_ar="قسم S", branch=cls.branch)
+        cls.emp = Employee.objects.create(
+            employee_code="S-001", first_name_ar="سامي", last_name_ar="S",
+            branch=cls.branch, department=cls.dept,
+        )
+        from apps.reports.models import ReportDefinition
+
+        cls.definition = ReportDefinition.objects.create(
+            code="REP-01", name_ar="قائمة الموظفين", owner=cls.admin,
+            template_type=ReportDefinition.Template.CSV, schedule=ReportDefinition.Schedule.DAILY,
+            run_at=datetime.time(8, 30), filters_json={},
+        )
+        cls.definition.notify_users.add(cls.recipient)
+
+    def setUp(self):
+        from apps.reports.models import ReportDefinition
+
+        now = datetime.datetime.now().replace(hour=8, minute=30)
+        ReportDefinition.objects.filter(pk=self.definition.pk).update(last_run_at=None)
+        self._now = now
+
+    def test_is_due_daily(self):
+        from apps.reports.scheduling import _is_due
+        from apps.reports.models import ReportDefinition
+
+        due = _is_due(self.definition, datetime.datetime.now().replace(hour=9, minute=0))
+        self.assertTrue(due)
+        not_due = _is_due(self.definition, datetime.datetime.now().replace(hour=8, minute=0))
+        self.assertFalse(not_due)
+
+    def test_run_creates_job_and_file(self):
+        from apps.notif.models import Notification
+        from apps.reports.models import ReportJob
+
+        jobs = run_scheduled_reports()
+        self.assertEqual(len(jobs), 1)
+        job = jobs[0]
+        self.assertEqual(job.status, ReportJob.Status.DONE)
+        self.assertEqual(job.files.count(), 1)
+        f = job.files.first()
+        self.assertEqual(f.format, "csv")
+        self.assertGreater(f.size_bytes, 0)
+        self.assertTrue(Path(f.file_path).exists())
+        self.assertTrue(Notification.objects.filter(user=self.recipient).exists())
+
+    def test_no_rerun_same_window(self):
+        from apps.reports.models import ReportJob
+
+        self.assertEqual(len(run_scheduled_reports()), 1)
+        self.assertEqual(len(run_scheduled_reports()), 0)
+        self.assertEqual(ReportJob.objects.count(), 1)
+
+    def test_invalid_code_fails_job(self):
+        from apps.reports.models import ReportDefinition, ReportJob
+
+        ReportDefinition.objects.create(
+            code="REP-99", name_ar="غير معروف", owner=self.admin,
+            template_type=ReportDefinition.Template.CSV, schedule=ReportDefinition.Schedule.DAILY,
+            run_at=datetime.time(8, 30),
+        )
+        jobs = run_scheduled_reports()
+        failed = [j for j in jobs if j.status == ReportJob.Status.FAILED]
+        self.assertEqual(len(failed), 1)
+
+    def test_generated_list_and_download(self):
+        self.client.force_login(self.admin)
+        run_scheduled_reports()
+        resp = self.client.get(reverse("reports:generated"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "قائمة الموظفين")
+        f = self.definition.jobs.first().files.first()
+        resp = self.client.get(reverse("reports:generated_download", args=[f.pk]))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_download_guard(self):
+        self.client.force_login(self.recipient)
+        self.assertEqual(self.client.get(reverse("reports:generated")).status_code, 403)

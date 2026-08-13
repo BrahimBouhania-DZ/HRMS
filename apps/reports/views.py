@@ -7,7 +7,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.utils.translation import gettext as _
 from django.views.generic import TemplateView
 
@@ -607,17 +607,21 @@ def export(request, report_code, fmt):
     """تصدير CSV/XLSX — يعيد نفس فلاتر القائمة (يتطلب reports.export)."""
     if not request.user.is_superuser and "reports.export" not in _effective_permissions(request.user):
         raise PermissionDenied
-    # التصدير المالي (REP-30/31/33) يتطلب صلاحية كشف الرواتب
-    if report_code in ("rep30", "rep31", "rep33") and not request.user.is_superuser and \
+    # التصدير المالي (REP-30/31/33/34/35) يتطلب صلاحية كشف الرواتب
+    if report_code in ("rep30", "rep31", "rep33", "rep34", "rep35") and not request.user.is_superuser and \
             "payroll.payslip.view" not in _effective_permissions(request.user):
         raise PermissionDenied
-    # التصدير الأمني (REP-50/51) يتطلب صلاحية سجل التدقيق
-    if report_code in ("rep50", "rep51") and not request.user.is_superuser and \
+    # التصدير الأمني (REP-50/51/52) يتطلب صلاحية سجل التدقيق
+    if report_code in ("rep50", "rep51", "rep52") and not request.user.is_superuser and \
             "system.audit.view" not in _effective_permissions(request.user):
         raise PermissionDenied
     # تصدير النسخ الاحتياطي (REP-53) يتطلب صلاحية الإدارة
     if report_code == "rep53" and not request.user.is_superuser and \
             "system.backup.manage" not in _effective_permissions(request.user):
+        raise PermissionDenied
+    # تصدير حالة الأجهزة (REP-54) يتطلب صلاحية إدارة الأجهزة
+    if report_code == "rep54" and not request.user.is_superuser and \
+            "device.manage" not in _effective_permissions(request.user):
         raise PermissionDenied
     if report_code == "rep01":
         rows = Rep01View().get_rows(request.user, request.GET)
@@ -645,6 +649,10 @@ def export(request, report_code, fmt):
         rows = Rep31View().get_rows(request.user, request.GET)
     elif report_code == "rep33":
         rows = Rep33View().get_rows(request.user, request.GET)
+    elif report_code == "rep34":
+        rows = Rep34View().get_rows(request.user, request.GET)
+    elif report_code == "rep35":
+        rows = Rep35View().get_rows(request.user, request.GET)
     elif report_code == "rep42":
         rows = Rep42View().get_rows(request.user, request.GET)
     elif report_code == "rep43":
@@ -653,10 +661,57 @@ def export(request, report_code, fmt):
         rows = Rep50View().get_rows(request.user, request.GET)
     elif report_code == "rep51":
         rows = Rep51View().get_rows(request.user, request.GET)
+    elif report_code == "rep52":
+        rows = Rep52View().get_rows(request.user, request.GET)
     elif report_code == "rep53":
         rows = Rep53View().get_rows(request.user, request.GET)
+    elif report_code == "rep54":
+        rows = Rep54View().get_rows(request.user, request.GET)
     else:
         raise Http404
     meta = _report_meta("REP-" + report_code.removeprefix("rep"))
     title = meta.get("title") or report_code
     return _stream(request, rows, meta.get("header") or [], fmt, report_code, title=title)
+
+
+class GeneratedReportsView(PermissionRequiredMixin, TemplateView):
+    """التقارير المجدولة: التعريفات + التنفيذات الأخيرة (reports.view)."""
+
+    permission_code = "reports.view"
+    template_name = "reports/generated.html"
+
+    def get_context_data(self, **kwargs):
+        from .models import ReportDefinition, ReportJob
+
+        ctx = super().get_context_data(**kwargs)
+        ctx["definitions"] = ReportDefinition.objects.filter(is_active=True).order_by("name_ar")
+        jobs = ReportJob.objects.select_related("report", "requested_by")[:100]
+        ctx["jobs"] = [
+            {
+                "pk": j.pk,
+                "name": j.report.name_ar,
+                "status": j.get_status_display(),
+                "started": j.started_at and j.started_at.strftime("%Y-%m-%d %H:%M") or "—",
+                "error": j.error,
+                "files": [f for f in j.files.all()],
+            }
+            for j in jobs
+        ]
+        return ctx
+
+
+def generated_download(request, pk):
+    """تنزيل ملف تقرير مجدول (يتطلب reports.export)."""
+    from pathlib import Path
+
+    from django.http import FileResponse
+
+    from .models import ReportGeneratedFile
+
+    if not request.user.is_superuser and "reports.export" not in _effective_permissions(request.user):
+        raise PermissionDenied
+    obj = get_object_or_404(ReportGeneratedFile, pk=pk)
+    path = Path(obj.file_path)
+    if not path.exists():
+        raise Http404
+    return FileResponse(open(path, "rb"), as_attachment=True, filename=path.name)

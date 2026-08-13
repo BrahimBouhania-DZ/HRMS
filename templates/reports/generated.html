@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "التقارير المجدولة" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "التقارير المجدولة" %}</h1>
+
+<h2>{% trans "التعريفات النشطة" %}</h2>
+<table>
+    <thead>
+        <tr>
+            <th>{% trans "الاسم" %}</th>
+            <th>{% trans "الرمز" %}</th>
+            <th>{% trans "الصيغة" %}</th>
+            <th>{% trans "الجدولة" %}</th>
+            <th>{% trans "آخر تنفيذ" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in definitions %}
+        <tr>
+            <td>{{ d.name_ar }}</td>
+            <td>{{ d.code }}</td>
+            <td>{{ d.get_template_type_display }}</td>
+            <td>
+                {% if d.schedule == "daily" %}{% trans "يومي" %}
+                {% elif d.schedule == "weekly" %}{% trans "أسبوعي" %} ({{ d.weekday }})
+                {% elif d.schedule == "monthly" %}{% trans "شهري" %} ({{ d.day_of_month }})
+                {% else %}{% trans "يدوي" %}{% endif %} — {{ d.run_at|default:"—" }}
+            </td>
+            <td>{{ d.last_run_at|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="empty">{% trans "لا توجد تعريفات مجدولة." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>{% trans "أحدث التنفيذات" %}</h2>
+<table>
+    <thead>
+        <tr>
+            <th>{% trans "التقرير" %}</th>
+            <th>{% trans "البداية" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th>{% trans "الملفات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for j in jobs %}
+        <tr>
+            <td>{{ j.name }}</td>
+            <td>{{ j.started }}</td>
+            <td>{{ j.status }}</td>
+            <td>
+                {% for f in j.files %}
+                <a href="{% url 'reports:generated_download' f.pk %}">{{ f.format }} ({{ f.size_bytes }} B)</a>
+                {% empty %}
+                {% if j.error %}<span class="text-danger">{{ j.error }}</span>{% else %}—{% endif %}
+                {% endfor %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="empty">{% trans "لا تنفيذات بعد." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

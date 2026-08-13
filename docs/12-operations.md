@@ -80,6 +80,7 @@ bash scripts/run.sh restore backups/hrms_20260809_122804.sqlite3   # عبر run.
 
 ```cron
 30 2 * * * cd /opt/hrms && bash scripts/backup.sh
+*/30 8-18 * * * cd /opt/hrms && .venv/bin/python manage.py run_scheduled_reports  # تقارير مجدولة (T-REP-5)
 ```
 
 > **توصية:** انسخ النسخ الاحتياطية إلى قرص/جهاز آخر شهريًا، واختبر استعادة فعلية قبل الاعتماد عليها (معيار قبول v1).

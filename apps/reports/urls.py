@@ -30,5 +30,7 @@ urlpatterns = [
     path("backup-status/", views.Rep53View.as_view(), name="rep53"),
     path("daily-activity/", views.Rep52View.as_view(), name="rep52"),
     path("device-status/", views.Rep54View.as_view(), name="rep54"),
+    path("generated/", views.GeneratedReportsView.as_view(), name="generated"),
+    path("generated/<int:pk>/download/", views.generated_download, name="generated_download"),
     path("export/<str:report_code>/<str:fmt>/", views.export, name="export"),
 ]
