@@ -6,6 +6,7 @@ from rest_framework import serializers
 
 from apps.attendance.models import AttendanceDay
 from apps.employees.models import Employee
+from apps.recruitment.models import Candidate, JobPosting
 
 
 class LoginSerializer(serializers.Serializer):
@@ -115,3 +116,40 @@ class ScanResponseSerializer(serializers.Serializer):
     detail = serializers.CharField()
     employee = serializers.CharField()
     time = serializers.DateTimeField()
+
+
+class JobPostingSerializer(serializers.ModelSerializer):
+    """إعلان وظيفة — بالحالة والعرض والنصوص الثلاث (يقرأ الأسماء من StringRelated)."""
+
+    department = serializers.StringRelatedField()
+    branch = serializers.StringRelatedField()
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+    candidate_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = JobPosting
+        fields = [
+            "id", "code", "title_ar", "title_fr", "title_en",
+            "department", "branch", "employment_type", "openings_count",
+            "requirements", "description", "status", "status_display",
+            "publish_date", "close_date", "candidate_count",
+        ]
+
+
+class CandidateSerializer(serializers.ModelSerializer):
+    """مرشح — الحالة/تاريخ التقديم للقراءة فقط (يُداران عبر الخدمات)."""
+
+    posting = serializers.PrimaryKeyRelatedField(
+        queryset=JobPosting.objects.all(), required=False, allow_null=True
+    )
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+
+    class Meta:
+        model = Candidate
+        fields = [
+            "id", "posting", "first_name_ar", "last_name_ar",
+            "first_name_fr", "last_name_fr", "first_name_en", "last_name_en",
+            "email", "phone", "source", "status", "status_display",
+            "applied_date", "notes",
+        ]
+        read_only_fields = ["status", "applied_date"]

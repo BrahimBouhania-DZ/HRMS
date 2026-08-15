@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ candidate.full_name }} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{{ candidate.full_name }}</h1>
+<p class="muted">{{ candidate.posting.code|default:"—" }} — {{ candidate.get_status_display }}</p>
+
+<div class="toolbar">
+    <a class="btn" href="{% url 'recruitment:candidate_list' %}">{% trans "رجوع" %}</a>
+    <a class="btn btn-primary" href="{% url 'recruitment:interview_create' candidate.pk %}">{% trans "جدولة مقابلة" %}</a>
+    {% if candidate.status == "hired" %}
+    <span class="muted">{% trans "موظّف: " %}{{ candidate.hired_employee.employee_code }}</span>
+    {% endif %}
+</div>
+
+<table class="info-table">
+    <tr><th>{% trans "الإعلان" %}</th><td>{{ candidate.posting.title_ar|default:"—" }}</td></tr>
+    <tr><th>{% trans "البريد" %}</th><td>{{ candidate.email }}</td></tr>
+    <tr><th>{% trans "الهاتف" %}</th><td>{{ candidate.phone|default:"—" }}</td></tr>
+    <tr><th>{% trans "المصدر" %}</th><td>{{ candidate.get_source_display }}</td></tr>
+    <tr><th>{% trans "تاريخ التقديم" %}</th><td>{{ candidate.applied_date|default:"—" }}</td></tr>
+    {% if candidate.resume %}<tr><th>{% trans "السيرة الذاتية" %}</th><td><a href="{{ candidate.resume.url }}">{% trans "تحميل" %}</a></td></tr>{% endif %}
+    {% if candidate.notes %}<tr><th>{% trans "ملاحظات" %}</th><td>{{ candidate.notes }}</td></tr>{% endif %}
+</table>
+
+<h2>{% trans "المقابلات" %}</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الموعد" %}</th>
+            <th>{% trans "المقابل" %}</th>
+            <th>{% trans "الطريقة" %}</th>
+            <th>{% trans "النتيجة" %}</th>
+            <th>{% trans "الدرجة" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in interviews %}
+        <tr>
+            <td>{{ i.scheduled_at }}</td>
+            <td>{{ i.interviewer|default:"—" }}</td>
+            <td>{{ i.get_mode_display }}</td>
+            <td>
+                {% if i.status == "completed" %}
+                <strong>{{ i.get_result_display }}</strong>
+                {% else %}{{ i.get_status_display }}{% endif %}
+            </td>
+            <td>{{ i.score|default:"—" }}</td>
+            <td>
+                {% if i.status == "scheduled" %}
+                <form method="post" action="{% url 'recruitment:interview_complete' candidate.pk i.pk %}" class="inline-form">
+                    {% csrf_token %}
+                    <label class="sr-only" for="score-{{ i.pk }}">{% trans "الدرجة" %}</label>
+                    <input type="number" name="score" id="score-{{ i.pk }}" min="0" max="100" placeholder="{% trans "الدرجة" %}">
+                    <button class="btn btn-sm" type="submit">{% trans "إنهاء" %}</button>
+                </form>
+                {% else %}
+                <span class="muted">{{ i.notes|default:"—" }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">{% trans "لا توجد مقابلات بعد." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>{% trans "إجراءات التوظيف" %}</h2>
+<div class="toolbar">
+    {% for code, label in candidate.Status.choices %}
+    {% if code != candidate.status %}
+    <form method="post" action="{% url 'recruitment:candidate_status' candidate.pk code %}" class="inline-form">
+        {% csrf_token %}
+        <button class="btn btn-sm" type="submit">{% trans "تعيين: " %}{{ label }}</button>
+    </form>
+    {% endif %}
+    {% endfor %}
+    {% if candidate.status == "offer" %}
+    <form method="post" action="{% url 'recruitment:candidate_hire' candidate.pk %}" class="inline-form">
+        {% csrf_token %}
+        <button class="btn btn-sm btn-success" type="submit">{% trans "توظيف" %}</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

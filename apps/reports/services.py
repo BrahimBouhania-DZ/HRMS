@@ -390,6 +390,7 @@ def filter_options():
     from apps.devices.models import QrDevice
     from apps.payroll.models import PayElement, PayRun, EndOfService
     from apps.perf.models import PerfCycle
+    from apps.recruitment.models import Candidate, JobPosting
 
     return {
         "branches": Branch.objects.all().order_by("name_ar"),
@@ -407,6 +408,9 @@ def filter_options():
         "element_kinds": PayElement.Kind.choices,
         "eos_statuses": EndOfService.Status.choices,
         "exception_statuses": AttendanceException.Status.choices,
+        "postings": JobPosting.objects.filter(status__in=[JobPosting.Status.DRAFT, JobPosting.Status.PUBLISHED]).order_by("code"),
+        "posting_statuses": JobPosting.Status.choices,
+        "candidate_statuses": Candidate.Status.choices,
     }
 
 
@@ -641,6 +645,68 @@ def pip_list(user, status=None):
         }
         for p in qs.select_related("review__employee", "review__cycle").order_by("-start_date")
     ]
+
+
+# ---- التوظيف (v4) --------------------------------------------------------------
+
+def recruitment_postings(user, status=None):
+    """REP-44 — إعلانات الوظائف مع أعداد المرشحين (حسب الحالة)."""
+    from apps.recruitment.models import Candidate, JobPosting
+
+    qs = JobPosting.objects.select_related("department", "branch")
+    if status:
+        qs = qs.filter(status=status)
+    rows = []
+    for p in qs.order_by("code"):
+        counts = p.candidates.aggregate(
+            total=Count("id"),
+            hired=Count("id", filter=Q(status=Candidate.Status.HIRED)),
+        )
+        rows.append(
+            {
+                "code": p.code,
+                "title": pick(p.title_ar, p.title_fr, p.title_en),
+                "department": lname(p.department) if p.department else "",
+                "branch": lname(p.branch) if p.branch else "",
+                "employment_type": p.get_employment_type_display(),
+                "status": p.get_status_display(),
+                "openings": p.openings_count,
+                "candidates": counts["total"],
+                "hired": counts["hired"],
+            }
+        )
+    return rows
+
+
+def recruitment_candidates(user, status=None, posting=None, from_date=None, to_date=None):
+    """REP-45 — سجل المرشحين حسب الحالة/الإعلان/فترة التقديم."""
+    from apps.recruitment.models import Candidate
+
+    qs = Candidate.objects.select_related("posting", "hired_employee")
+    if status:
+        qs = qs.filter(status=status)
+    if posting:
+        qs = qs.filter(posting_id=posting)
+    from_d = _to_date(from_date)
+    to_d = _to_date(to_date)
+    if from_d:
+        qs = qs.filter(applied_date__gte=from_d)
+    if to_d:
+        qs = qs.filter(applied_date__lte=to_d)
+    rows = []
+    for c in qs.order_by("-applied_date", "-created_at"):
+        rows.append(
+            {
+                "name": f"{pick(c.first_name_ar, c.first_name_fr, c.first_name_en)} {pick(c.last_name_ar, c.last_name_fr, c.last_name_en)}".strip(),
+                "posting": c.posting.code if c.posting else "",
+                "email": c.email,
+                "phone": c.phone,
+                "applied_date": c.applied_date,
+                "status": c.get_status_display(),
+                "hired_code": c.hired_employee.employee_code if c.hired_employee else "",
+            }
+        )
+    return rows
 
 
 # ---- الموظفون: تقاعد وتغييرات (v3) ------------------------------------------

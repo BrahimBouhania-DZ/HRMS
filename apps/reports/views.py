@@ -222,6 +222,18 @@ REPORTS = [
         "desc": _("معدل المغادرة/التعيين حسب القسم"),
         "header": [_("القسم"), _("الفرع"), _("الموظفون (نهاية)"), _("معينون"), _("مغادرون"), _("معدل الدوران %")],
     },
+    {
+        "code": "REP-44", "title": _("إعلانات الوظائف"), "url": "reports:rep44",
+        "category": "recruitment",
+        "desc": _("إعلانات التوظيف مع أعداد المرشحين والمعيّنين"),
+        "header": [_("الرمز"), _("الإعلان"), _("القسم"), _("الفرع"), _("نوع التوظيف"), _("الحالة"), _("الشواغر"), _("المرشحون"), _("تم التوظيف")],
+    },
+    {
+        "code": "REP-45", "title": _("سجل المرشحين"), "url": "reports:rep45",
+        "category": "recruitment",
+        "desc": _("المرشحون حسب الحالة/الإعلان/فترة التقديم"),
+        "header": [_("المرشح"), _("الإعلان"), _("البريد"), _("الهاتف"), _("تاريخ التقديم"), _("الحالة"), _("الموظف")],
+    },
 ]
 
 
@@ -329,6 +341,9 @@ class _BaseReportView(ReportLangMixin, PermissionRequiredMixin, TemplateView):
         ctx["show_eos_status_filter"] = getattr(self, "show_eos_status_filter", False)
         ctx["show_exc_status_filter"] = getattr(self, "show_exc_status_filter", False)
         ctx["show_change_type_filter"] = getattr(self, "show_change_type_filter", False)
+        ctx["show_posting_filter"] = getattr(self, "show_posting_filter", False)
+        ctx["show_posting_status_filter"] = getattr(self, "show_posting_status_filter", False)
+        ctx["show_candidate_status_filter"] = getattr(self, "show_candidate_status_filter", False)
         ctx["summary"] = getattr(self, "summary", None)
         ctx["lang_urls"] = [
             (code, label, _lang_query(self.request.GET, code))
@@ -924,6 +939,41 @@ class Rep62View(_BaseReportView):
         ]
 
 
+class Rep44View(_BaseReportView):
+    title = _("REP-44 إعلانات الوظائف")
+    report_code = "REP-44"
+    columns = _report_meta("REP-44")["header"]
+    show_posting_status_filter = True
+
+    def get_rows(self, user, filters):
+        return [
+            (r["code"], r["title"], r["department"], r["branch"], r["employment_type"],
+             r["status"], r["openings"], r["candidates"], r["hired"])
+            for r in services.recruitment_postings(user, status=filters.get("status"))
+        ]
+
+
+class Rep45View(_BaseReportView):
+    title = _("REP-45 سجل المرشحين")
+    report_code = "REP-45"
+    columns = _report_meta("REP-45")["header"]
+    show_posting_filter = True
+    show_candidate_status_filter = True
+
+    def get_rows(self, user, filters):
+        return [
+            (r["name"], r["posting"], r["email"], r["phone"], r["applied_date"],
+             r["status"], r["hired_code"])
+            for r in services.recruitment_candidates(
+                user,
+                status=filters.get("status"),
+                posting=filters.get("posting"),
+                from_date=filters.get("from_date"),
+                to_date=filters.get("to_date"),
+            )
+        ]
+
+
 def _stream(request, rows, header, fmt, filename, title=None):
     from django.http import HttpResponse
 
@@ -1029,6 +1079,10 @@ def _do_export(request, report_code, fmt):
         rows = Rep61View().get_rows(request.user, request.GET)
     elif report_code == "rep62":
         rows = Rep62View().get_rows(request.user, request.GET)
+    elif report_code == "rep44":
+        rows = Rep44View().get_rows(request.user, request.GET)
+    elif report_code == "rep45":
+        rows = Rep45View().get_rows(request.user, request.GET)
     elif report_code == "rep42":
         rows = Rep42View().get_rows(request.user, request.GET)
     elif report_code == "rep43":

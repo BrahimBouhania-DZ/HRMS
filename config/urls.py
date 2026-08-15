@@ -21,6 +21,7 @@ urlpatterns = [
     path("backup/", include("apps.backup.urls", namespace="backup")),
     path("perf/", include("apps.perf.urls", namespace="perf")),
     path("training/", include("apps.training.urls", namespace="training")),
+    path("recruitment/", include("apps.recruitment.urls", namespace="recruitment")),
     path("ai/", include("apps.ai.urls", namespace="ai")),
     path("api/v1/", include("apps.api.urls", namespace="api")),
 ]

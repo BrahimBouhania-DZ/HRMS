@@ -68,6 +68,7 @@ LOCAL_APPS = [
     "apps.backup",
     "apps.perf",
     "apps.training",
+    "apps.recruitment",
     "apps.ai",
     "apps.api",
 ]
@@ -149,6 +150,7 @@ LANGUAGES = [
 ]
 LANGUAGE_COOKIE_NAME = "hrms_language"
 LANGUAGE_COOKIE_AGE = 60 * 60 * 24 * 365
+LANGUAGE_COOKIE_SAMESITE = "Lax"
 
 TIME_ZONE = _env("DJANGO_TIME_ZONE", "Africa/Algiers")
 USE_I18N = True
@@ -169,6 +171,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_NAME = "hrms_session"
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 LOGIN_URL = "auth_app:login"
 LOGIN_REDIRECT_URL = "core:home"

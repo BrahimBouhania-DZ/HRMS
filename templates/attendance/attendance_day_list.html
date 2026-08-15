@@ -5,10 +5,13 @@
 <div class="page-head">
     <h1>{% trans "سجل الحضور" %}</h1>
     <div class="filters">
-        <form method="get" class="filter-form">
-            <input type="date" name="date" value="{{ date }}">
-            <input type="text" name="q" placeholder="{% trans 'بحث بالرمز أو الاسم' %}" value="{{ q }}">
-            <select name="state">
+        <form method="get" class="filter-form" role="search">
+            <label class="sr-only" for="att-date">{% trans "التاريخ" %}</label>
+            <input type="date" id="att-date" name="date" value="{{ date }}">
+            <label class="sr-only" for="att-q">{% trans "بحث بالرمز أو الاسم" %}</label>
+            <input type="text" id="att-q" name="q" placeholder="{% trans 'بحث بالرمز أو الاسم' %}" value="{{ q }}" autocomplete="off">
+            <label class="sr-only" for="att-state">{% trans "الحالة" %}</label>
+            <select name="state" id="att-state">
                 <option value="">{% trans "كل الحالات" %}</option>
                 {% for value, label in states %}
                 <option value="{{ value }}" {% if state == value %}selected{% endif %}>{{ label }}</option>
@@ -19,7 +22,9 @@
     </div>
 </div>
 
+<div class="table-wrap"><div class="table-responsive">
 <table class="table">
+    <caption class="sr-only">{% trans "سجل الحضور" %}</caption>
     <thead>
         <tr>
             <th>{% trans "التاريخ" %}</th>
@@ -56,6 +61,7 @@
         {% endfor %}
     </tbody>
 </table>
+</div></div>
 
 {% if is_paginated %}
 <div class="pagination">

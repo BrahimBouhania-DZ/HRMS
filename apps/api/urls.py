@@ -12,4 +12,7 @@ urlpatterns = [
     path("scan/", views.ScanView.as_view(), name="api_scan"),
     path("me/", views.MeView.as_view(), name="api_me"),
     path("me/attendance/", views.MyAttendanceView.as_view(), name="api_my_attendance"),
+    path("recruitment/postings/", views.PostingListAPIView.as_view(), name="api_recruitment_postings"),
+    path("recruitment/postings/<int:pk>/", views.PostingDetailAPIView.as_view(), name="api_recruitment_posting_detail"),
+    path("recruitment/candidates/", views.CandidateListAPIView.as_view(), name="api_recruitment_candidates"),
 ]

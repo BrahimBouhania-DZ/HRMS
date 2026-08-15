@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load i18n admin_stats %}
+{% block title %}{% trans "المساعد الذكي" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "المساعد الذكي" %} <span class="muted">— {% trans "بالعربية والفرنسية والإنجليزية" %}</span></h1>
+
+<div class="toolbar">
+    <form method="get" class="toolbar-form" role="search" style="max-width: 46rem; width: 100%;">
+        <label class="sr-only" for="assistant-q">{% trans "اسأل" %}</label>
+        <input type="search" name="q" id="assistant-q" value="{{ request.GET.q|default:'' }}"
+               placeholder="{% trans "اسأل: كم موظفًا غائبًا اليوم؟ كم تبلغ كتلة الأجور؟ ..." %}"
+               style="flex: 1;" autofocus>
+        <button class="btn" type="submit">{% trans "اسأل" %}</button>
+    </form>
+</div>
+
+{% if answer %}
+<div class="card" style="margin-top: 1rem;">
+    <div class="card-label">{{ answer.intent }} <span class="muted">· {{ answer.language }}</span></div>
+    <div class="card-value" style="white-space: pre-wrap;">{{ answer.text }}</div>
+    {% if answer.rows %}
+    <table class="table">
+        <thead>
+            <tr>
+                {% for col in answer.columns %}<th>{{ col }}</th>{% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in answer.rows %}
+            <tr>
+                {% for col in answer.columns %}<td>{{ row|get_item:col }}</td>{% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    {% if answer.source %}
+        <div class="muted" style="margin-top: .5rem;">{% trans "المصدر" %}: {{ answer.source }}</div>
+    {% endif %}
+    {% if query_id %}
+    <div class="feedback" style="margin-top: .75rem;">
+        <span class="muted">{% trans "هل كانت الإجابة مفيدة؟" %}</span>
+        <button class="btn btn-sm" type="button" data-feedback="1">{% trans "نعم" %}</button>
+        <button class="btn btn-sm" type="button" data-feedback="0">{% trans "لا" %}</button>
+        <span class="feedback-done muted" style="display:none">✓ {% trans "شكرًا" %}</span>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<script>
+document.querySelectorAll('[data-feedback]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var value = btn.getAttribute('data-feedback');
+        fetch('{% url "ai:feedback" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'query_id={{ query_id }}&value=' + value
+        }).then(function (r) { return r.json(); }).then(function (data) {
+            document.querySelector('.feedback-done').style.display = 'inline';
+        });
+    });
+});
+</script>
+
+<div class="cards" style="margin-top: 1rem;">
+    <div class="card">
+        <div class="card-label">{% trans "أسئلة جاهزة" %}</div>
+        <div class="muted">
+            {% for q in quick_questions.ar %}
+            <a href="?q={{ q|urlencode }}" class="tag">{{ q }}</a>
+            {% endfor %}
+            <hr>
+            {% for q in quick_questions.fr %}
+            <a href="?q={{ q|urlencode }}" class="tag">{{ q }}</a>
+            {% endfor %}
+            <hr>
+            {% for q in quick_questions.en %}
+            <a href="?q={{ q|urlencode }}" class="tag">{{ q }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "آخر أسئلتك" %}</div>
+        <div class="muted">
+            {% for query in recent %}
+            <a href="?q={{ query.prompt|urlencode }}" class="tag">{{ query.prompt|truncatechars:60 }}</a>
+            {% endfor %}
+            {% if not recent %}<span class="muted">{% trans "لا توجد أسئلة بعد." %}</span>{% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

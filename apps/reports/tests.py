@@ -804,3 +804,60 @@ class TrilingualReportTests(TestCase):
         resp = self.client.get(reverse("reports:export", args=["rep01", "csv"]), {"lang": "fr"})
         rows = list(csv.reader(io.StringIO(resp.content.decode("utf-8"))))
         self.assertIn("Actif", rows[1])
+
+
+class RecruitmentReportTests(TestCase):
+    """تغطية REP-44/45 (إعلانات التوظيف وسجل المرشحين)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from apps.recruitment.models import Candidate, JobPosting
+
+        Permission.objects.create(code="reports.view", module="core", name_ar="التقارير")
+        Permission.objects.create(code="reports.export", module="core", name_ar="تصدير")
+        cls.admin = User.objects.create_superuser(username="rep_rec_admin", password="pass")
+        cls.posting = JobPosting.objects.create(
+            code="JOB-R1", title_ar="مطور برمجيات",
+            employment_type=JobPosting.EmploymentType.FULL_TIME,
+            status=JobPosting.Status.PUBLISHED, openings_count=1,
+        )
+        cls.candidate = Candidate.objects.create(
+            posting=cls.posting, first_name_ar="مرشح", last_name_ar="اختبار",
+            email="rec@example.com", status=Candidate.Status.NEW,
+            applied_date=datetime.date(2026, 8, 1),
+        )
+
+    def setUp(self):
+        self.client.force_login(self.admin)
+
+    def test_rep44_lists_postings(self):
+        response = self.client.get(reverse("reports:rep44"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "JOB-R1")
+        self.assertContains(response, "مطور برمجيات")
+
+    def test_rep44_filters_by_status(self):
+        response = self.client.get(reverse("reports:rep44"), {"status": "closed"})
+        self.assertContains(response, "لا بيانات مطابقة.")
+
+    def test_rep45_lists_candidates(self):
+        response = self.client.get(reverse("reports:rep45"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "مرشح اختبار")
+        self.assertContains(response, "rec@example.com")
+
+    def test_rep45_filters(self):
+        response = self.client.get(
+            reverse("reports:rep45"),
+            {"posting": self.posting.pk, "status": "new"},
+        )
+        self.assertContains(response, "rec@example.com")
+        response = self.client.get(reverse("reports:rep45"), {"status": "hired"})
+        self.assertContains(response, "لا بيانات مطابقة.")
+
+    def test_rep44_export_csv(self):
+        response = self.client.get(reverse("reports:export", args=["rep44", "csv"]))
+        self.assertEqual(response.status_code, 200)
+        rows = list(csv.reader(io.StringIO(response.content.decode("utf-8"))))
+        self.assertEqual(rows[0][0], "الرمز")
+        self.assertEqual(rows[1][0], "JOB-R1")

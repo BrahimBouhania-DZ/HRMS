@@ -16,7 +16,9 @@
 </div>
 {% endif %}
 
+<div class="table-wrap"><div class="table-responsive">
 <table class="table">
+    <caption class="sr-only">{% trans "سجل حضوري" %}</caption>
     <thead>
         <tr>
             <th>{% trans "التاريخ" %}</th>
@@ -42,6 +44,7 @@
         {% endfor %}
     </tbody>
 </table>
+</div></div>
 
 {% if is_paginated %}
 <div class="pagination">

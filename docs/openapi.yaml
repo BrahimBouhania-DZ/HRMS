@@ -1,0 +1,380 @@
+openapi: 3.0.3
+info:
+  title: HRMS Mobile & Integration API
+  version: "1.0.0"
+  description: >
+    واجهة REST لتطبيق الموبايل والموظفين. جميع الردود بصيغة JSON.
+
+    طرق المصادقة:
+      - `Token` — من رأس `Authorization: Token <key>` (يُحصل عليه من login).
+      - `DeviceKey` — جهاز قراءة ثابت: `X-Device-Key` + `X-Device-Secret` (للمسح فقط).
+      - `Session` — جلسة الويب العادية.
+
+    رموز الأخطاء الشائعة:
+      400 «الحقل مطلوب/صيغة خاطئة» · 401 «مصادقة مفقودة» ·
+      403 «لا تملك صلاحية هذه العملية» · 404 «غير موجود» · 422 «QR مرفوض».
+servers:
+  - url: /api/v1
+    description: نفس النطاق (بالنسبة لمسار الجذر للمشروع)
+tags:
+  - name: auth
+    description: تسجيل الدخول/الخروج
+  - name: attendance
+    description: مسح QR + سجل الحضور
+  - name: me
+    description: ملف الموظف
+  - name: recruitment
+    description: التوظيف (إعلانات + مرشحون)
+paths:
+  /auth/login/:
+    post:
+      tags: [auth]
+      summary: تسجيل دخول الموظف والحصول على رمز API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+      responses:
+        "200":
+          description: نجاح — رمز + ملف الموظف
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LoginResponse" }
+        "400":
+          description: بيانات دخول غير صحيحة أو حساب بلا ملف موظف
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorField" }
+  /auth/logout/:
+    post:
+      tags: [auth]
+      summary: إبطال رمز المصادقة الحالي
+      security:
+        - TokenAuth: []
+      responses:
+        "200":
+          description: تم الإبطال
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+  /scan/:
+    post:
+      tags: [attendance]
+      summary: مسح رمز QR — قرار دخول/خروج
+      description: >
+        يُسمح بجهاز نشط (DeviceKey) أو موظف مسجّل بصلاحية `attendance.scan`.
+        الموظف يمسح رمزه الشخصي فقط (حماية من استعمال رموز الآخرين).
+      security:
+        - DeviceKeyAuth: []
+          TokenAuth: []
+          SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ScanRequest" }
+      responses:
+        "200":
+          description: نتيجة المسح (ok=false عند رفض القرار)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ScanResponse" }
+        "400":
+          description: payload مفقود
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: مصادقة الجهاز أو المستخدم مطلوبة
+        "403":
+          description: لا صلاحية مسح أو الحساب بلا ملف موظف
+        "422":
+          description: QR مرفوض أو رمز لا يخص الحساب
+  /me/:
+    get:
+      tags: [me]
+      summary: ملف الموظف + رمز QR النشط + حالة اليوم
+      security:
+        - TokenAuth: []
+      responses:
+        "200":
+          description: ملف الموظف
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EmployeeProfile" }
+        "404":
+          description: الحساب لا يملك ملف موظف
+  /me/attendance/:
+    get:
+      tags: [me]
+      summary: أيام حضور الموظف (آخر 90 يومًا)
+      parameters:
+        - name: from
+          in: query
+          schema: { type: string, format: date, example: "2026-07-01" }
+          description: بداية الفترة (YYYY-MM-DD)
+        - name: to
+          in: query
+          schema: { type: string, format: date, example: "2026-07-31" }
+          description: نهاية الفترة (YYYY-MM-DD)
+      security:
+        - TokenAuth: []
+      responses:
+        "200":
+          description: قائمة أيام الحضور
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AttendanceDay" }
+        "400":
+          description: صيغة تاريخ خاطئة (يرجع 400 مع رسالة)
+  /recruitment/postings/:
+    get:
+      tags: [recruitment]
+      summary: قائمة إعلانات الوظائف (افتراضيًا المنشورة)
+      description: "تتطلب `recruitment.posting.view` (أو superuser)."
+      security:
+        - TokenAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [draft, published, closed] }
+          description: تصفية بالحالة (تُهمل → المنشورة فقط)
+      responses:
+        "200":
+          description: قائمة الإعلانات
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/JobPosting" }
+        "403":
+          description: لا تملك صلاحية هذه العملية
+  /recruitment/postings/{pk}/:
+    get:
+      tags: [recruitment]
+      summary: تفاصيل إعلان واحد
+      description: "تتطلب `recruitment.posting.view`."
+      security:
+        - TokenAuth: []
+      parameters:
+        - name: pk
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: الإعلان
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JobPosting" }
+        "403":
+          description: لا تملك صلاحية هذه العملية
+        "404":
+          description: غير موجود
+  /recruitment/candidates/:
+    get:
+      tags: [recruitment]
+      summary: قائمة المرشحين
+      description: "تتطلب `recruitment.candidate.view`."
+      security:
+        - TokenAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string }
+          description: تصفية بالحالة (new/screening/interviewed/offer/hired/rejected/withdrawn)
+        - name: posting
+          in: query
+          schema: { type: integer }
+          description: تصفية بمعرّف الإعلان
+      responses:
+        "200":
+          description: قائمة المرشحين
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Candidate" }
+        "403":
+          description: لا تملك صلاحية هذه العملية
+    post:
+      tags: [recruitment]
+      summary: إضافة مرشح جديد
+      description: >
+        تتطلب `recruitment.candidate.manage`. الحالة وتاريخ التقديم للقراءة فقط
+        (تُدار عبر الخدمات). الإعلان المغلق يرفض الإضافة (400).
+      security:
+        - TokenAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CandidateCreate" }
+      responses:
+        "201":
+          description: أُنشئ المرشح
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Candidate" }
+        "400":
+          description: حقل غير صالح أو إعلان مغلق
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403":
+          description: لا تملك صلاحية هذه العملية
+components:
+  securitySchemes:
+    TokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "القيمة: `Token <key>`"
+    DeviceKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Device-Key
+      description: "جهاز ثابت نشط: ترويسات X-Device-Key + X-Device-Secret"
+    SessionAuth:
+      type: apiKey
+      in: header
+      name: Cookie
+      description: جلسة الويب (sessionid)
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string, example: "لا تملك صلاحية هذه العملية" }
+    ErrorField:
+      type: object
+      properties:
+        field:
+          type: array
+          items: { type: string }
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string, example: "ali" }
+        password: { type: string, format: password }
+    LoginResponse:
+      type: object
+      required: [token, employee]
+      properties:
+        token: { type: string, example: "9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b" }
+        employee: { $ref: "#/components/schemas/EmployeeProfile" }
+    EmployeeProfile:
+      type: object
+      properties:
+        id: { type: integer }
+        employee_code: { type: string, example: "EMP-0001" }
+        full_name_ar: { type: string }
+        first_name_ar: { type: string }
+        last_name_ar: { type: string }
+        first_name_fr: { type: string }
+        last_name_fr: { type: string }
+        first_name_en: { type: string }
+        last_name_en: { type: string }
+        phone: { type: string }
+        email: { type: string, format: email }
+        photo: { type: string, nullable: true }
+        employment_status: { type: string }
+        branch: { type: string, nullable: true }
+        department: { type: string, nullable: true }
+        position: { type: string, nullable: true }
+        qr_payload: { type: string, description: "حمولة QR النشط للتوقيع HMAC" }
+        today:
+          type: object
+          nullable: true
+          properties:
+            work_date: { type: string, format: date }
+            state: { type: string }
+            check_in: { type: string, format: time, nullable: true }
+            check_out: { type: string, format: time, nullable: true }
+            worked_minutes: { type: integer, nullable: true }
+            late_minutes: { type: integer, nullable: true }
+    AttendanceDay:
+      type: object
+      properties:
+        work_date: { type: string, format: date }
+        state: { type: string }
+        check_in: { type: string, format: time, nullable: true }
+        check_out: { type: string, format: time, nullable: true }
+        worked_minutes: { type: integer, nullable: true }
+        late_minutes: { type: integer, nullable: true }
+        early_minutes: { type: integer, nullable: true }
+        overtime_minutes: { type: integer, nullable: true }
+        is_corrected: { type: boolean }
+    ScanRequest:
+      type: object
+      required: [payload]
+      properties:
+        payload: { type: string, description: "حمولة QR (التوقيع+المعرّف)" }
+    ScanResponse:
+      type: object
+      properties:
+        ok: { type: boolean }
+        decision:
+          type: string
+          enum: [check_in, check_out, rejected, duplicate]
+        detail: { type: string }
+        employee: { type: string }
+        time: { type: string, format: date-time }
+    JobPosting:
+      type: object
+      properties:
+        id: { type: integer }
+        code: { type: string, example: "JOB-101" }
+        title_ar: { type: string }
+        title_fr: { type: string }
+        title_en: { type: string }
+        department: { type: string, nullable: true }
+        branch: { type: string, nullable: true }
+        employment_type: { type: string, enum: [full_time, part_time, contract, internship] }
+        openings_count: { type: integer }
+        status: { type: string, enum: [draft, published, closed] }
+        status_display: { type: string }
+        publish_date: { type: string, format: date, nullable: true }
+        close_date: { type: string, format: date, nullable: true }
+        requirements: { type: string }
+        description: { type: string }
+        candidate_count: { type: integer }
+    Candidate:
+      type: object
+      properties:
+        id: { type: integer }
+        posting: { type: integer, nullable: true }
+        first_name_ar: { type: string }
+        last_name_ar: { type: string }
+        first_name_fr: { type: string }
+        last_name_fr: { type: string }
+        first_name_en: { type: string }
+        last_name_en: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string }
+        source: { type: string }
+        status: { type: string, enum: [new, screening, interviewed, offer, hired, rejected, withdrawn] }
+        status_display: { type: string }
+        applied_date: { type: string, format: date, nullable: true }
+        notes: { type: string }
+    CandidateCreate:
+      type: object
+      required: [first_name_ar, last_name_ar, email]
+      properties:
+        posting: { type: integer, nullable: true }
+        first_name_ar: { type: string }
+        last_name_ar: { type: string }
+        first_name_fr: { type: string }
+        last_name_fr: { type: string }
+        first_name_en: { type: string }
+        last_name_en: { type: string }
+        email: { type: string, format: email }
+        phone: { type: string }
+        source: { type: string }
+        notes: { type: string }

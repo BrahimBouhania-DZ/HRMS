@@ -5,20 +5,25 @@
 <div class="page-head">
     <h1>{% trans "سجل التدقيق" %}</h1>
     <div class="filters">
-        <form method="get" class="filter-form">
-            <select name="action">
+        <form method="get" class="filter-form" role="search">
+            <label class="sr-only" for="audit-action">{% trans "الإجراء" %}</label>
+            <select name="action" id="audit-action">
                 <option value="">{% trans "كل الإجراءات" %}</option>
                 {% for value, label in actions %}
                 <option value="{{ value }}" {% if action == value %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
-            <input type="text" name="model" value="{{ model }}" placeholder="{% trans "النموذج..." %}" class="small-input">
-            <input type="text" name="q" value="{{ q }}" placeholder="{% trans "بحث..." %}" class="small-input">
+            <label class="sr-only" for="audit-model">{% trans "النموذج..." %}</label>
+            <input type="text" name="model" id="audit-model" value="{{ model }}" placeholder="{% trans "النموذج..." %}" class="small-input">
+            <label class="sr-only" for="audit-q">{% trans "بحث..." %}</label>
+            <input type="text" name="q" id="audit-q" value="{{ q }}" placeholder="{% trans "بحث..." %}" class="small-input">
             <button class="btn btn-sm" type="submit">{% trans "تصفية" %}</button>
         </form>
     </div>
 </div>
+<div class="table-wrap"><div class="table-responsive">
 <table class="table">
+    <caption class="sr-only">{% trans "سجل التدقيق" %}</caption>
     <thead>
         <tr><th>{% trans "الوقت" %}</th><th>{% trans "المستخدم" %}</th><th>{% trans "الإجراء" %}</th><th>{% trans "النموذج" %}</th><th>{% trans "الوصف" %}</th><th>{% trans "IP" %}</th></tr>
     </thead>
@@ -37,6 +42,7 @@
         {% endfor %}
     </tbody>
 </table>
+</div></div>
 {% if is_paginated %}
 <div class="pagination">
     {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&action={{ action }}&model={{ model }}&q={{ q }}">{% trans "السابق" %}</a>{% endif %}

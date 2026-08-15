@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "المرشحون" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "المرشحون" %}</h1>
+<div class="toolbar">
+    <a class="btn btn-primary" href="{% url 'recruitment:candidate_create' %}">{% trans "مرشح جديد" %}</a>
+    <a class="btn" href="{% url 'recruitment:import' %}?entity=candidates">{% trans "استيراد" %}</a>
+    <a class="btn" href="{% url 'recruitment:posting_list' %}">{% trans "الإعلانات" %}</a>
+    <form method="get" class="toolbar-form" role="search">
+        <label class="sr-only" for="cand-q">{% trans "بحث..." %}</label>
+        <input type="search" name="q" id="cand-q" value="{{ request.GET.q|default:'' }}" placeholder="{% trans "بحث..." %}">
+        <label class="sr-only" for="cand-status">{% trans "الحالة" %}</label>
+        <select name="status" id="cand-status" onchange="this.form.submit()">
+            <option value="">{% trans "كل الحالات" %}</option>
+            {% for code, label in view.model.Status.choices %}
+            <option value="{{ code }}" {% if request.GET.status == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <label class="sr-only" for="cand-posting">{% trans "الإعلان" %}</label>
+        <select name="posting" id="cand-posting" onchange="this.form.submit()">
+            <option value="">{% trans "كل الإعلانات" %}</option>
+            {% for p in postings %}
+            <option value="{{ p.pk }}" {% if request.GET.posting == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.code }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-sm" type="submit">{% trans "تصفية" %}</button>
+    </form>
+</div>
+
+<div class="table-wrap"><div class="table-responsive">
+<table class="table">
+    <caption class="sr-only">{% trans "المرشحون" %}</caption>
+    <thead>
+        <tr>
+            <th>{% trans "المرشح" %}</th>
+            <th>{% trans "الإعلان" %}</th>
+            <th>{% trans "البريد" %}</th>
+            <th>{% trans "الهاتف" %}</th>
+            <th>{% trans "تاريخ التقديم" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in candidates %}
+        <tr>
+            <td>{{ c.full_name }}</td>
+            <td>{{ c.posting.code|default:"—" }}</td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.phone|default:"—" }}</td>
+            <td>{{ c.applied_date|default:"—" }}</td>
+            <td>
+                {{ c.get_status_display }}
+                {% if c.hired_employee %}<span class="muted">→ {{ c.hired_employee.employee_code }}</span>{% endif %}
+            </td>
+            <td>
+                <a class="btn btn-sm" href="{% url 'recruitment:candidate_detail' c.pk %}">{% trans "عرض" %}</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">{% trans "لا يوجد مرشحون بعد." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div></div>
+{% endblock %}

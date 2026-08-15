@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "إعلانات الوظائف" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "إعلانات الوظائف" %}</h1>
+<div class="toolbar">
+    <a class="btn btn-primary" href="{% url 'recruitment:posting_create' %}">{% trans "إعلان جديد" %}</a>
+    <a class="btn" href="{% url 'recruitment:import' %}?entity=postings">{% trans "استيراد" %}</a>
+    <a class="btn" href="{% url 'recruitment:candidate_list' %}">{% trans "المرشحون" %}</a>
+    <form method="get" class="toolbar-form" role="search">
+        <label class="sr-only" for="posting-q">{% trans "بحث..." %}</label>
+        <input type="search" name="q" id="posting-q" value="{{ request.GET.q|default:'' }}" placeholder="{% trans "بحث..." %}">
+        <label class="sr-only" for="posting-status">{% trans "الحالة" %}</label>
+        <select name="status" id="posting-status" onchange="this.form.submit()">
+            <option value="">{% trans "كل الحالات" %}</option>
+            {% for code, label in view.model.Status.choices %}
+            <option value="{{ code }}" {% if request.GET.status == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-sm" type="submit">{% trans "تصفية" %}</button>
+    </form>
+</div>
+
+<div class="table-wrap"><div class="table-responsive">
+<table class="table">
+    <caption class="sr-only">{% trans "إعلانات الوظائف" %}</caption>
+    <thead>
+        <tr>
+            <th>{% trans "الرمز" %}</th>
+            <th>{% trans "الإعلان" %}</th>
+            <th>{% trans "القسم" %}</th>
+            <th>{% trans "الفرع" %}</th>
+            <th>{% trans "نوع التوظيف" %}</th>
+            <th>{% trans "الشواغر" %}</th>
+            <th>{% trans "الحالة" %}</th>
+            <th>{% trans "إجراءات" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for posting in postings %}
+        <tr>
+            <td>{{ posting.code }}</td>
+            <td>{{ posting.title_ar }}</td>
+            <td>{{ posting.department.name_ar|default:"—" }}</td>
+            <td>{{ posting.branch.name_ar|default:"—" }}</td>
+            <td>{{ posting.get_employment_type_display }}</td>
+            <td>{{ posting.openings_count }}</td>
+            <td>{{ posting.get_status_display }}</td>
+            <td>
+                <a class="btn btn-sm" href="{% url 'recruitment:posting_detail' posting.pk %}">{% trans "عرض" %}</a>
+                <a class="btn btn-sm" href="{% url 'recruitment:posting_edit' posting.pk %}">{% trans "تعديل" %}</a>
+                {% if posting.status == "draft" or posting.status == "published" %}
+                <form method="post" action="{% url 'recruitment:posting_publish' posting.pk %}" class="inline-form">
+                    {% csrf_token %}
+                    {% if posting.status == "draft" %}
+                    <button class="btn btn-sm" type="submit">{% trans "نشر" %}</button>
+                    {% else %}
+                    <button class="btn btn-sm btn-danger" type="submit" formaction="{% url 'recruitment:posting_close' posting.pk %}">{% trans "إغلاق" %}</button>
+                    {% endif %}
+                </form>
+                {% endif %}
+                <span class="muted">{{ posting.candidate_count }} {% trans "مرشح" %}</span>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">{% trans "لا توجد إعلانات بعد." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div></div>
+{% endblock %}

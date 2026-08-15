@@ -9,10 +9,10 @@
     <h3>{% trans "توليد دورة جديدة" %}</h3>
     <form method="post" action="{% url 'payroll:run_generate' %}" class="form">
         {% csrf_token %}
-        <label>{% trans "فترة الرواتب (مثال: 2026-08)" %}</label>
-        <input type="text" name="period_code" placeholder="2026-08" required>
-        <label>{% trans "الفرع" %}</label>
-        <select name="branch" required>
+        <label for="payrun-period">{% trans "فترة الرواتب (مثال: 2026-08)" %}</label>
+        <input type="text" name="period_code" id="payrun-period" placeholder="2026-08" required>
+        <label for="payrun-branch">{% trans "الفرع" %}</label>
+        <select name="branch" id="payrun-branch" required>
             <option value="">— {% trans "اختر" %} —</option>
             {% for b in branches %}<option value="{{ b.pk }}">{{ b.name_ar }}</option>{% endfor %}
         </select>
@@ -21,7 +21,9 @@
 </div>
 {% endif %}
 
+<div class="table-wrap"><div class="table-responsive">
 <table class="table">
+    <caption class="sr-only">{% trans "دورات الرواتب" %}</caption>
     <thead>
         <tr><th>{% trans "الفترة" %}</th><th>{% trans "الفرع" %}</th><th>{% trans "الحالة" %}</th><th>{% trans "الإضافات" %}</th><th>{% trans "الخصومات" %}</th><th>{% trans "الصافي" %}</th><th>{% trans "أُنشئت" %}</th></tr>
     </thead>
@@ -41,4 +43,5 @@
         {% endfor %}
     </tbody>
 </table>
+</div></div>
 {% endblock %}

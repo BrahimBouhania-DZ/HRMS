@@ -34,9 +34,11 @@
 {% endif %}
 
 <div class="toolbar">
-    <form method="get" class="toolbar-form">
-        <input type="search" name="q" value="{{ request.GET.q|default:'' }}" placeholder="{% trans "رقم الموظف..." %}">
-        <select name="level">
+    <form method="get" class="toolbar-form" role="search">
+        <label class="sr-only" for="pred-q">{% trans "رقم الموظف..." %}</label>
+        <input type="search" name="q" id="pred-q" value="{{ request.GET.q|default:'' }}" placeholder="{% trans "رقم الموظف..." %}">
+        <label class="sr-only" for="pred-level">{% trans "المستوى" %}</label>
+        <select name="level" id="pred-level">
             <option value="">{% trans "كل المستويات" %}</option>
             <option value="high" {% if request.GET.level == 'high' %}selected{% endif %}>{% trans "مرتفع" %}</option>
             <option value="medium" {% if request.GET.level == 'medium' %}selected{% endif %}>{% trans "متوسط" %}</option>

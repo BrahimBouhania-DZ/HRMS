@@ -7,13 +7,16 @@
     <a class="btn btn-primary" href="{% url 'training:course_create' %}">{% trans "دورة جديدة" %}</a>
     <a class="btn" href="{% url 'training:session_list' %}">{% trans "الجلسات" %}</a>
     <a class="btn" href="{% url 'training:certificate_list' %}">{% trans "الشهادات" %}</a>
-    <form method="get" class="toolbar-form">
-        <input type="search" name="q" value="{{ request.GET.q|default:'' }}" placeholder="{% trans "بحث..." %}">
+    <form method="get" class="toolbar-form" role="search">
+        <label class="sr-only" for="course-q">{% trans "بحث..." %}</label>
+        <input type="search" name="q" id="course-q" value="{{ request.GET.q|default:'' }}" placeholder="{% trans "بحث..." %}">
         <button class="btn btn-sm" type="submit">{% trans "بحث" %}</button>
     </form>
 </div>
 
+<div class="table-wrap"><div class="table-responsive">
 <table class="table">
+    <caption class="sr-only">{% trans "الدورات التدريبية" %}</caption>
     <thead>
         <tr>
             <th>{% trans "الرمز" %}</th>
@@ -44,4 +47,5 @@
         {% endfor %}
     </tbody>
 </table>
+</div></div>
 {% endblock %}

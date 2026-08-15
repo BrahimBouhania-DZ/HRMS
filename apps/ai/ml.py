@@ -24,12 +24,14 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from apps.ai.features import CATEGORICAL_FEATURES, LABEL_COLUMN, NUMERIC_FEATURES
+from apps.ai.features import ABSENCE_LABEL_COLUMN, CATEGORICAL_FEATURES, LABEL_COLUMN, NUMERIC_FEATURES
 
 MODEL_SUBDIR = os.path.join("ai", "models")
 RANDOM_STATE = 42
 CV_FOLDS = 5
 MIN_POSITIVE_SAMPLES = 5
+
+_LABEL_COLUMNS = (LABEL_COLUMN, ABSENCE_LABEL_COLUMN)
 
 
 def model_dir(prediction_type: str) -> str:
@@ -72,13 +74,15 @@ def _explainer(X, y) -> RandomForestClassifier:
     return rf
 
 
-def train_model(prediction_type: str, frame) -> dict:
+def train_model(prediction_type: str, frame, label_column: str = LABEL_COLUMN) -> dict:
     """يُدرّب نموذجًا من DataFrame خصائص + عمود label ويعيد كائنًا جاهزًا.
 
+    label_column يحدد عمود الهدف (مغادرة أو غياب). تُستبعد كل أعمدة التسمية
+    من الخصائص دائمًا لمنع تسريب الهدف (data leakage).
     يرفع ValueError إذا كان عدد العينات الإيجابية غير كافٍ للتدريب الجاد.
     """
-    X = frame.drop(columns=[LABEL_COLUMN], errors="ignore")
-    y = frame[LABEL_COLUMN].astype(int).values
+    X = frame.drop(columns=[c for c in _LABEL_COLUMNS if c in frame.columns], errors="ignore")
+    y = frame[label_column].astype(int).values
     n_positive = int(y.sum())
     if n_positive < MIN_POSITIVE_SAMPLES:
         raise ValueError(
@@ -107,7 +111,7 @@ def train_model(prediction_type: str, frame) -> dict:
         "version": _next_version(prediction_type),
         "model": pipeline,
         "explainer": explainer,
-        "input_columns": [c for c in frame.columns if c != LABEL_COLUMN],
+        "input_columns": [c for c in frame.columns if c not in _LABEL_COLUMNS],
         "n_samples": int(len(frame)),
         "n_positive": int(n_positive),
         "metrics": {

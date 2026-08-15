@@ -29,6 +29,8 @@ class AIQuery(models.Model):
     prompt = models.TextField(_("السؤال"))
     answer_json = models.JSONField(_("الإجابة (JSON)"), default=dict, blank=True)
     language = models.CharField(_("اللغة"), max_length=5, default="ar")
+    was_helpful = models.BooleanField(_("مفيدة؟"), null=True, blank=True,
+                                      help_text=_("تقييم المستخدم (نعم/لا) — يدخل في حلقة تحسين المساعد"))
     analytics_ref = models.CharField(_("مرجع تحليلي"), max_length=100, blank=True)
     created_at = models.DateTimeField(_("في"), auto_now_add=True)
 
@@ -54,6 +56,7 @@ class AnalyticsJob(models.Model):
         _("نوع التحليل"),
         max_length=50,
         choices=[
+            ("kpi_dashboard", _("لوحة المؤشرات")),
             ("absence", _("الغياب")),
             ("attendance", _("الحضور")),
             ("performance", _("الأداء")),

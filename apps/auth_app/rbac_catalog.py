@@ -82,6 +82,13 @@ PERMISSION_CATALOG = [
     {"code": "perf.self", "module": "perf", "name_ar": "تقييم ذاتي"},
     {"code": "perf.pip.manage", "module": "perf", "name_ar": "خطط تحسين الأداء"},
 
+    # ---- التوظيف (recruitment) ----
+    {"code": "recruitment.posting.view", "module": "recruitment", "name_ar": "عرض إعلانات الوظائف"},
+    {"code": "recruitment.posting.create", "module": "recruitment", "name_ar": "إنشاء إعلان وظيفة"},
+    {"code": "recruitment.posting.edit", "module": "recruitment", "name_ar": "تعديل/نشر/إغلاق إعلان"},
+    {"code": "recruitment.candidate.view", "module": "recruitment", "name_ar": "عرض المرشحين"},
+    {"code": "recruitment.candidate.manage", "module": "recruitment", "name_ar": "إدارة المرشحين والمقابلات والتوظيف"},
+
     # ---- الأجهزة والذكاء الاصطناعي (devices/ai) ----
     {"code": "device.manage", "module": "devices", "name_ar": "إدارة قارئات QR"},
     {"code": "ai.assistant.use", "module": "ai", "name_ar": "استخدام المساعد الذكي"},
@@ -119,6 +126,8 @@ ROLE_DEFINITIONS = [
             "leave.type.manage",
             "payroll.view", "payroll.run.approve", "payroll.payslip.view",
             "training.manage", "training.enroll", "perf.manage", "perf.review", "perf.self",
+            "recruitment.posting.view", "recruitment.posting.create", "recruitment.posting.edit",
+            "recruitment.candidate.view", "recruitment.candidate.manage",
             "ai.assistant.use", "ai.analytics.view", "ai.reports.generate",
         ],
     },

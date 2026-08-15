@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "جدولة مقابلة" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "جدولة مقابلة" %}</h1>
+<p class="muted">{{ candidate.full_name }} — {{ candidate.posting.code|default:"" }}</p>
+<form method="post" class="form-card">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="toolbar">
+        <button class="btn btn-primary" type="submit">{% trans "جدولة" %}</button>
+        <a class="btn" href="{% url 'recruitment:candidate_detail' candidate.pk %}">{% trans "إلغاء" %}</a>
+    </div>
+</form>
+{% endblock %}

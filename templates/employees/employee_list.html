@@ -5,21 +5,24 @@
 <div class="page-head">
     <h1>{% trans "الموظفون" %}</h1>
     <div class="toolbar">
-        <form method="get" class="search-form">
-            <input type="search" name="q" value="{{ q }}" placeholder="{% trans "بحث بالاسم أو الرقم..." %}">
+        <form method="get" class="search-form" role="search">
+            <label class="sr-only" for="emp-q">{% trans "بحث بالاسم أو الرقم..." %}</label>
+            <input type="search" name="q" id="emp-q" value="{{ q }}" placeholder="{% trans "بحث بالاسم أو الرقم..." %}">
             <button type="submit" class="btn">{% trans "بحث" %}</button>
         </form>
-        <button type="button" class="btn btn-gold" id="print-selected" disabled onclick="printSelected()">
+        <button type="button" class="btn btn-gold" id="print-selected" disabled onclick="printSelected()" aria-label="{% trans "طباعة البطاقات المحددة" %}">
             🖨 {% trans "طباعة البطاقات المحددة" %}
         </button>
         <a class="btn btn-primary" href="{% url 'employees:employee_create' %}">+ {% trans "موظف جديد" %}</a>
     </div>
 </div>
 <form id="employees-form">
+<div class="table-wrap"><div class="table-responsive">
 <table class="table">
+    <caption class="sr-only">{% trans "الموظفون" %}</caption>
     <thead>
         <tr>
-            <th class="col-check"><input type="checkbox" id="select-all" title="{% trans "تحديد الكل" %}"></th>
+            <th class="col-check"><input type="checkbox" id="select-all" title="{% trans "تحديد الكل" %}" aria-label="{% trans "تحديد الكل" %}"></th>
             <th>{% trans "الرقم" %}</th>
             <th>{% trans "الاسم" %}</th>
             <th>{% trans "الفرع" %}</th>
@@ -49,6 +52,7 @@
         {% endfor %}
     </tbody>
 </table>
+</div></div>
 </form>
 <p class="muted print-hint">{% trans "ملاحظة: يتم إرسال التحديد من الصفحة الحالية فقط إلى الطباعة." %}</p>
 {% if is_paginated %}

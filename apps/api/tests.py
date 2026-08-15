@@ -205,3 +205,85 @@ class ApiMeTests(APITestCase):
         self.client.credentials()
         resp = self.client.get(reverse("api:api_me"))
         self.assertEqual(resp.status_code, 401)
+
+
+class ApiRecruitmentTests(APITestCase):
+    """تغطية endpoints التوظيف: قائمة الإعلانات، التفاصيل، قائمة/إنشاء المرشحين."""
+
+    def setUp(self):
+        self.mgr = User.objects.create_user(username="rec_mgr", password="pass1234")
+        for code in [
+            "recruitment.posting.view",
+            "recruitment.candidate.view",
+            "recruitment.candidate.manage",
+        ]:
+            _grant(self.mgr, code, module="recruitment")
+        self.token, _ = Token.objects.get_or_create(user=self.mgr)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        from apps.recruitment.models import Candidate, JobPosting
+
+        self.posting = JobPosting.objects.create(
+            code="JOB-API", title_ar="محاسب", employment_type="full_time",
+            status=JobPosting.Status.PUBLISHED, openings_count=2,
+        )
+        self.candidate = Candidate.objects.create(
+            posting=self.posting, first_name_ar="سعيد", last_name_ar="أ",
+            email="s@example.com", status=Candidate.Status.NEW,
+        )
+
+    def test_posting_list_requires_permission(self):
+        user = User.objects.create_user(username="no_perm", password="pass1234")
+        token, _ = Token.objects.get_or_create(user=user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+        resp = self.client.get(reverse("api:api_recruitment_postings"))
+        self.assertEqual(resp.status_code, 403)
+
+    def test_posting_list_returns_published(self):
+        resp = self.client.get(reverse("api:api_recruitment_postings"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]["code"], "JOB-API")
+        self.assertEqual(resp.data[0]["candidate_count"], 1)
+
+    def test_posting_detail(self):
+        resp = self.client.get(reverse("api:api_recruitment_posting_detail", args=[self.posting.pk]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data["openings_count"], 2)
+
+    def test_candidate_create(self):
+        resp = self.client.post(
+            reverse("api:api_recruitment_candidates"),
+            {
+                "posting": self.posting.pk,
+                "first_name_ar": "ليلى",
+                "last_name_ar": "ب",
+                "email": "l@example.com",
+                "phone": "0550",
+            },
+            format="json",
+        )
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(resp.data["email"], "l@example.com")
+        self.assertEqual(resp.data["status"], "new")
+
+    def test_candidate_create_rejects_closed_posting(self):
+        self.posting.status = "closed"
+        self.posting.save()
+        resp = self.client.post(
+            reverse("api:api_recruitment_candidates"),
+            {
+                "posting": self.posting.pk,
+                "first_name_ar": "ليلى",
+                "last_name_ar": "ب",
+                "email": "l2@example.com",
+            },
+            format="json",
+        )
+        self.assertEqual(resp.status_code, 400)
+
+    def test_candidate_list_filters(self):
+        resp = self.client.get(reverse("api:api_recruitment_candidates"), {"status": "new"})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]["email"], "s@example.com")

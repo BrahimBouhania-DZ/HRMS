@@ -37,6 +37,11 @@ FEATURE_COLUMNS = NUMERIC_FEATURES + CATEGORICAL_FEATURES
 
 LABEL_COLUMN = "label"  # 1 = مغادر (استقالة/إنهاء/تقاعد)، 0 = باقٍ
 
+# تسمية مخاطر الغياب: 1 = موظف غاب ≥ ABSENCE_RISK_RATIO من الأيام المتوقعة
+# (خلال نافذة 365 يومًا) — معيار تدقيقي صريح، لا يختلط مع تسمية المغادرة.
+ABSENCE_LABEL_COLUMN = "label_absence"
+ABSENCE_RISK_RATIO = 0.15
+
 _DEPARTED_STATUSES = ("resigned", "terminated", "retired")
 
 
@@ -133,11 +138,12 @@ def _features_for(employee) -> dict:
         "department": getattr(employee.department, "name_ar", "") or "",
         "position_grade": getattr(employee.position, "grade", "") or "",
         LABEL_COLUMN: 1 if _is_departed(employee) else 0,
+        ABSENCE_LABEL_COLUMN: 1 if expected and (absent / expected) >= ABSENCE_RISK_RATIO else 0,
     }
 
 
 def feature_frame(employees=None):
-    """DataFrame بخصائص كل الموظفين (أو قائمة محددة) — مفهرَس برقم الموظف."""
+    """DataFrame بخصائص كل الموظفين (أو قائمة محددة) — مفهرس برقم الموظف."""
     import pandas as pd
 
     from apps.employees.models import Employee
@@ -152,4 +158,53 @@ def feature_frame(employees=None):
         row = _features_for(emp)
         row["employee_id"] = emp.id
         rows.append(row)
+    if not rows:
+        return pd.DataFrame({"employee_id": pd.Series(dtype="int64")}).set_index("employee_id")
     return pd.DataFrame(rows).set_index("employee_id")
+
+
+def data_quality_report(frame) -> dict:
+    """3.3 تدقيق جودة البيانات قبل التدريب — يعيد تقريرًا قياسيًا.
+
+    الغاية: منع تدريب نموذج على بيانات متسخة (نقص/تكرار/أصفار شاملة).
+    المرجع: docs/07-ai-module.md §14.3 (جودة البيانات قبل التنبؤ).
+    """
+    import numpy as np
+
+    report = {"ok": True, "issues": [], "metrics": {}}
+    if frame is None or frame.empty:
+        return {"ok": False, "issues": ["إطار البيانات فارغ"], "metrics": {}}
+
+    n = len(frame)
+    report["metrics"]["rows"] = int(n)
+    report["metrics"]["columns"] = int(frame.shape[1])
+
+    # اكتمال: أعمدة رقمية بلا قيم مفقودة
+    missing = int(frame.isna().sum().sum())
+    report["metrics"]["missing_cells"] = missing
+    if missing:
+        report["issues"].append(f"{missing} خلية مفقودة")
+
+    # تكرار: مؤشر مكرر (employee_id)
+    if frame.index.duplicated().any():
+        dup = int(frame.index.duplicated().sum())
+        report["issues"].append(f"{dup} صفوف مكررة")
+        report["metrics"]["duplicates"] = dup
+
+    # إشارة: هل يوجد صف إيجابي واحد على الأقل
+    if LABEL_COLUMN in frame.columns:
+        n_pos = int(frame[LABEL_COLUMN].sum())
+        report["metrics"]["n_positive"] = n_pos
+        if n_pos == 0:
+            report["issues"].append("لا توجد عينات إيجابية (لا مغادرين)")
+
+    # أصفار شاملة في أعمدة جوهرية (معدل الحضور والأجر) قد تعني بيانات ناقصة
+    for col in ("attendance_rate", "gross_salary"):
+        if col in frame.columns:
+            zeros = int((frame[col].fillna(0) == 0).sum())
+            report["metrics"].setdefault("zeros", {})[col] = zeros
+            if zeros > n * 0.9 and n > 5:
+                report["issues"].append(f"العمود {col} أغلب قيمه صفر ({zeros}/{n})")
+
+    report["ok"] = not report["issues"]
+    return report

@@ -6,7 +6,9 @@
     <h1>{% trans "الفروع" %}</h1>
     <a class="btn btn-primary" href="{% url 'org:branch_create' %}">{% trans "+ فرع جديد" %}</a>
 </div>
+<div class="table-wrap"><div class="table-responsive">
 <table class="table">
+    <caption class="sr-only">{% trans "الفروع" %}</caption>
     <thead>
         <tr>
             <th>{% trans "الرمز" %}</th>
@@ -35,4 +37,5 @@
         {% endfor %}
     </tbody>
 </table>
+</div></div>
 {% endblock %}

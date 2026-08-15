@@ -41,5 +41,14 @@ SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 
+# حماية إضافية: منع Sniffing والتحكم بسياسة المراجع والإحالات
+SECURE_REFERRER_POLICY = "same-origin"
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = "Lax"
+
+# حد حجم طلبات (منع هجمات الذاكرة)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+
 # ---- الملفات الثابتة ----------------------------------------------------
 STATIC_ROOT = BASE_DIR / "staticfiles"

@@ -5,8 +5,9 @@
 <div class="page-head">
     <h1>{% trans "الوثائق" %}</h1>
     <div class="filters">
-        <form method="get" class="filter-form">
-            <select name="status">
+        <form method="get" class="filter-form" role="search">
+            <label class="sr-only" for="doc-status">{% trans "الحالة" %}</label>
+            <select name="status" id="doc-status">
                 <option value="">{% trans "كل الحالات" %}</option>
                 <option value="expiring" {% if status == "expiring" %}selected{% endif %}>{% trans "تنتهي خلال 30 يوم" %}</option>
                 <option value="expired" {% if status == "expired" %}selected{% endif %}>{% trans "منتهية" %}</option>
@@ -18,7 +19,9 @@
         <a class="btn btn-primary" href="{% url 'employees:document_upload' %}">+ {% trans "رفع مستند" %}</a>
     </div>
 </div>
+<div class="table-wrap"><div class="table-responsive">
 <table class="table">
+    <caption class="sr-only">{% trans "الوثائق" %}</caption>
     <thead>
         <tr>
             <th>{% trans "العنوان" %}</th><th>{% trans "الموظف" %}</th><th>{% trans "النوع" %}</th>
@@ -44,6 +47,7 @@
         {% endfor %}
     </tbody>
 </table>
+</div></div>
 {% if is_paginated %}
 <div class="pagination">
     {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&status={{ status }}">{% trans "السابق" %}</a>{% endif %}

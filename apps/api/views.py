@@ -7,11 +7,19 @@
   GET  me/                  → ملفي + رمز QR النشط + حالة اليوم
   GET  me/attendance/       → أيام حضوري (نطاق from/to اختياري)
 
+التوظيف (تتطلب صلاحيات recruitment.*):
+  GET  recruitment/postings/          → الإعلانات (افتراضيًا المنشورة؛ ?status=)
+  GET  recruitment/postings/<pk>/     → تفاصيل إعلان
+  GET  recruitment/candidates/        → المرشحون (?status=&posting=)
+  POST recruitment/candidates/        → إضافة مرشح (صلاحية manage)
+
 المصادقة: Token للموظفين، أو DeviceKey (X-Device-Code + X-API-Key) للأجهزة.
 """
 
 from datetime import datetime
 
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -26,10 +34,14 @@ from apps.attendance.forms import ScanQrForm
 from apps.attendance.models import AttendanceScan
 from apps.attendance.services import decide_and_record_scan, verify_qr_token
 from apps.auth_app.services import has_perm
+from apps.recruitment.models import Candidate, JobPosting
+from apps.recruitment.services import RecruitmentError, add_candidate
 
 from .serializers import (
     AttendanceDaySerializer,
+    CandidateSerializer,
     EmployeeProfileSerializer,
+    JobPostingSerializer,
     LoginSerializer,
     ScanResponseSerializer,
 )
@@ -181,3 +193,82 @@ class MyAttendanceView(APIView):
             )
         qs = qs.order_by("-work_date")[:90]
         return Response(AttendanceDaySerializer(qs, many=True).data)
+
+
+class _RecruitmentAPIBase(APIView):
+    """أساس مشترك لعروض API التوظيف — تحقق صلاحيات recruitment.*."""
+
+    permission_classes = [IsAuthenticated]
+
+    def _check(self, code):
+        if not (self.request.user.is_superuser or has_perm(self.request.user, code)):
+            raise PermissionDenied(_("لا تملك صلاحية هذه العملية"))
+
+
+class PostingListAPIView(_RecruitmentAPIBase):
+    """GET /api/v1/recruitment/postings/?status= — الإعلانات (افتراضيًا المنشورة)."""
+
+    def get(self, request):
+        self._check("recruitment.posting.view")
+        qs = JobPosting.objects.select_related("department", "branch")
+        status_param = request.query_params.get("status")
+        if status_param:
+            qs = qs.filter(status=status_param)
+        else:
+            qs = qs.filter(status=JobPosting.Status.PUBLISHED)
+        return Response(
+            JobPostingSerializer(qs.order_by("-created_at"), many=True, context={"request": request}).data
+        )
+
+
+class PostingDetailAPIView(_RecruitmentAPIBase):
+    """GET /api/v1/recruitment/postings/<pk>/ — تفاصيل إعلان واحد."""
+
+    def get(self, request, pk):
+        self._check("recruitment.posting.view")
+        posting = get_object_or_404(
+            JobPosting.objects.select_related("department", "branch"), pk=pk
+        )
+        return Response(JobPostingSerializer(posting, context={"request": request}).data)
+
+
+class CandidateListAPIView(_RecruitmentAPIBase):
+    """GET  /api/v1/recruitment/candidates/?status=&posting= — قائمة المرشحين.
+    POST /api/v1/recruitment/candidates/ — إضافة مرشح (صلاحية manage).
+    """
+
+    def get(self, request):
+        self._check("recruitment.candidate.view")
+        qs = Candidate.objects.select_related("posting").order_by("-created_at")
+        status_param = request.query_params.get("status")
+        posting = request.query_params.get("posting")
+        if status_param:
+            qs = qs.filter(status=status_param)
+        if posting:
+            qs = qs.filter(posting_id=posting)
+        return Response(CandidateSerializer(qs, many=True, context={"request": request}).data)
+
+    def post(self, request):
+        self._check("recruitment.candidate.manage")
+        serializer = CandidateSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        try:
+            candidate = add_candidate(
+                data.get("posting"),
+                email=data["email"],
+                first_name_ar=data["first_name_ar"],
+                last_name_ar=data["last_name_ar"],
+                user=request.user,
+                **{
+                    k: v
+                    for k, v in data.items()
+                    if k not in ("posting", "email", "first_name_ar", "last_name_ar")
+                },
+            )
+        except RecruitmentError as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            CandidateSerializer(candidate, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )

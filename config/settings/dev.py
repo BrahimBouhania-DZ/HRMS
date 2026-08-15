@@ -10,7 +10,18 @@ from .base import BASE_DIR, _env
 
 DEBUG = True
 
+# dev فقط — يُقيَّد في prod.py عبر env
 ALLOWED_HOSTS = ["*"]
+
+# تحذير صارخ إذا كان المفتاح لا يزال الافتراضي في غير التطوير
+if DEBUG and _env("DJANGO_SECRET_KEY") is None:
+    import warnings
+
+    warnings.warn(
+        "DJANGO_SECRET_KEY غير مضبوط في .env — يُستخدم مفتاح dev ثابت. "
+        "في الإنتاج (prod.py) يصبح المفتاح الافتراضي غير صالح.",
+        stacklevel=2,
+    )
 
 # قاعدة بيانات التطوير (SQLite مؤقتًا؛ ويمكن التبديل لـ PostgreSQL عبر env)
 if _env("DJANGO_DB_ENGINE", "sqlite") == "postgres":  # noqa: F405

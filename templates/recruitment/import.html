@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "استيراد جماعي" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "استيراد جماعي" %}</h1>
+<p class="muted">{% trans "الصيغ المدعومة: CSV · XLSX · JSON · SQL (جمل INSERT INTO). ملفات SQL قد تضم جداول الإعلانات والمرشحين معًا." %}</p>
+
+<div class="cards">
+    <div class="card">
+        <h3>{% trans "إعلانات الوظائف" %}</h3>
+        <p class="muted">{% trans "أعمدة: code, title_ar, title_fr, title_en, department_code, branch_code, employment_type, openings_count, status, publish_date, close_date, requirements, description" %}</p>
+        <div class="toolbar">
+            <a class="btn btn-sm" href="{% url 'recruitment:import_template' 'postings' %}?fmt=csv">CSV</a>
+            <a class="btn btn-sm" href="{% url 'recruitment:import_template' 'postings' %}?fmt=json">JSON</a>
+            <a class="btn btn-sm" href="{% url 'recruitment:import_template' 'postings' %}?fmt=sql">SQL</a>
+        </div>
+        <form method="post" action="{% url 'recruitment:import' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="entity" value="postings">
+            <input type="file" name="file" accept=".csv,.xlsx,.json,.sql" required>
+            <button class="btn btn-primary" type="submit">{% trans "استيراد" %}</button>
+        </form>
+    </div>
+    <div class="card">
+        <h3>{% trans "المرشحون" %}</h3>
+        <p class="muted">{% trans "أعمدة: first_name_ar, last_name_ar, email, phone, source, posting_code, status, first_name_fr, last_name_fr, first_name_en, last_name_en, applied_date, notes" %}</p>
+        <div class="toolbar">
+            <a class="btn btn-sm" href="{% url 'recruitment:import_template' 'candidates' %}?fmt=csv">CSV</a>
+            <a class="btn btn-sm" href="{% url 'recruitment:import_template' 'candidates' %}?fmt=json">JSON</a>
+            <a class="btn btn-sm" href="{% url 'recruitment:import_template' 'candidates' %}?fmt=sql">SQL</a>
+        </div>
+        <form method="post" action="{% url 'recruitment:import' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="entity" value="candidates">
+            <input type="file" name="file" accept=".csv,.xlsx,.json,.sql" required>
+            <button class="btn btn-primary" type="submit">{% trans "استيراد" %}</button>
+        </form>
+    </div>
+</div>
+
+{% if created is not None %}
+<hr>
+<h2>{% trans "النتيجة" %}</h2>
+<p>
+    {% for entity, count in created.items %}
+    {% if count %}
+    <strong>{% if entity == "candidates" %}{% trans "مرشحون" %}{% else %}{% trans "إعلانات" %}{% endif %}:</strong> {{ count }}
+    {% endif %}
+    {% endfor %}
+    <span class="muted">— {{ errors|length }} {% trans "صف برسائل خطأ" %}</span>
+</p>
+{% if errors %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "الصف" %}</th>
+            <th>{% trans "الأخطاء" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in errors %}
+        <tr>
+            <td>{{ item.row }}</td>
+            <td>
+                {% for message in item.errors %}
+                <div class="text-danger">{{ message }}</div>
+                {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endif %}
+{% endblock %}

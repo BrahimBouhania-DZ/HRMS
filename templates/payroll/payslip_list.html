@@ -3,7 +3,9 @@
 {% block title %}{% blocktrans %}قسائم {{ payrun.period_code }}{% endblocktrans %} — {{ APP_NAME }}{% endblock %}
 {% block content %}
 <div class="page-head"><h1>{% blocktrans %}قسائم دورة {{ payrun.period_code }} — {{ payrun.branch }}{% endblocktrans %}</h1></div>
+<div class="table-wrap"><div class="table-responsive">
 <table class="table">
+    <caption class="sr-only">{% blocktrans %}قسائم دورة {{ payrun.period_code }}{% endblocktrans %}</caption>
     <thead>
         <tr><th>{% trans "الموظف" %}</th><th>{% trans "الأساسي" %}</th><th>{% trans "إضافات" %}</th><th>{% trans "خصومات" %}</th><th>{% trans "الصافي" %}</th><th>{% trans "القسيمة" %}</th></tr>
     </thead>
@@ -22,4 +24,5 @@
         {% endfor %}
     </tbody>
 </table>
+</div></div>
 {% endblock %}

@@ -129,6 +129,30 @@
         {% endfor %}
     </select>
     {% endif %}
+    {% if show_candidate_status_filter %}
+    <select name="status">
+        <option value="">{% trans "كل الحالات" %}</option>
+        {% for value, label in options.candidate_statuses %}
+        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    {% if show_posting_status_filter %}
+    <select name="status">
+        <option value="">{% trans "كل الحالات" %}</option>
+        {% for value, label in options.posting_statuses %}
+        <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    {% if show_posting_filter %}
+    <select name="posting">
+        <option value="">{% trans "كل الإعلانات" %}</option>
+        {% for p in options.postings %}
+        <option value="{{ p.pk }}" {% if filters.posting == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.code }} — {{ p.title_ar }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
     <input type="text" name="from_date" placeholder="{% trans "من (YYYY-MM-DD)" %}" value="{{ filters.from_date|default:'' }}">
     <input type="text" name="to_date" placeholder="{% trans "إلى (YYYY-MM-DD)" %}" value="{{ filters.to_date|default:'' }}">
     <input type="date" name="work_date" value="{{ filters.work_date|default:'' }}">

@@ -7,6 +7,15 @@ from django.utils.translation import gettext as _
 register = template.Library()
 
 
+@register.filter
+def get_item(value, key):
+    """فلتر عام للوصول إلى عنصر من قاموس داخل القالب (e.g. row|get_item:col)."""
+    try:
+        return value.get(key, "—")
+    except (AttributeError, TypeError):
+        return "—"
+
+
 @register.simple_tag
 def admin_stats():
     """أرقام سريعة للوحة الإدارة — تُحسب لحظيًا من قاعدة البيانات."""

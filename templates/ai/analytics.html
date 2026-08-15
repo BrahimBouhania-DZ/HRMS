@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load i18n admin_stats %}
+{% block title %}{% trans "لوحة التحليلات" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% trans "لوحة التحليلات" %} <span class="muted">— {% trans "مؤشرات قابلة للقياس حسب نطاقك" %}</span></h1>
+
+<div class="toolbar">
+    <form method="get" class="toolbar-form" role="search">
+        <label class="sr-only" for="an-period">{% trans "الفترة" %}</label>
+        <select name="period" id="an-period">
+            <option value="month" {% if period == 'month' %}selected{% endif %}>{% trans "هذا الشهر" %}</option>
+            <option value="year" {% if period == 'year' %}selected{% endif %}>{% trans "هذا العام" %}</option>
+        </select>
+        <button class="btn" type="submit">{% trans "اعرض" %}</button>
+    </form>
+</div>
+
+<div class="cards" style="margin-top: 1rem;">
+    <div class="card">
+        <div class="card-label">{% trans "الحضور" %}</div>
+        <div class="card-value">{{ results.attendance.kpis.present }}</div>
+        <div class="muted">{% trans "غائب" %}: {{ results.attendance.kpis.absent }} · {% trans "إجازة" %}: {{ results.attendance.kpis.leave }}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "دقائق التأخير" %}</div>
+        <div class="card-value">{{ results.attendance.kpis.late_minutes }}</div>
+        <div class="muted">{% trans "في الفترة المختارة" %}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "كتلة الأجور (آخر دورة)" %}</div>
+        <div class="card-value">{{ results.payroll.kpis.latest_total }}</div>
+        <div class="muted">{% if results.payroll.kpis.growth_pct %}{% trans "نمو" %}: {{ results.payroll.kpis.growth_pct }}%{% else %}{% trans "لا دورات رواتب" %}{% endif %}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "متوسط التقييم" %}</div>
+        <div class="card-value">{{ results.performance.kpis.avg }}</div>
+        <div class="muted">{{ results.performance.kpis.n }} {% trans "تقييمًا" %}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "أيام الإجازة المعتمدة" %}</div>
+        <div class="card-value">{{ results.leave.kpis.days }}</div>
+        <div class="muted">{{ results.leave.kpis.requests }} {% trans "طلبًا" %}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "مخاطر الاستقالة (مرتفع)" %}</div>
+        <div class="card-value">{{ results.turnover.kpis.high }}</div>
+        <div class="muted">{% trans "متوسط" %}: {{ results.turnover.kpis.medium }} · {% trans "منخفض" %}: {{ results.turnover.kpis.low }}</div>
+    </div>
+</div>
+
+<div class="cards" style="margin-top: 1rem;">
+    <div class="card">
+        <div class="card-label">{% trans "الحضور حسب القسم" %}</div>
+        {% if results.attendance.rows %}
+        <table class="table">
+            <thead><tr><th>{% trans "القسم" %}</th><th>{% trans "حاضر" %}</th><th>{% trans "غائب" %}</th><th>{% trans "إجازة" %}</th><th>{% trans "تأخير (د)" %}</th></tr></thead>
+            <tbody>
+            {% for row in results.attendance.rows %}
+                <tr><td>{{ row.name }}</td><td>{{ row.present }}</td><td>{{ row.absent }}</td><td>{{ row.leave }}</td><td>{{ row.late_minutes }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<div class="muted">{% trans "لا بيانات." %}</div>{% endif %}
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "التقييم حسب القسم" %}</div>
+        {% if results.performance.rows %}
+        <table class="table">
+            <thead><tr><th>{% trans "القسم" %}</th><th>{% trans "المتوسط" %}</th><th>{% trans "عدد" %}</th></tr></thead>
+            <tbody>
+            {% for row in results.performance.rows %}
+                <tr><td>{{ row.name }}</td><td>{{ row.avg }}</td><td>{{ row.n }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<div class="muted">{% trans "لا بيانات." %}</div>{% endif %}
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "الإجازات حسب النوع" %}</div>
+        {% if results.leave.rows %}
+        <table class="table">
+            <thead><tr><th>{% trans "النوع" %}</th><th>{% trans "أيام" %}</th><th>{% trans "طلبات" %}</th></tr></thead>
+            <tbody>
+            {% for row in results.leave.rows %}
+                <tr><td>{{ row.name }}</td><td>{{ row.days }}</td><td>{{ row.n }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<div class="muted">{% trans "لا بيانات." %}</div>{% endif %}
+    </div>
+    <div class="card">
+        <div class="card-label">{% trans "القوى العاملة حسب القسم" %}</div>
+        {% if results.departments.rows %}
+        <table class="table">
+            <thead><tr><th>{% trans "القسم" %}</th><th>{% trans "موظفون" %}</th></tr></thead>
+            <tbody>
+            {% for row in results.departments.rows %}
+                <tr><td>{{ row.name }}</td><td>{{ row.n }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<div class="muted">{% trans "لا بيانات." %}</div>{% endif %}
+    </div>
+</div>
+
+<div class="muted" style="margin-top: 1rem;">{% trans "سُجّلت النتيجة في" %} ai_analyticsjob #{{ analytics_job_id }} — {% trans "كل رقم قابل للتدقيق من قاعدة البيانات." %}</div>
+
+{% if unknown_queries %}
+<div class="card" style="margin-top: 1rem;">
+    <div class="card-label">{% trans "أسئلة لم يُجب عنها المساعد (لتحسين القاموس)" %}</div>
+    <table class="table">
+        <thead><tr><th>{% trans "المستخدم" %}</th><th>{% trans "السؤال" %}</th><th>{% trans "اللغة" %}</th><th>{% trans "التقييم" %}</th><th>{% trans "في" %}</th></tr></thead>
+        <tbody>
+        {% for q in unknown_queries %}
+            <tr>
+                <td>{{ q.user|default:"?" }}</td>
+                <td>{{ q.prompt }}</td>
+                <td>{{ q.language }}</td>
+                <td>{% if q.was_helpful is True %}نعم{% elif q.was_helpful is False %}لا{% else %}—{% endif %}</td>
+                <td>{{ q.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="muted">{% trans "أضف صياغة هذه الأسئلة كمفاتيح في nlp.py (detect_intent) ليتعلم المساعد الإجابة عنها." %}</div>
+</div>
+{% endif %}
+{% endblock %}

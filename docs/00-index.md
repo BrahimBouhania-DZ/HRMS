@@ -50,6 +50,8 @@
 | 13 | دليل تدريب المستخدمين (User Training) | المرحلة الثالثة عشرة | [`13-user-training.md`](./13-user-training.md) |
 | 14 | دفتر نشر أول فرع (Deployment) | المرحلة الرابعة عشرة | [`14-deployment.md`](./14-deployment.md) |
 | 15 | وحدة الرواتب (Payroll) | المرحلة الخامسة عشرة | [`15-payroll.md`](./15-payroll.md) |
+| 16 | واجهة التكامل (API REST) | دائم التحديث | [`16-api.md`](./16-api.md) |
+| — | مواصفة OpenAPI 3.0 (الواجهة — آلية) | دائم التحديث | [`openapi.yaml`](./openapi.yaml) |
 
 ---
 

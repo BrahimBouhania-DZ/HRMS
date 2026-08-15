@@ -4,8 +4,9 @@
 {% block content %}
 <h1>{% trans "شهادات التدريب" %}</h1>
 <div class="toolbar">
-    <form method="get" class="toolbar-form">
-        <input type="text" name="employee" value="{{ request.GET.employee|default:'' }}" placeholder="{% trans "رقم الموظف..." %}">
+    <form method="get" class="toolbar-form" role="search">
+        <label class="sr-only" for="cert-employee">{% trans "رقم الموظف..." %}</label>
+        <input type="text" name="employee" id="cert-employee" value="{{ request.GET.employee|default:'' }}" placeholder="{% trans "رقم الموظف..." %}">
         <button class="btn btn-sm" type="submit">{% trans "بحث" %}</button>
     </form>
 </div>

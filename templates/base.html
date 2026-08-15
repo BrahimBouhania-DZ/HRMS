@@ -10,12 +10,13 @@
 </head>
 <body>
     {% if user.is_authenticated %}
+    <a class="skip-link" href="#main-content">{% trans "تخطَّ إلى المحتوى" %}</a>
     <header class="topbar">
         <div class="brand">
             <span class="brand-mark" aria-hidden="true">HR</span>
             <a href="{% url 'core:home' %}">{{ APP_NAME }}</a>
         </div>
-        <nav class="nav">
+        <nav class="nav" aria-label="{% trans 'التنقل الرئيسي' %}">
             <a href="{% url 'core:home' %}" class="{% if request.path == '/' %}active{% endif %}">{% trans "الرئيسية" %}</a>
             <a href="{% url 'org:branch_list' %}" class="{% if '/org/' in request.path %}active{% endif %}">{% trans "الفروع" %}</a>
             <a href="{% url 'employees:employee_list' %}" class="{% if '/employees/' in request.path and '/contracts' not in request.path and '/documents' not in request.path %}active{% endif %}">{% trans "الموظفون" %}</a>
@@ -32,12 +33,16 @@
             <a href="{% url 'payroll:run_list' %}" class="{% if '/payroll/' in request.path %}active{% endif %}">{% trans "الرواتب" %}</a>
             <a href="{% url 'perf:cycle_list' %}" class="{% if '/perf/' in request.path %}active{% endif %}">{% trans "الأداء" %}</a>
             <a href="{% url 'training:course_list' %}" class="{% if '/training/' in request.path %}active{% endif %}">{% trans "التدريب" %}</a>
-            <a href="{% url 'ai:predictions' %}" class="{% if '/ai/' in request.path %}active{% endif %}">{% trans "الذكاء الاصطناعي" %}</a>
+            <a href="{% url 'recruitment:posting_list' %}" class="{% if '/recruitment/' in request.path %}active{% endif %}">{% trans "التوظيف" %}</a>
+            <a href="{% url 'ai:predictions' %}" class="{% if '/ai/' in request.path and 'assistant' not in request.path and 'analytics' not in request.path %}active{% endif %}">{% trans "الذكاء الاصطناعي" %}</a>
+            <a href="{% url 'ai:assistant' %}" class="{% if 'assistant' in request.path %}active{% endif %}">{% trans "المساعد الذكي" %}</a>
+            <a href="{% url 'ai:analytics' %}" class="{% if 'analytics' in request.path %}active{% endif %}">{% trans "التحليلات" %}</a>
             {% if user.is_superuser %}<a href="{% url 'devices:list' %}" class="{% if '/devices/' in request.path %}active{% endif %}">{% trans "الأجهزة" %}</a>{% endif %}
             {% if user.is_superuser %}<a href="{% url 'core:audit_log' %}" class="{% if '/audit/' in request.path %}active{% endif %}">{% trans "سجل التدقيق" %}</a>{% endif %}
             {% if user.is_superuser %}<a href="{% url 'backup:page' %}" class="{% if '/backup/' in request.path %}active{% endif %}">{% trans "النسخ الاحتياطي" %}</a>{% endif %}
-            <form method="get" action="{% url 'core:search' %}" class="topbar-search">
-                <input type="search" name="q" placeholder="{% trans "بحث..." %}" value="{{ q|default:'' }}">
+            <form method="get" action="{% url 'core:search' %}" class="topbar-search" role="search">
+                <label for="topbar-search-input" class="sr-only">{% trans "بحث" %}</label>
+                <input type="search" id="topbar-search-input" name="q" placeholder="{% trans "بحث..." %}" value="{{ q|default:'' }}" autocomplete="off" spellcheck="false">
             </form>
             {% if user.is_staff %}<a href="{% url 'admin:index' %}">{% trans "الإدارة" %}</a>{% endif %}
             <form action="{% url 'set_language' %}" method="post" class="lang-form">
@@ -67,7 +72,7 @@
     </div>
     {% endif %}
 
-    <main class="content">
+    <main class="content" id="main-content">
         {% block content %}{% endblock %}
     </main>
 </body>

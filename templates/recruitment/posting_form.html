@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "إعلان وظيفة" %} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{% if object %}{% trans "تعديل إعلان" %}{% else %}{% trans "إعلان جديد" %}{% endif %}</h1>
+<form method="post" class="form-card">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="toolbar">
+        <button class="btn btn-primary" type="submit">{% trans "حفظ" %}</button>
+        <a class="btn" href="{% url 'recruitment:posting_list' %}">{% trans "إلغاء" %}</a>
+    </div>
+</form>
+{% endblock %}

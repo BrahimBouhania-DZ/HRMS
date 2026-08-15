@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ posting.title_ar }} — {{ APP_NAME }}{% endblock %}
+{% block content %}
+<h1>{{ posting.title_ar }}</h1>
+<p class="muted">{{ posting.code }} — {{ posting.get_status_display }}</p>
+
+<div class="toolbar">
+    <a class="btn" href="{% url 'recruitment:posting_edit' posting.pk %}">{% trans "تعديل" %}</a>
+    <a class="btn btn-primary" href="{% url 'recruitment:candidate_create' %}?posting={{ posting.pk }}">{% trans "إضافة مرشح" %}</a>
+    <a class="btn" href="{% url 'recruitment:posting_list' %}">{% trans "رجوع" %}</a>
+</div>
+
+<table class="info-table">
+    <tr><th>{% trans "القسم" %}</th><td>{{ posting.department.name_ar|default:"—" }}</td></tr>
+    <tr><th>{% trans "الفرع" %}</th><td>{{ posting.branch.name_ar|default:"—" }}</td></tr>
+    <tr><th>{% trans "نوع التوظيف" %}</th><td>{{ posting.get_employment_type_display }}</td></tr>
+    <tr><th>{% trans "الشواغر" %}</th><td>{{ posting.openings_count }}</td></tr>
+    <tr><th>{% trans "تاريخ النشر" %}</th><td>{{ posting.publish_date|default:"—" }}</td></tr>
+    <tr><th>{% trans "تاريخ الإغلاق" %}</th><td>{{ posting.close_date|default:"—" }}</td></tr>
+</table>
+
+<h2>{% trans "المتطلبات" %}</h2>
+<p>{{ posting.requirements|default:"—" }}</p>
+<h2>{% trans "الوصف" %}</h2>
+<p>{{ posting.description|default:"—" }}</p>
+
+<h2>{% trans "المرشحون" %} ({{ posting.candidate_count }})</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans "المرشح" %}</th>
+            <th>{% trans "البريد" %}</th>
+            <th>{% trans "تاريخ التقديم" %}</th>
+            <th>{% trans "الحالة" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in candidates %}
+        <tr>
+            <td><a href="{% url 'recruitment:candidate_detail' c.pk %}">{{ c.full_name }}</a></td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.applied_date|default:"—" }}</td>
+            <td>{{ c.get_status_display }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">{% trans "لا يوجد مرشحون بعد." %}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
