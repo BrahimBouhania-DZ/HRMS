@@ -79,6 +79,13 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # عبارة مرور اشتقاق مفتاح AES-256 لتشفير النسخ — تُضبط في .env في الإنتاج.
 HRMS_BACKUP_KEY = _env("HRMS_BACKUP_KEY", "")
 
+# ---- هوية الشركة: صفحة سرية (شعار + ألوان) للمبرمج/المدير ------------
+# المسار السري يُسجَّل في urls فقط إن كان مضبوطًا؛ غيابه = لا يوجد مسار إطلاقًا.
+# الحساب المميز يُنشأ بأمر: python manage.py seed_branding_admin
+BRANDING_SECRET_PATH = _env("BRANDING_SECRET_PATH", "").strip("/")
+BRANDING_ADMIN_USERNAME = _env("BRANDING_ADMIN_USERNAME", "branding-admin")
+BRANDING_ADMIN_EMAIL = _env("BRANDING_ADMIN_EMAIL", "branding@hrms.local")
+
 # ---- البريد (LAN Email) ---------------------------------------------------
 # بريد إشعارات داخل الشبكة — خادم SMTP محلي/LAN تُضبط معطياته في .env.
 # HRMS_EMAIL_ENABLED=False ⇒ تُسجَّل الرسائل على وحدة التحكم (dev) ولا تُرسل.

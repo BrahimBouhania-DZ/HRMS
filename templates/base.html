@@ -7,13 +7,18 @@
     <title>{% block title %}{{ APP_NAME }}{% endblock %}</title>
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {{ BRANDING_CSS|safe }}
 </head>
 <body>
     {% if user.is_authenticated %}
     <a class="skip-link" href="#main-content">{% trans "تخطَّ إلى المحتوى" %}</a>
     <header class="topbar">
         <div class="brand">
+            {% if COMPANY and COMPANY.logo %}
+            <img src="{{ COMPANY.logo.url }}" alt="{{ COMPANY.company_name_ar }}" class="brand-logo">
+            {% else %}
             <span class="brand-mark" aria-hidden="true">HR</span>
+            {% endif %}
             <a href="{% url 'core:home' %}">{{ APP_NAME }}</a>
         </div>
         <nav class="nav" aria-label="{% trans 'التنقل الرئيسي' %}">

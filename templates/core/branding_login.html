@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>دخول المبرمج/المدير</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <style>
+        .branding-login-wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: var(--bg);
+        }
+        .branding-login-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 380px;
+        }
+        .branding-login-card h1 { margin-top: 0; color: var(--brand-dark); }
+        .branding-login-card p.muted { color: var(--muted); font-size: .9rem; }
+        .branding-login-card .alert { margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="branding-login-wrap">
+        <div class="branding-login-card">
+            <h1>لوحة التحكم السرية</h1>
+            <p class="muted">صفحة مخصّصة للمبرمج/المدير — إدارة الشعار والألوان.</p>
+            {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+            <form method="post" autocomplete="off">
+                {% csrf_token %}
+                <div class="field">
+                    <label for="id_username">اسم المستخدم</label>
+                    <input type="text" name="username" id="id_username" required autofocus>
+                </div>
+                <div class="field">
+                    <label for="id_password">كلمة المرور</label>
+                    <input type="password" name="password" id="id_password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">دخول</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

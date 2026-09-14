@@ -1,0 +1,275 @@
+{% load i18n static admin_stats %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>لوحة التحكم — الشعار والألوان</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <style>
+        .branding-shell { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+        .branding-top { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .branding-top h1 { margin: 0; font-size: 1.5rem; color: var(--brand-dark); flex: 1; }
+        .branding-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 900px) { .branding-grid { grid-template-columns: 1fr; } }
+        .panel { background: var(--surface); border: 1px solid var(--border);
+                 border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+                 padding: 1.5rem; margin-bottom: 1.5rem; }
+        .panel h2 { margin-top: 0; font-size: 1.15rem; color: var(--brand-dark);
+                    border-bottom: 2px solid var(--brand); padding-bottom: .5rem; }
+        .logo-preview { max-width: 180px; max-height: 90px; object-fit: contain; }
+        .swatches { display: flex; flex-wrap: wrap; gap: 1rem; }
+        .swatch-group { border: 1px solid var(--border); border-radius: var(--radius-sm);
+                        padding: .75rem; background: var(--bg-soft); min-width: 230px; flex: 1 1 230px; }
+        .swatch-group h3 { margin: 0 0 .5rem; font-size: .95rem; color: var(--muted); }
+        .swatch { display: flex; align-items: center; gap: .5rem; margin-bottom: .35rem; }
+        .swatch label { flex: 1; font-size: .8rem; color: var(--muted);
+                        font-family: monospace; direction: ltr; text-align: left; }
+        .swatch input[type="color"] { width: 42px; height: 30px; border: 1px solid var(--border);
+                                      border-radius: 6px; cursor: pointer; padding: 0; background: none; }
+        .preset-btns { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0; }
+        .preview-card { background: var(--surface); border: 1px solid var(--border);
+                        border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 1rem; }
+        .preview-row { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+        .preview-row .badge { display: inline-block; padding: .25rem .75rem; border-radius: 999px;
+                              font-size: .8rem; font-weight: 600; }
+        .badge-brand { background: var(--brand-soft); color: var(--brand-dark); }
+        .badge-success { background: var(--success-soft); color: var(--success); }
+        .badge-danger { background: var(--danger-soft); color: var(--danger); }
+        .badge-gold { background: #FBF6E0; color: var(--gold); }
+        .grad-bar { height: 12px; border-radius: 6px; margin: .5rem 0;
+                    background: linear-gradient(90deg, var(--brand), var(--accent), var(--gold)); }
+        .note { font-size: .8rem; color: var(--muted); }
+        .divider { margin: 1.25rem 0; border-top: 1px dashed var(--border); }
+    </style>
+</head>
+<body>
+<div class="branding-shell">
+
+    <div class="branding-top">
+        <h1>🎨 لوحة تحكم الشعار والألوان</h1>
+        {% if company.logo %}
+        <img src="{{ company.logo.url }}" class="logo-preview" alt="الشعار الحالي">
+        {% endif %}
+        <form method="post" action="{% url 'core:branding_logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline btn-sm">تسجيل الخروج</button>
+        </form>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="branding-grid">
+        <!-- ====== الشعار والهوية ====== -->
+        <div>
+            <section class="panel">
+                <h2>🖼️ الشعار</h2>
+                {% if company.logo %}
+                <p class="note">الشعار الحالي:</p>
+                <img src="{{ company.logo.url }}" class="logo-preview" alt="شعار">
+                {% endif %}
+                <form method="post" action="{% url 'core:branding_save_logo' %}" enctype="multipart/form-data"
+                      class="mt-1">
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="branding-logo">اختيار صورة شعار (PNG/SVG/WebP)</label>
+                        <input type="file" id="branding-logo" name="logo" accept="image/*">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">حفظ الشعار</button>
+                        {% if company.logo %}
+                        <button type="submit" name="action" value="delete" class="btn btn-danger"
+                                onclick="return confirm('مسح الشعار الحالي؟');">مسح الشعار</button>
+                        {% endif %}
+                    </div>
+                </form>
+            </section>
+
+            <section class="panel">
+                <h2>🏷️ الهوية والنصوص</h2>
+                <form method="post" action="{% url 'core:branding_save_identity' %}">
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="cn-ar">اسم الشركة (عربي) *</label>
+                        <input type="text" id="cn-ar" name="company_name_ar"
+                               value="{{ company.company_name_ar }}" required>
+                    </div>
+                    <div class="field">
+                        <label for="cn-fr">اسم الشركة (فرنسي)</label>
+                        <input type="text" id="cn-fr" name="company_name_fr"
+                               value="{{ company.company_name_fr }}">
+                    </div>
+                    <div class="field">
+                        <label for="cn-en">اسم الشركة (إنجليزي)</label>
+                        <input type="text" id="cn-en" name="company_name_en"
+                               value="{{ company.company_name_en }}">
+                    </div>
+                    <div class="field">
+                        <label for="tagline">الشعار النصي</label>
+                        <input type="text" id="tagline" name="tagline" value="{{ company.tagline }}">
+                    </div>
+                    <div class="field">
+                        <label for="wm-op">شفافية الووترمارك في بطاقات الطباعة (٪)</label>
+                        <input type="number" id="wm-op" name="watermark_opacity" min="0" max="100"
+                               value="{{ company.watermark_opacity }}">
+                    </div>
+                    <label class="check">
+                        <input type="checkbox" name="show_logo_watermark"
+                               {% if company.show_logo_watermark %}checked{% endif %}>
+                        إظهار الشعار في خلفية بطاقات الطباعة
+                    </label>
+                    <div class="form-actions mt-1">
+                        <button type="submit" class="btn btn-primary">حفظ الهوية</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <!-- ====== الألوان ====== -->
+        <div>
+            <section class="panel">
+                <h2>🎨 الألوان — المحرر الكامل</h2>
+
+                <div class="preset-btns">
+                    <form method="post" action="{% url 'core:branding_save_colors' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="reset">
+                        <button type="submit" class="btn btn-warning btn-sm">استعادة الافتراضي</button>
+                    </form>
+                    {% for key, label in presets %}
+                    <form method="post" action="{% url 'core:branding_save_colors' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="preset">
+                        <input type="hidden" name="preset" value="{{ key }}">
+                        <button type="submit" class="btn btn-outline btn-sm">{{ label }}</button>
+                    </form>
+                    {% endfor %}
+                </div>
+
+                <form method="post" action="{% url 'core:branding_save_colors' %}" id="colors-form"
+                      data-defaults='{{ defaults_json|safe }}'>
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="custom">
+
+                    <div class="swatches">
+                        <div class="swatch-group">
+                            <h3>أساسي (أزرق سماوي) — الأزرار والروابط</h3>
+                            {% for var in brand_vars %}
+                            <div class="swatch">
+                                <input type="color" name="var_{{ var }}" id="in-{{ var|slice:'2:' }}"
+                                       value="{% if var in overrides %}{{ overrides|get_item:var }}{% else %}{{ defaults|get_item:var }}{% endif %}">
+                                <label for="in-{{ var|slice:'2:' }}">{{ var }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swatch-group">
+                            <h3>ثانوي (رملي) — نقطة التركيز</h3>
+                            {% for var in sand_vars %}
+                            <div class="swatch">
+                                <input type="color" name="var_{{ var }}" id="in-{{ var|slice:'2:' }}"
+                                       value="{% if var in overrides %}{{ overrides|get_item:var }}{% else %}{{ defaults|get_item:var }}{% endif %}">
+                                <label for="in-{{ var|slice:'2:' }}">{{ var }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swatch-group">
+                            <h3>ذهبي</h3>
+                            {% for var in gold_vars %}
+                            <div class="swatch">
+                                <input type="color" name="var_{{ var }}" id="in-{{ var|slice:'2:' }}"
+                                       value="{% if var in overrides %}{{ overrides|get_item:var }}{% else %}{{ defaults|get_item:var }}{% endif %}">
+                                <label for="in-{{ var|slice:'2:' }}">{{ var }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="swatches">
+                        <div class="swatch-group">
+                            <h3>نجاح (أخضر)</h3>
+                            {% for var in green_vars %}
+                            <div class="swatch">
+                                <input type="color" name="var_{{ var }}" id="in-{{ var|slice:'2:' }}"
+                                       value="{% if var in overrides %}{{ overrides|get_item:var }}{% else %}{{ defaults|get_item:var }}{% endif %}">
+                                <label for="in-{{ var|slice:'2:' }}">{{ var }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swatch-group">
+                            <h3>خطر (أحمر)</h3>
+                            {% for var in red_vars %}
+                            <div class="swatch">
+                                <input type="color" name="var_{{ var }}" id="in-{{ var|slice:'2:' }}"
+                                       value="{% if var in overrides %}{{ overrides|get_item:var }}{% else %}{{ defaults|get_item:var }}{% endif %}">
+                                <label for="in-{{ var|slice:'2:' }}">{{ var }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swatch-group">
+                            <h3>سطح وخلفية</h3>
+                            {% for var in neutral_vars %}
+                            <div class="swatch">
+                                <input type="color" name="var_{{ var }}" id="in-{{ var|slice:'2:' }}"
+                                       value="{% if var in overrides %}{{ overrides|get_item:var }}{% else %}{{ defaults|get_item:var }}{% endif %}">
+                                <label for="in-{{ var|slice:'2:' }}">{{ var }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <h3>معاينة مباشرة</h3>
+                    <div class="preview-card">
+                        <div class="preview-row">
+                            <button type="button" class="btn btn-primary" disabled>زر أساسي</button>
+                            <button type="button" class="btn btn-success" disabled>نجاح</button>
+                            <button type="button" class="btn btn-danger" disabled>خطر</button>
+                            <button type="button" class="btn btn-gold" disabled>ذهبي</button>
+                            <span class="badge badge-brand">شارة</span>
+                            <span class="badge badge-success">مكتمل</span>
+                            <span class="badge badge-danger">مرفوض</span>
+                            <span class="badge badge-gold">مميز</span>
+                        </div>
+                        <div class="grad-bar"></div>
+                        <p class="note">الترويسة تُحدَّث مباشرة عند تغيير أي لون — اضغط «حفظ الألوان» لتثبيتها للجميع.</p>
+                    </div>
+
+                    <div class="form-actions mt-1">
+                        <button type="submit" class="btn btn-primary">حفظ الألوان</button>
+                    </div>
+                </form>
+
+                <p class="note">{{ css_block|linebreaksbr }}</p>
+            </section>
+        </div>
+    </div>
+
+    <p class="note">صفحة سرية — لا تظهر في أي قائمة ولا فهرس. عمليات الحفظ تُسجَّل في سجل التدقيق.</p>
+</div>
+
+<script>
+/* معاينة مباشرة: نقل ألوان المدخلات إلى :root فور تغييرها */
+(function () {
+    var form = document.getElementById('colors-form');
+    if (!form) return;
+    var root = document.documentElement.style;
+    var inputs = form.querySelectorAll('input[type="color"]');
+    inputs.forEach(function (inp) {
+        inp.addEventListener('input', function () {
+            root.setProperty(inp.name.replace('var_', '--'), inp.value);
+        });
+    });
+})();
+</script>
+</body>
+</html>

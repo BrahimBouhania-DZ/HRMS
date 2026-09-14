@@ -60,6 +60,12 @@ class CompanySettings(models.Model):
         default=8,
         help_text=_("قيمة من 0 (شفاف تمامًا) إلى 100 (واضح)"),
     )
+    css_overrides = models.JSONField(
+        _("تخصيص الألوان"),
+        default=dict,
+        blank=True,
+        help_text=_("تجاوزات متغيرات CSS للهوية مثل {\"--brand\": \"#2E96C8\"} — تُحقن أعلى كل صفحة."),
+    )
 
     class Meta:
         verbose_name = _("هوية الشركة")
