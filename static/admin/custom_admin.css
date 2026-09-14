@@ -10,7 +10,12 @@
     --sky-900: #0E354C;
     --sky-50:  #EAF7FC;
     --gold-500: #D4AF37;
+    --gold-600: #B8922E;
+    --gold-700: #96761F;
     --gold-300: #E6C968;
+    --red-50: #FDEEEC;
+    --red-100: #FADDD8;
+    --red-700: #A93226;
     --radius: 12px;
     --shadow-md: 0 2px 6px rgba(20, 60, 90, .08), 0 12px 32px rgba(20, 60, 90, .10);
 }
@@ -165,7 +170,13 @@ body {
     padding: 12px 16px;
 }
 
-.submit-row a.deletelink { border-radius: 8px; }
+.submit-row a.deletelink {
+    background: var(--red-50);
+    color: var(--red-700);
+    border: 1px solid var(--red-100);
+    border-radius: 8px;
+    padding: 9px 16px;
+}
 
 /* ---- الأزرار ---- */
 input[type="submit"], button, .button, .object-tools a {
@@ -362,6 +373,12 @@ select, input[type="text"], input[type="email"], input[type="password"], textare
 
 .amc-add:hover { transform: translateY(-1px); color: var(--sky-900); text-decoration: none; }
 
+.amc-empty {
+    color: #5B6B79;
+    font-size: 14px;
+    padding: 10px 0;
+}
+
 /* ---- آخر الإجراءات ---- */
 .admin-recent {
     background: #fff;
@@ -420,8 +437,6 @@ input[type="submit"].default {
 
 /* أزرار الإجابات (اعتماد/حفظ في الأعلى) */
 .submit-row a, .submit-row input, .submit-row button { border-radius: 9px; }
-
-.submit-row a.deletelink { background: #FDEEEC; color: var(--red-700); border: 1px solid #FADDD8; padding: 9px 16px; }
 
 .object-tools a, .object-tools a:link, .object-tools a:visited {
     background: linear-gradient(120deg, var(--gold-700), var(--gold-500));

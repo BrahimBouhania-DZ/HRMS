@@ -15,7 +15,7 @@
     </form>
 </div>
 
-<div class="cards" style="margin-top: 1rem;">
+<div class="cards mt-1">
     <div class="card">
         <div class="card-label">{% trans "الحضور" %}</div>
         <div class="card-value">{{ results.attendance.kpis.present }}</div>
@@ -48,7 +48,7 @@
     </div>
 </div>
 
-<div class="cards" style="margin-top: 1rem;">
+<div class="cards mt-1">
     <div class="card">
         <div class="card-label">{% trans "الحضور حسب القسم" %}</div>
         {% if results.attendance.rows %}
@@ -103,10 +103,10 @@
     </div>
 </div>
 
-<div class="muted" style="margin-top: 1rem;">{% trans "سُجّلت النتيجة في" %} ai_analyticsjob #{{ analytics_job_id }} — {% trans "كل رقم قابل للتدقيق من قاعدة البيانات." %}</div>
+<div class="muted mt-1">{% trans "سُجّلت النتيجة في" %} ai_analyticsjob #{{ analytics_job_id }} — {% trans "كل رقم قابل للتدقيق من قاعدة البيانات." %}</div>
 
 {% if unknown_queries %}
-<div class="card" style="margin-top: 1rem;">
+<div class="card mt-1">
     <div class="card-label">{% trans "أسئلة لم يُجب عنها المساعد (لتحسين القاموس)" %}</div>
     <table class="table">
         <thead><tr><th>{% trans "المستخدم" %}</th><th>{% trans "السؤال" %}</th><th>{% trans "اللغة" %}</th><th>{% trans "التقييم" %}</th><th>{% trans "في" %}</th></tr></thead>

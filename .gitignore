@@ -19,3 +19,6 @@ staticfiles/
 media/
 *.log
 releases/
+
+# ---- أدوات الاختبار البصري (Playwright) ----
+.playwright-cli/
