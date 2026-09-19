@@ -22,3 +22,6 @@ releases/
 
 # ---- أدوات الاختبار البصري (Playwright) ----
 .playwright-cli/
+
+# ---- نماذج التعلم الآلي المحلية ----
+ai_models/
