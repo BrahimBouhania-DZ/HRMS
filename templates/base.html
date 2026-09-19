@@ -8,6 +8,11 @@
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {{ BRANDING_CSS|safe }}
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+    </script>
 </head>
 <body>
     {% if user.is_authenticated %}
@@ -23,33 +28,92 @@
         </div>
         <nav class="nav" aria-label="{% trans 'التنقل الرئيسي' %}">
             <a href="{% url 'core:home' %}" class="{% if request.path == '/' %}active{% endif %}">{% trans "الرئيسية" %}</a>
-            <a href="{% url 'org:branch_list' %}" class="{% if '/org/' in request.path %}active{% endif %}">{% trans "الفروع" %}</a>
-            <a href="{% url 'employees:employee_list' %}" class="{% if '/employees/' in request.path and '/contracts' not in request.path and '/documents' not in request.path %}active{% endif %}">{% trans "الموظفون" %}</a>
-            <a href="{% url 'employees:contract_list' %}" class="{% if '/contracts/' in request.path %}active{% endif %}">{% trans "العقود" %}</a>
-            <a href="{% url 'employees:document_list' %}" class="{% if '/documents/' in request.path %}active{% endif %}">{% trans "الوثائق" %}</a>
-            <a href="{% url 'attendance:attendance_day_list' %}" class="{% if '/attendance/' in request.path and '/my/' not in request.path %}active{% endif %}">{% trans "الحضور" %}</a>
-            <a href="{% url 'leave:my_leave' %}" class="{% if '/leave/' in request.path %}active{% endif %}">{% trans "الإجازات" %}</a>
+
+            <div class="nav-drop {% if '/employees/' in request.path or '/org/' in request.path %}active{% endif %}">
+                <button type="button" class="nav-drop-btn" aria-haspopup="true">{% trans "الموظفون" %} <span class="caret" aria-hidden="true">▾</span></button>
+                <div class="nav-menu">
+                    <a href="{% url 'employees:employee_list' %}">{% trans "قائمة الموظفين" %}</a>
+                    <a href="{% url 'employees:contract_list' %}">{% trans "العقود" %}</a>
+                    <a href="{% url 'employees:document_list' %}">{% trans "الوثائق" %}</a>
+                    <div class="nav-sep" role="separator"></div>
+                    <a href="{% url 'org:branch_list' %}">{% trans "الفروع" %}</a>
+                    <a href="{% url 'org:department_list' %}">{% trans "الأقسام" %}</a>
+                    <a href="{% url 'org:position_list' %}">{% trans "المناصب" %}</a>
+                    <a href="{% url 'org:shift_list' %}">{% trans "جداول الدوام" %}</a>
+                </div>
+            </div>
+
+            <div class="nav-drop {% if '/attendance/' in request.path or '/leave/' in request.path %}active{% endif %}">
+                <button type="button" class="nav-drop-btn" aria-haspopup="true">{% trans "الحضور والإجازات" %} <span class="caret" aria-hidden="true">▾</span></button>
+                <div class="nav-menu">
+                    <a href="{% url 'attendance:attendance_day_list' %}">{% trans "أيام الحضور" %}</a>
+                    <a href="{% url 'attendance:my_attendance' %}">{% trans "حضوري" %}</a>
+                    <a href="{% url 'attendance:my_qr_card' %}">{% trans "بطاقتي QR" %}</a>
+                    <div class="nav-sep" role="separator"></div>
+                    <a href="{% url 'leave:request_list' %}">{% trans "طلبات الإجازة" %}</a>
+                    <a href="{% url 'leave:my_leave' %}">{% trans "إجازاتي" %}</a>
+                    <a href="{% url 'leave:balance_list' %}">{% trans "الأرصدة" %}</a>
+                </div>
+            </div>
+
+            <div class="nav-drop {% if '/payroll/' in request.path or '/perf/' in request.path %}active{% endif %}">
+                <button type="button" class="nav-drop-btn" aria-haspopup="true">{% trans "الرواتب والأداء" %} <span class="caret" aria-hidden="true">▾</span></button>
+                <div class="nav-menu">
+                    <a href="{% url 'payroll:run_list' %}">{% trans "دورات الرواتب" %}</a>
+                    <a href="{% url 'payroll:element_list' %}">{% trans "عناصر الأجر" %}</a>
+                    <div class="nav-sep" role="separator"></div>
+                    <a href="{% url 'perf:cycle_list' %}">{% trans "دورات التقييم" %}</a>
+                    <a href="{% url 'perf:review_list' %}">{% trans "التقييمات" %}</a>
+                </div>
+            </div>
+
+            <div class="nav-drop {% if '/training/' in request.path or '/recruitment/' in request.path %}active{% endif %}">
+                <button type="button" class="nav-drop-btn" aria-haspopup="true">{% trans "التدريب والتوظيف" %} <span class="caret" aria-hidden="true">▾</span></button>
+                <div class="nav-menu">
+                    <a href="{% url 'training:course_list' %}">{% trans "الدورات" %}</a>
+                    <a href="{% url 'training:session_list' %}">{% trans "الجلسات" %}</a>
+                    <div class="nav-sep" role="separator"></div>
+                    <a href="{% url 'recruitment:posting_list' %}">{% trans "إعلانات التوظيف" %}</a>
+                    <a href="{% url 'recruitment:candidate_list' %}">{% trans "المرشحون والمقابلات" %}</a>
+                </div>
+            </div>
+
+            <a href="{% url 'reports:index' %}" class="{% if '/reports/' in request.path %}active{% endif %}">{% trans "التقارير" %}</a>
+
+            <div class="nav-drop {% if '/ai/' in request.path %}active{% endif %}">
+                <button type="button" class="nav-drop-btn" aria-haspopup="true">{% trans "الذكاء الاصطناعي" %} <span class="caret" aria-hidden="true">▾</span></button>
+                <div class="nav-menu">
+                    <a href="{% url 'ai:predictions' %}">{% trans "لوحة التنبؤات" %}</a>
+                    <a href="{% url 'ai:assistant' %}">{% trans "المساعد الذكي" %}</a>
+                    <a href="{% url 'ai:analytics' %}">{% trans "تحليلات التدريب" %}</a>
+                </div>
+            </div>
+
             <a href="{% url 'notif:list' %}" class="notif-link {% if '/notifications/' in request.path %}active{% endif %}">
-                {% trans "الإشعارات" %}
+                {% trans "🔔 الإشعارات" %}
                 {% if unread_notifications %}<span class="badge">{{ unread_notifications }}</span>{% endif %}
             </a>
-            <a href="{% url 'attendance:my_qr_card' %}" class="{% if request.path == '/attendance/my-card/' %}active{% endif %}">{% trans "بطاقتي" %}</a>
-            <a href="{% url 'reports:index' %}" class="{% if '/reports/' in request.path %}active{% endif %}">{% trans "التقارير" %}</a>
-            <a href="{% url 'payroll:run_list' %}" class="{% if '/payroll/' in request.path %}active{% endif %}">{% trans "الرواتب" %}</a>
-            <a href="{% url 'perf:cycle_list' %}" class="{% if '/perf/' in request.path %}active{% endif %}">{% trans "الأداء" %}</a>
-            <a href="{% url 'training:course_list' %}" class="{% if '/training/' in request.path %}active{% endif %}">{% trans "التدريب" %}</a>
-            <a href="{% url 'recruitment:posting_list' %}" class="{% if '/recruitment/' in request.path %}active{% endif %}">{% trans "التوظيف" %}</a>
-            <a href="{% url 'ai:predictions' %}" class="{% if '/ai/' in request.path and 'assistant' not in request.path and 'analytics' not in request.path %}active{% endif %}">{% trans "الذكاء الاصطناعي" %}</a>
-            <a href="{% url 'ai:assistant' %}" class="{% if 'assistant' in request.path %}active{% endif %}">{% trans "المساعد الذكي" %}</a>
-            <a href="{% url 'ai:analytics' %}" class="{% if 'analytics' in request.path %}active{% endif %}">{% trans "التحليلات" %}</a>
-            {% if user.is_superuser %}<a href="{% url 'devices:list' %}" class="{% if '/devices/' in request.path %}active{% endif %}">{% trans "الأجهزة" %}</a>{% endif %}
-            {% if user.is_superuser %}<a href="{% url 'core:audit_log' %}" class="{% if '/audit/' in request.path %}active{% endif %}">{% trans "سجل التدقيق" %}</a>{% endif %}
-            {% if user.is_superuser %}<a href="{% url 'backup:page' %}" class="{% if '/backup/' in request.path %}active{% endif %}">{% trans "النسخ الاحتياطي" %}</a>{% endif %}
+
+            {% if user.is_staff %}
+            <div class="nav-drop {% if '/devices/' in request.path or '/audit/' in request.path or '/backup/' in request.path or '/admin/' in request.path %}active{% endif %}">
+                <button type="button" class="nav-drop-btn" aria-haspopup="true">{% trans "الإدارة" %} <span class="caret" aria-hidden="true">▾</span></button>
+                <div class="nav-menu">
+                    {% if user.is_superuser %}
+                    <a href="{% url 'devices:list' %}">{% trans "الأجهزة" %}</a>
+                    <a href="{% url 'core:audit_log' %}">{% trans "سجل التدقيق" %}</a>
+                    <a href="{% url 'backup:page' %}">{% trans "النسخ الاحتياطي" %}</a>
+                    <div class="nav-sep" role="separator"></div>
+                    {% endif %}
+                    <a href="{% url 'admin:index' %}">{% trans "لوحة Django" %}</a>
+                </div>
+            </div>
+            {% endif %}
+
             <form method="get" action="{% url 'core:search' %}" class="topbar-search" role="search">
                 <label for="topbar-search-input" class="sr-only">{% trans "بحث" %}</label>
                 <input type="search" id="topbar-search-input" name="q" placeholder="{% trans "بحث..." %}" value="{{ q|default:'' }}" autocomplete="off" spellcheck="false">
             </form>
-            {% if user.is_staff %}<a href="{% url 'admin:index' %}">{% trans "الإدارة" %}</a>{% endif %}
+
             <form action="{% url 'set_language' %}" method="post" class="lang-form">
                 {% csrf_token %}
                 <input name="next" type="hidden" value="{{ request.get_full_path }}">
@@ -61,6 +125,9 @@
                     {% endfor %}
                 </select>
             </form>
+            <button type="button" id="theme-toggle" class="btn btn-outline btn-sm" style="border: 1.5px solid rgba(255,255,255,0.4); color: white;" title="{% trans 'تغيير المظهر' %}">
+                <span aria-hidden="true">🌓</span>
+            </button>
             <form method="post" action="{% url 'auth_app:logout' %}" class="logout-form">
                 {% csrf_token %}
                 <button type="submit">{% blocktrans %}تسجيل الخروج ({{ user.get_full_name|default:user.username }}){% endblocktrans %}</button>
@@ -80,5 +147,36 @@
     <main class="content" id="main-content">
         {% block content %}{% endblock %}
     </main>
+
+    <script>
+    /* إغلاق القوائم المنسدلة عند النقر في أي مكان آخر */
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.nav-drop')) {
+            document.querySelectorAll('.nav-drop').forEach(function(d) {
+                d.blur();
+                d.querySelectorAll(':focus').forEach(function(el) { el.blur(); });
+            });
+        }
+    });
+    /* إغلاق بضغط Escape */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.nav-drop :focus').forEach(function(el) { el.blur(); });
+        }
+    });
+
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    }
+    </script>
 </body>
 </html>

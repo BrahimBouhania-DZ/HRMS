@@ -72,21 +72,21 @@ def official_workdays(period_code: str, branch: Branch) -> int:
     return max(days - holidays, 1)
 
 
-def _employee_base_salary(employee) -> float:
+def _employee_base_salary(employee) -> Decimal:
     """الأجر الأساسي من أحدث عقد للموظف (أساسي للحساب)."""
     from apps.employees.models import Contract
 
     contract = Contract.objects.filter(employee=employee).order_by("-start_date", "-pk").first()
-    return float(contract.base_salary) if contract else 0.0
+    return Decimal(str(contract.base_salary)) if contract else Decimal("0.0")
 
 
-def _element_amount(element: PayElement, base_salary, attended_days: int) -> float:
+def _element_amount(element: PayElement, base_salary: Decimal, attended_days: int) -> Decimal:
     """مبلغ عنصر أجر (بالمقدار الموجب؛ الإشارة حسب kind عند التسجيل)."""
     if element.calculation == PayElement.Calculation.PERCENT_OF_BASIC:
-        return base_salary * float(element.percent) / 100
+        return base_salary * Decimal(str(element.percent)) / Decimal("100")
     if element.calculation == PayElement.Calculation.ATTENDANCE_BASED:
-        return float(element.amount) * attended_days
-    return float(element.amount)
+        return Decimal(str(element.amount)) * Decimal(attended_days)
+    return Decimal(str(element.amount))
 
 
 @transaction.atomic
@@ -156,8 +156,8 @@ def generate_payrun(period_code: str, branch: Branch, user, *, force=False) -> P
         if settings_row.absence_deduction_enabled and workdays:
             deductible = max(absent - settings_row.absence_grace_days, 0)
             if deductible:
-                daily = base / workdays
-                absence_deduction = daily * deductible
+                daily = base / Decimal(str(workdays))
+                absence_deduction = daily * Decimal(str(deductible))
                 if settings_row.absence_grace_days:
                     note = _("خصم غياب %(days)s يوم (بعد سماح %(grace)s يوم)") % {
                         "days": deductible, "grace": settings_row.absence_grace_days,
@@ -254,7 +254,7 @@ def bank_rows(payrun: PayRun) -> list[dict]:
 
 # ---- نهاية الخدمة (BR-PAY-005) ---------------------------------------------
 
-def calculate_end_of_service(employee, termination_date, user, *, reward_factor: float = None) -> EndOfService:
+def calculate_end_of_service(employee, termination_date, user, *, reward_factor: Decimal = None) -> EndOfService:
     """يحسب نهاية الخدمة آليًا ويُنشئ سجلًا بحالة مسودة.
 
     reward = سنوات الخدمة × الأجر اليومي × العامل (من PayrollSettings إن لم يُمرَّر)
@@ -266,22 +266,22 @@ def calculate_end_of_service(employee, termination_date, user, *, reward_factor:
 
     if reward_factor is None:
         settings_row = get_payroll_settings()
-        reward_factor = float(settings_row.eos_reward_factor)
+        reward_factor = Decimal(str(settings_row.eos_reward_factor))
     from apps.leave.models import LeaveBalance, LeaveType
     from django.db.models import Sum
 
     hire = employee.hire_date or employee.created_at.date()
-    years = max((termination_date - hire).days / 365.25, 0)
+    years = Decimal(str(max((termination_date - hire).days, 0))) / Decimal("365.25")
     base = _employee_base_salary(employee)
-    daily = base / 30
+    daily = base / Decimal("30")
 
     annual = LeaveType.objects.filter(is_unpaid=False).first()
-    remaining = 0
+    remaining = Decimal("0")
     if annual:
         agg = LeaveBalance.objects.filter(
             employee=employee, leave_type=annual, year=termination_date.year
         ).aggregate(total=Sum("granted") - Sum("used") - Sum("carried_from") - Sum("adjusted"))
-        remaining = max(float(agg["total"] or 0), 0)
+        remaining = max(Decimal(str(agg["total"] or 0)), Decimal("0"))
 
     reward = years * daily * reward_factor
     unused = remaining * daily

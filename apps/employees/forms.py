@@ -43,6 +43,8 @@ class ContractForm(forms.ModelForm):
 
 
 class DocumentForm(forms.ModelForm):
+    MAX_FILE_MB = 10
+
     class Meta:
         model = Document
         fields = ["employee", "document_type", "title", "file", "issued_date", "expiry_date"]
@@ -50,3 +52,13 @@ class DocumentForm(forms.ModelForm):
             "issued_date": forms.DateInput(attrs={"type": "date"}),
             "expiry_date": forms.DateInput(attrs={"type": "date"}),
         }
+
+    def clean_file(self):
+        f = self.cleaned_data.get("file")
+        if f and f.size > self.MAX_FILE_MB * 1024 * 1024:
+            raise forms.ValidationError(
+                _("حجم الملف يتجاوز الحد المسموح (%(mb)s ميغابايت)."),
+                code="file_too_large",
+                params={"mb": self.MAX_FILE_MB},
+            )
+        return f

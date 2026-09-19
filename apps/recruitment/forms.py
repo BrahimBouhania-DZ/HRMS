@@ -23,6 +23,8 @@ class PostingForm(forms.ModelForm):
 
 
 class CandidateForm(forms.ModelForm):
+    MAX_RESUME_MB = 10
+
     class Meta:
         model = Candidate
         fields = [
@@ -32,6 +34,16 @@ class CandidateForm(forms.ModelForm):
         widgets = {
             "notes": forms.Textarea(attrs={"rows": 3}),
         }
+
+    def clean_resume(self):
+        f = self.cleaned_data.get("resume")
+        if f and f.size > self.MAX_RESUME_MB * 1024 * 1024:
+            raise forms.ValidationError(
+                _("حجم الملف يتجاوز الحد المسموح (%(mb)s ميغابايت)."),
+                code="file_too_large",
+                params={"mb": self.MAX_RESUME_MB},
+            )
+        return f
 
 
 class InterviewForm(forms.ModelForm):

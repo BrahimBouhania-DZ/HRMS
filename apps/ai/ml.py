@@ -35,10 +35,8 @@ _LABEL_COLUMNS = (LABEL_COLUMN, ABSENCE_LABEL_COLUMN)
 
 
 def model_dir(prediction_type: str) -> str:
-    base = getattr(settings, "MEDIA_ROOT", None)
-    if not base:
-        base = os.path.join(settings.BASE_DIR, "media")
-    directory = os.path.join(base, MODEL_SUBDIR, prediction_type)
+    base = os.path.join(settings.BASE_DIR, "ai_models")
+    directory = os.path.join(base, prediction_type)
     os.makedirs(directory, exist_ok=True)
     return directory
 

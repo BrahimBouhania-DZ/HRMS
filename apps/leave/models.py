@@ -114,7 +114,11 @@ class LeaveRequest(BaseModel):
     class Meta:
         verbose_name = _("طلب إجازة")
         verbose_name_plural = _("طلبات الإجازات")
-        indexes = [models.Index(fields=["-submitted_at"])]
+        indexes = [
+            models.Index(fields=["-submitted_at"]),
+            models.Index(fields=["status"]),
+            models.Index(fields=["employee", "status"]),
+        ]
 
     def __str__(self):
         return f"{self.employee} — {self.leave_type} ({self.from_date}→{self.to_date})"

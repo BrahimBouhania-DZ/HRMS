@@ -58,6 +58,10 @@ class AttendanceDay(BaseModel):
         verbose_name = _("يوم حضور")
         verbose_name_plural = _("أيام الحضور")
         unique_together = ("employee", "work_date")
+        indexes = [
+            models.Index(fields=["work_date"]),
+            models.Index(fields=["branch", "work_date"]),
+        ]
 
     def __str__(self):
         return f"{self.employee} — {self.work_date}"

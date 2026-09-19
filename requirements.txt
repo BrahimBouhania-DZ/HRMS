@@ -11,3 +11,4 @@ numpy>=1.26           # الحسابات الرقمية للنماذج
 scikit-learn>=1.5     # نماذج تعلّم الآلي (apps/ai — تنبؤ مخاطر)
 joblib>=1.4           # حفظ/تحميل النماذج المدربة
 djangorestframework>=3.15  # واجهة API للموبايل (apps/api)
+sqlparse>=0.6.0  # security: PYSEC-2026-3696..3699

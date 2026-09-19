@@ -91,6 +91,25 @@ class Employee(BaseModel):
     class Meta:
         verbose_name = _("موظف")
         verbose_name_plural = _("الموظفون")
+        indexes = [
+            models.Index(fields=["employee_code", "is_active"]),
+        ]
+
+    @property
+    def masked_bank_account(self):
+        if not self.bank_account:
+            return ""
+        if len(self.bank_account) > 4:
+            return f"****{self.bank_account[-4:]}"
+        return "****"
+
+    @property
+    def masked_national_id(self):
+        if not self.national_id:
+            return ""
+        if len(self.national_id) > 4:
+            return f"****{self.national_id[-4:]}"
+        return "****"
 
     def __str__(self):
         return f"{self.employee_code} — {self.first_name_ar} {self.last_name_ar}"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HRMS 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-15 11:37+0100\n"
+"POT-Creation-Date: 2026-08-22 12:55+0100\n"
 "PO-Revision-Date: 2026-08-09 15:30+0100\n"
 "Last-Translator: HRMS Team\n"
 "Language-Team: French <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: apps/ai/apps.py:8 templates/base.html:37
+#: apps/ai/apps.py:8 templates/base.html:74
 msgid "الذكاء الاصطناعي"
 msgstr "Intelligence artificielle"
 
@@ -45,7 +45,7 @@ msgid "الإجابة (JSON)"
 msgstr "Réponse (JSON)"
 
 #: apps/ai/models.py:31 apps/auth_app/models.py:47
-#: templates/ai/analytics.html:112 templates/base.html:51
+#: templates/ai/analytics.html:112 templates/base.html:110
 msgid "اللغة"
 msgstr "Langue"
 
@@ -105,16 +105,16 @@ msgstr "Nombre de fois"
 msgid "الغياب"
 msgstr "Absence"
 
-#: apps/ai/models.py:61 templates/ai/analytics.html:20 templates/base.html:25
+#: apps/ai/models.py:61 templates/ai/analytics.html:20
 #: templates/core/home.html:81
 msgid "الحضور"
 msgstr "Présence"
 
-#: apps/ai/models.py:62 templates/base.html:34
+#: apps/ai/models.py:62
 msgid "الأداء"
 msgstr "Performance"
 
-#: apps/ai/models.py:63 templates/base.html:33 templates/core/home.html:93
+#: apps/ai/models.py:63 templates/core/home.html:93
 msgid "الرواتب"
 msgstr "Salaires"
 
@@ -315,7 +315,8 @@ msgstr "Compte désactivé"
 
 #: apps/api/serializers.py:30
 msgid "لا يملك هذا الحساب ملف موظف (واجهة الموبايل للموظفين)"
-msgstr "Ce compte n'a pas de dossier employé (l'API mobile est réservée aux employés)"
+msgstr ""
+"Ce compte n'a pas de dossier employé (l'API mobile est réservée aux employés)"
 
 #: apps/api/views.py:97 apps/attendance/views.py:80
 msgid "payload مطلوب"
@@ -367,7 +368,9 @@ msgstr "La fin de la période doit être postérieure à son début"
 
 #: apps/attendance/management/commands/mark_absences.py:15
 msgid "علام تلقائي لأيام العمل بلا مسح كغياب (إجازة/مهمة/غياب)."
-msgstr "Marquage automatique des jours travaillés sans scan comme absence (congé/mission/absence)."
+msgstr ""
+"Marquage automatique des jours travaillés sans scan comme absence (congé/"
+"mission/absence)."
 
 #: apps/attendance/management/commands/mark_absences.py:19
 msgid "بداية الفترة (YYYY-MM-DD)"
@@ -499,6 +502,7 @@ msgid "يوم حضور"
 msgstr "Jour de présence"
 
 #: apps/attendance/models.py:59 apps/payroll/models.py:176
+#: templates/base.html:39
 msgid "أيام الحضور"
 msgstr "Jours de présence"
 
@@ -1220,7 +1224,7 @@ msgstr "Adresse IP"
 msgid "سجل تدقيق"
 msgstr "Journal d'audit"
 
-#: apps/core/models.py:111 apps/reports/views.py:178 templates/base.html:41
+#: apps/core/models.py:111 apps/reports/views.py:178 templates/base.html:93
 #: templates/core/audit_log.html:3 templates/core/audit_log.html:6
 #: templates/core/audit_log.html:26
 msgid "سجل التدقيق"
@@ -1235,7 +1239,7 @@ msgid "موظف نشط"
 msgstr "Employé actif"
 
 #: apps/core/templatetags/admin_stats.py:40 apps/org/models.py:23
-#: templates/base.html:21 templates/org/branch_list.html:6
+#: templates/base.html:29 templates/org/branch_list.html:6
 #: templates/org/branch_list.html:11
 msgid "الفروع"
 msgstr "Succursales"
@@ -1471,7 +1475,7 @@ msgstr "Employé"
 
 #: apps/employees/models.py:93 apps/reports/views.py:121
 #: apps/reports/views.py:133 apps/reports/views.py:211
-#: apps/training/forms.py:48 templates/base.html:22 templates/core/home.html:68
+#: apps/training/forms.py:48 templates/base.html:23 templates/core/home.html:68
 #: templates/employees/employee_list.html:3
 #: templates/employees/employee_list.html:6
 #: templates/employees/employee_list.html:22
@@ -1542,7 +1546,7 @@ msgstr "Contrat précédent"
 msgid "عقد"
 msgstr "Contrat"
 
-#: apps/employees/models.py:146 templates/base.html:23
+#: apps/employees/models.py:146 templates/base.html:26
 #: templates/employees/contract_list.html:3
 #: templates/employees/contract_list.html:6
 #: templates/employees/contract_list.html:25
@@ -1948,8 +1952,11 @@ msgid "حُذفت العطلة"
 msgstr "Le jour férié a été supprimé"
 
 #: apps/notif/management/commands/run_scheduled_alerts.py:13
-msgid "يفحص العقود والوثائق وفترات التجربة القريبة من الانتهاء وينشئ التنبيهات."
-msgstr "Examine les contrats, documents et périodes d'essai proches de l'expiration et crée les alertes."
+msgid ""
+"يفحص العقود والوثائق وفترات التجربة القريبة من الانتهاء وينشئ التنبيهات."
+msgstr ""
+"Examine les contrats, documents et périodes d'essai proches de l'expiration "
+"et crée les alertes."
 
 #: apps/notif/management/commands/run_scheduled_alerts.py:17
 msgid "عرض ما سيُطلق دون إنشاء سجلات"
@@ -1957,13 +1964,21 @@ msgstr "Afficher ce qui sera déclenché sans créer d'enregistrements"
 
 #: apps/notif/management/commands/run_scheduled_alerts.py:26
 #, python-format
-msgid "وضع التجربة (dry-run) — ستُطلق العقود التالية: %(contracts)s، وثائق: %(documents)s، تجربة: %(probation)s"
-msgstr "Mode test (dry-run) — les contrats suivants seront déclenchés : %(contracts)s, documents : %(documents)s, essai : %(probation)s"
+msgid ""
+"وضع التجربة (dry-run) — ستُطلق العقود التالية: %(contracts)s، وثائق: "
+"%(documents)s، تجربة: %(probation)s"
+msgstr ""
+"Mode test (dry-run) — les contrats suivants seront déclenchés : "
+"%(contracts)s, documents : %(documents)s, essai : %(probation)s"
 
 #: apps/notif/management/commands/run_scheduled_alerts.py:32
 #, python-format
-msgid "تم إطلاق التنبيهات — عقود: %(contracts)s، وثائق: %(documents)s، تجربة: %(probation)s"
-msgstr "Alertes déclenchées — contrats : %(contracts)s, documents : %(documents)s, essai : %(probation)s"
+msgid ""
+"تم إطلاق التنبيهات — عقود: %(contracts)s، وثائق: %(documents)s، تجربة: "
+"%(probation)s"
+msgstr ""
+"Alertes déclenchées — contrats : %(contracts)s, documents : %(documents)s, "
+"essai : %(probation)s"
 
 #: apps/notif/models.py:15
 msgid "طلب إجازة جديد"
@@ -2029,7 +2044,7 @@ msgstr "Lu"
 msgid "إشعار"
 msgstr "Notification"
 
-#: apps/notif/models.py:43 templates/base.html:28
+#: apps/notif/models.py:43
 msgid "الإشعارات"
 msgstr "Notifications"
 
@@ -2092,7 +2107,8 @@ msgstr "Contrat proche de son expiration"
 #: apps/notif/scheduler.py:84
 #, python-format
 msgid "عقد %(num)s للموظف %(emp)s ينتهي في %(date)s (%(days)s يومًا)"
-msgstr "Contrat %(num)s de l'employé %(emp)s expirant le %(date)s (%(days)s jour(s))"
+msgstr ""
+"Contrat %(num)s de l'employé %(emp)s expirant le %(date)s (%(days)s jour(s))"
 
 #: apps/notif/scheduler.py:120
 msgid "وثيقة تنتهي صلاحيتها"
@@ -2106,7 +2122,8 @@ msgstr "Document %(doc)s de l'employé %(emp)s expire le %(date)s"
 #: apps/notif/scheduler.py:155
 #, python-format
 msgid "تنتهي فترة تجربة الموظف %(emp)s في %(date)s (%(days)s يومًا)"
-msgstr "La période d'essai de l'employé %(emp)s expire le %(date)s (%(days)s jour(s))"
+msgstr ""
+"La période d'essai de l'employé %(emp)s expire le %(date)s (%(days)s jour(s))"
 
 #: apps/notif/services.py:98
 #, python-format
@@ -2176,8 +2193,8 @@ msgstr "Responsable du département"
 msgid "قسم"
 msgstr "Département"
 
-#: apps/org/models.py:62 templates/org/department_list.html:3
-#: templates/org/department_list.html:6
+#: apps/org/models.py:62 templates/base.html:30
+#: templates/org/department_list.html:3 templates/org/department_list.html:6
 msgid "الأقسام"
 msgstr "Départements"
 
@@ -2197,8 +2214,8 @@ msgstr "Grade"
 msgid "منصب"
 msgstr "Poste"
 
-#: apps/org/models.py:85 templates/org/position_list.html:3
-#: templates/org/position_list.html:6
+#: apps/org/models.py:85 templates/base.html:31
+#: templates/org/position_list.html:3 templates/org/position_list.html:6
 msgid "المناصب"
 msgstr "Postes"
 
@@ -2226,10 +2243,10 @@ msgstr "Tolérance de retard (minutes)"
 msgid "جدول دوام"
 msgstr "Planning de quart"
 
-#: apps/org/models.py:105 templates/org/shift_list.html:3
-#: templates/org/shift_list.html:6
+#: apps/org/models.py:105 templates/base.html:32
+#: templates/org/shift_list.html:3 templates/org/shift_list.html:6
 msgid "جداول الدوام"
-msgstr "Plannings de quarts"
+msgstr "Horaires de travail"
 
 #: apps/org/views.py:36
 msgid "تمت إضافة الفرع"
@@ -2298,8 +2315,13 @@ msgid "أيام الأساس للأجر اليومي"
 msgstr "Jours de base pour la paie journalière"
 
 #: apps/payroll/models.py:25
-msgid "0 = تُحسب تلقائيًا من تقويم الفترة (الاثنين..الجمعة − العطل الرسمية). عند ضبطها (مثل 26) تُستخدم بدلاً منها في حساب الأجر اليومي (BR-PAY-002)."
-msgstr "0 = calculé automatiquement à partir du calendrier de la période (lun..ven − jours fériés). Si défini (ex. 26), il remplace ce calcul pour le salaire journalier (BR-PAY-002)."
+msgid ""
+"0 = تُحسب تلقائيًا من تقويم الفترة (الاثنين..الجمعة − العطل الرسمية). عند "
+"ضبطها (مثل 26) تُستخدم بدلاً منها في حساب الأجر اليومي (BR-PAY-002)."
+msgstr ""
+"0 = calculé automatiquement à partir du calendrier de la période (lun..ven − "
+"jours fériés). Si défini (ex. 26), il remplace ce calcul pour le salaire "
+"journalier (BR-PAY-002)."
 
 #: apps/payroll/models.py:30
 msgid "تفعيل خصم الغياب"
@@ -2307,7 +2329,9 @@ msgstr "Activer la déduction d'absence"
 
 #: apps/payroll/models.py:32
 msgid "عند إيقافه لا يُسجَّل خصم آلي على أيام الغياب."
-msgstr "Lorsqu'elle est désactivée, aucune déduction automatique n'est enregistrée pour les jours d'absence."
+msgstr ""
+"Lorsqu'elle est désactivée, aucune déduction automatique n'est enregistrée "
+"pour les jours d'absence."
 
 #: apps/payroll/models.py:35
 msgid "أيام سماح للغياب"
@@ -2315,15 +2339,21 @@ msgstr "Jours de grâce pour absence"
 
 #: apps/payroll/models.py:37
 msgid "عدد أيام الغياب المعفاة من الخصم كل شهر (يُخصم ما بعدها فقط)."
-msgstr "Nombre de jours d'absence exemptés de déduction chaque mois (seul le surplus est déduit)."
+msgstr ""
+"Nombre de jours d'absence exemptés de déduction chaque mois (seul le surplus "
+"est déduit)."
 
 #: apps/payroll/models.py:40
 msgid "العلام التلقائي للغياب عند توليد الرواتب"
 msgstr "Marquage automatique de l'absence lors de la génération des salaires"
 
 #: apps/payroll/models.py:43
-msgid "BR-ATT-004: تُعلَّم أيام العمل التي لا يوجد لها مسح كغياب تلقائيًا (مع استثناء الإجازات المعتمدة والمهام والعطل الرسمية)."
-msgstr "BR-ATT-004 : les jours travaillés sans scan sont marqués comme absences automatiquement (hors congés approuvés, missions et jours fériés)."
+msgid ""
+"BR-ATT-004: تُعلَّم أيام العمل التي لا يوجد لها مسح كغياب تلقائيًا (مع استثناء "
+"الإجازات المعتمدة والمهام والعطل الرسمية)."
+msgstr ""
+"BR-ATT-004 : les jours travaillés sans scan sont marqués comme absences "
+"automatiquement (hors congés approuvés, missions et jours fériés)."
 
 #: apps/payroll/models.py:48
 msgid "عامل مكافأة نهاية الخدمة"
@@ -2331,7 +2361,9 @@ msgstr "Coefficient de l'indemnité de fin de service"
 
 #: apps/payroll/models.py:52
 msgid "مكافأة نهاية الخدمة = سنوات الخدمة × الأجر اليومي × هذا العامل."
-msgstr "Indemnité de fin de service = années de service × salaire journalier × ce coefficient."
+msgstr ""
+"Indemnité de fin de service = années de service × salaire journalier × ce "
+"coefficient."
 
 #: apps/payroll/models.py:56 apps/payroll/models.py:57
 #: apps/payroll/models.py:60
@@ -2358,8 +2390,8 @@ msgstr "Selon la présence"
 msgid "عنصر أجر"
 msgstr "Élément de salaire"
 
-#: apps/payroll/models.py:93 templates/payroll/element_list.html:3
-#: templates/payroll/element_list.html:6
+#: apps/payroll/models.py:93 templates/base.html:53
+#: templates/payroll/element_list.html:3 templates/payroll/element_list.html:6
 msgid "عناصر الأجر"
 msgstr "Éléments de salaire"
 
@@ -2407,8 +2439,9 @@ msgstr "Heure d'approbation"
 msgid "دورة رواتب"
 msgstr "Cycle de paie"
 
-#: apps/payroll/models.py:129 templates/payroll/payrun_list.html:3
-#: templates/payroll/payrun_list.html:5 templates/payroll/payrun_list.html:26
+#: apps/payroll/models.py:129 templates/base.html:52
+#: templates/payroll/payrun_list.html:3 templates/payroll/payrun_list.html:5
+#: templates/payroll/payrun_list.html:26
 msgid "دورات الرواتب"
 msgstr "Cycles de paie"
 
@@ -2525,12 +2558,14 @@ msgstr "Format de période invalide : %(code)s (exemple : 2026-08)"
 #: apps/payroll/services.py:100
 #, python-format
 msgid "توجد دورة رواتب مسبقًا للفترة %(period)s في %(branch)s"
-msgstr "Un cycle de paie existe déjà pour la période %(period)s dans %(branch)s"
+msgstr ""
+"Un cycle de paie existe déjà pour la période %(period)s dans %(branch)s"
 
 #: apps/payroll/services.py:162
 #, python-format
 msgid "خصم غياب %(days)s يوم (بعد سماح %(grace)s يوم)"
-msgstr "Déduction d'absence de %(days)s jour(s) (après %(grace)s jour(s) de grâce)"
+msgstr ""
+"Déduction d'absence de %(days)s jour(s) (après %(grace)s jour(s) de grâce)"
 
 #: apps/payroll/services.py:166
 #, python-format
@@ -2618,7 +2653,9 @@ msgstr "Critères"
 
 #: apps/perf/forms.py:36
 msgid "قائمة JSON من المعايير بأوزانها: [{\"title\": \"...\", \"weight\": 50}]"
-msgstr "Liste JSON des critères avec leurs pondérations : [{\\\"title\\\": \\\"...\\\", \\\"weight\\\": 50}]"
+msgstr ""
+"Liste JSON des critères avec leurs pondérations : [{\\\"title\\\": \\\"...\\"
+"\", \\\"weight\\\": 50}]"
 
 #: apps/perf/forms.py:53
 msgid "صيغة JSON غير صالحة"
@@ -2705,8 +2742,8 @@ msgstr "Date limite de l'évaluation du manager"
 msgid "دورة تقييم"
 msgstr "Cycle d'évaluation"
 
-#: apps/perf/models.py:32 templates/perf/cycle_list.html:3
-#: templates/perf/cycle_list.html:5
+#: apps/perf/models.py:32 templates/base.html:55
+#: templates/perf/cycle_list.html:3 templates/perf/cycle_list.html:5
 msgid "دورات التقييم"
 msgstr "Cycles d'évaluation"
 
@@ -2867,7 +2904,7 @@ msgstr "Plan d'amélioration ouvert"
 msgid "أُغلقت خطة التحسين"
 msgstr "Plan d'amélioration fermé"
 
-#: apps/recruitment/apps.py:8 templates/base.html:36
+#: apps/recruitment/apps.py:8
 #, fuzzy
 #| msgid "سجل توظيفي"
 msgid "التوظيف"
@@ -2897,16 +2934,21 @@ msgstr "La fin du plan doit être postérieure à son début"
 
 #: apps/recruitment/imports.py:207
 msgid "جمل INSERT تتطلب أعمدة صريحة بعد اسم الجدول"
-msgstr "Les instructions INSERT exigent des colonnes explicites après le nom de la table"
+msgstr ""
+"Les instructions INSERT exigent des colonnes explicites après le nom de la "
+"table"
 
 #: apps/recruitment/imports.py:214
 #, python-format
 msgid "عدد القيم (%(n)d) لا يطابق عدد الأعمدة (%(c)d)"
-msgstr "Le nombre de valeurs (%(n)d) ne correspond pas au nombre de colonnes (%(c)d)"
+msgstr ""
+"Le nombre de valeurs (%(n)d) ne correspond pas au nombre de colonnes (%(c)d)"
 
 #: apps/recruitment/imports.py:220
 msgid "لم يُعثر على جداول مدعومة (postings/candidates) في ملف SQL"
-msgstr "Aucune table prise en charge (postings/candidates) trouvée dans le fichier SQL"
+msgstr ""
+"Aucune table prise en charge (postings/candidates) trouvée dans le fichier "
+"SQL"
 
 #: apps/recruitment/imports.py:233
 #, fuzzy, python-format
@@ -3180,11 +3222,9 @@ msgstr "Planifiée"
 msgid "مكتملة"
 msgstr "Terminée"
 
-#: apps/recruitment/models.py:138
-#, fuzzy
-#| msgid "حضور"
+#: apps/recruitment/models.py:138 templates/base.html:40
 msgid "حضوري"
-msgstr "Présence"
+msgstr "Ma présence"
 
 #: apps/recruitment/models.py:140
 msgid "فيديو"
@@ -3360,7 +3400,9 @@ msgstr "Choisir un modèle..."
 
 #: apps/reports/management/commands/run_scheduled_reports.py:14
 msgid "ينفّذ التقارير التي حان موعد جدولتها ويُشعر المستلمين"
-msgstr "Exécute les rapports dont l'échéance planifiée est arrivée et en informe les destinataires"
+msgstr ""
+"Exécute les rapports dont l'échéance planifiée est arrivée et en informe les "
+"destinataires"
 
 #: apps/reports/management/commands/run_scheduled_reports.py:17
 msgid "محاكاة فقط دون أي كتابة"
@@ -3600,7 +3642,8 @@ msgstr "Employés actifs"
 msgid "تقرير"
 msgstr "Rapport"
 
-#: apps/reports/views.py:22 templates/employees/employee_card.html:20
+#: apps/reports/views.py:22 templates/base.html:25
+#: templates/employees/employee_card.html:20
 msgid "قائمة الموظفين"
 msgstr "Liste des employés"
 
@@ -3634,7 +3677,9 @@ msgstr "Résumé opérationnel"
 
 #: apps/reports/views.py:42
 msgid "إحصاءات عامة: حضور/غياب/إجازة/تأخر/إضافي مع تفصيل لكل موظف"
-msgstr "Statistiques générales : présence/absence/congé/retard/supplémentaire avec détail par employé"
+msgstr ""
+"Statistiques générales : présence/absence/congé/retard/supplémentaire avec "
+"détail par employé"
 
 #: apps/reports/views.py:43
 msgid "حضور"
@@ -4014,7 +4059,9 @@ msgstr "Indicateurs KPI"
 
 #: apps/reports/views.py:216
 msgid "قياس مؤشرات الأداء الرئيسية للفترة مقابل الأهداف"
-msgstr "Mesure des indicateurs clés de performance (KPI) de la période par rapport aux objectifs"
+msgstr ""
+"Mesure des indicateurs clés de performance (KPI) de la période par rapport "
+"aux objectifs"
 
 #: apps/reports/views.py:217
 msgid "المؤشر"
@@ -4224,7 +4271,7 @@ msgstr "REP-06 Changements d'emploi"
 msgid "REP-45 سجل المرشحين"
 msgstr "REP-50 Journal d'audit"
 
-#: apps/training/apps.py:8 templates/base.html:35
+#: apps/training/apps.py:8
 msgid "التدريب"
 msgstr "Formation"
 
@@ -4413,7 +4460,8 @@ msgstr "Non autorisé"
 
 #: templates/403.html:7
 msgid "لا تملك الصلاحية الكافية للوصول إلى هذه الصفحة."
-msgstr "Vous n'avez pas les autorisations suffisantes pour accéder à cette page."
+msgstr ""
+"Vous n'avez pas les autorisations suffisantes pour accéder à cette page."
 
 #: templates/403.html:8
 msgid "العودة للرئيسية"
@@ -4598,11 +4646,13 @@ msgid "التقييم"
 msgstr "Modèle d'évaluation"
 
 #: templates/ai/analytics.html:125
-msgid "أضف صياغة هذه الأسئلة كمفاتيح في nlp.py (detect_intent) ليتعلم المساعد الإجابة عنها."
+msgid ""
+"أضف صياغة هذه الأسئلة كمفاتيح في nlp.py (detect_intent) ليتعلم المساعد "
+"الإجابة عنها."
 msgstr ""
 
 #: templates/ai/assistant.html:3 templates/ai/assistant.html:5
-#: templates/base.html:38
+#: templates/base.html:77
 #, fuzzy
 #| msgid "التنبؤات الذكية"
 msgid "المساعد الذكي"
@@ -4652,7 +4702,9 @@ msgstr "Aucun département pour le moment"
 
 #: templates/ai/prediction_list.html:9
 msgid "لم يُدرَّب نموذج التنبؤ بعد. شغّل أولًا: seed_ai_data ثم train_ai_models."
-msgstr "Le modèle de prédiction n'est pas encore entraîné. Exécutez d'abord : seed_ai_data puis train_ai_models."
+msgstr ""
+"Le modèle de prédiction n'est pas encore entraîné. Exécutez d'abord : "
+"seed_ai_data puis train_ai_models."
 
 #: templates/ai/prediction_list.html:16
 msgid "عينة"
@@ -4714,7 +4766,8 @@ msgstr "Facteurs clés"
 
 #: templates/ai/prediction_list.html:86
 msgid "لا توجد تنبؤات بعد — حدّث التنبؤات أولًا."
-msgstr "Aucune prédiction pour l'instant — mettez d'abord à jour les prédictions."
+msgstr ""
+"Aucune prédiction pour l'instant — mettez d'abord à jour les prédictions."
 
 #: templates/attendance/attendance_day_detail.html:3
 msgid "تفاصيل يوم الحضور"
@@ -4958,8 +5011,7 @@ msgstr "Mon historique de présence"
 
 #: templates/attendance/my_attendance.html:7
 #: templates/attendance/my_qr_card.html:3
-#: templates/attendance/my_qr_card.html:7 templates/base.html:31
-#: templates/core/home.html:63
+#: templates/attendance/my_qr_card.html:7 templates/core/home.html:63
 msgid "بطاقتي"
 msgstr "Ma carte"
 
@@ -4982,17 +5034,26 @@ msgstr "Aucun enregistrement pour l'instant"
 #: templates/attendance/my_qr_card.html:5
 #: templates/employees/employee_card.html:5
 msgid "توليد رمز جديد يلغي الرمز الحالي فورًا. متابعة؟"
-msgstr "Générer un nouveau code annule immédiatement le code actuel. Continuer ?"
+msgstr ""
+"Générer un nouveau code annule immédiatement le code actuel. Continuer ?"
 
 #: templates/attendance/my_qr_card.html:13
 #, python-format
-msgid "الرقم: <strong>%(employee.employee_code)s</strong> — القسم: <strong>%(dep)s</strong>"
-msgstr "Numéro : <strong>%(employee.employee_code)s</strong> — Département : <strong>%(dep)s</strong>"
+msgid ""
+"الرقم: <strong>%(employee.employee_code)s</strong> — القسم: <strong>%(dep)s</"
+"strong>"
+msgstr ""
+"Numéro : <strong>%(employee.employee_code)s</strong> — Département : "
+"<strong>%(dep)s</strong>"
 
 #: templates/attendance/my_qr_card.html:14
 #, python-format
-msgid "الحالة الوظيفية: <strong>%(employee.get_employment_status_display)s</strong> — الفرع: <strong>%(br)s</strong>"
-msgstr "Statut professionnel : <strong>%(employee.get_employment_status_display)s</strong> — Succursale : <strong>%(br)s</strong>"
+msgid ""
+"الحالة الوظيفية: <strong>%(employee.get_employment_status_display)s</strong> "
+"— الفرع: <strong>%(br)s</strong>"
+msgstr ""
+"Statut professionnel : <strong>%(employee.get_employment_status_display)s</"
+"strong> — Succursale : <strong>%(br)s</strong>"
 
 #: templates/attendance/my_qr_card.html:21
 msgid "رمز الحضور"
@@ -5077,8 +5138,11 @@ msgid "غير محدد"
 msgstr "Non spécifié"
 
 #: templates/backup/backup_page.html:24
-msgid "الجدولة التلقائية عبر cron: daily 02:00 → manage.py backup_db --kind daily"
-msgstr "Planification automatique via cron : daily 02:00 → manage.py backup_db --kind daily"
+msgid ""
+"الجدولة التلقائية عبر cron: daily 02:00 → manage.py backup_db --kind daily"
+msgstr ""
+"Planification automatique via cron : daily 02:00 → manage.py backup_db --"
+"kind daily"
 
 #: templates/backup/backup_page.html:28
 msgid "النسخ المتاحة"
@@ -5122,12 +5186,11 @@ msgstr "checksum"
 msgid "نعم,لا"
 msgstr "Oui,Non"
 
-#: templates/base.html:13 templates/base.html:18
+#: templates/base.html:13
 msgid "تخطَّ إلى المحتوى"
 msgstr "Aller au contenu"
 
 #: templates/base.html:19
-#| msgid "التنقل الوظيفي"
 msgid "التنقل الرئيسي"
 msgstr "Navigation principale"
 
@@ -5135,43 +5198,104 @@ msgstr "Navigation principale"
 msgid "الرئيسية"
 msgstr "Accueil"
 
-#: templates/base.html:24 templates/employees/document_list.html:3
+#: templates/base.html:27 templates/employees/document_list.html:3
 #: templates/employees/document_list.html:6
 #: templates/employees/document_list.html:24
 #: templates/employees/employee_detail.html:59
 msgid "الوثائق"
 msgstr "Documents"
 
-#: templates/base.html:26 templates/core/home.html:87
-msgid "الإجازات"
-msgstr "Congés"
+#: templates/base.html:37
+msgid "الحضور والإجازات"
+msgstr "Présence et congés"
 
-#: templates/base.html:32 templates/core/home.html:99
+#: templates/base.html:41
+msgid "بطاقتي QR"
+msgstr "Ma carte QR"
+
+#: templates/base.html:43
+msgid "طلبات الإجازة"
+msgstr "Demandes de congé"
+
+#: templates/base.html:44 templates/leave/my_leave.html:3
+#: templates/leave/my_leave.html:6
+msgid "إجازاتي"
+msgstr "Mes congés"
+
+#: templates/base.html:45 templates/leave/balance_list.html:3
+msgid "الأرصدة"
+msgstr "Soldes"
+
+#: templates/base.html:50
+msgid "الرواتب والأداء"
+msgstr "Paie et performance"
+
+#: templates/base.html:56
+msgid "التقييمات"
+msgstr "Évaluations"
+
+#: templates/base.html:61
+msgid "التدريب والتوظيف"
+msgstr "Formation et recrutement"
+
+#: templates/base.html:63 templates/perf/template_list.html:8
+msgid "الدورات"
+msgstr "Formations"
+
+#: templates/base.html:64 templates/training/course_list.html:8
+#: templates/training/session_detail.html:7
+msgid "الجلسات"
+msgstr "Sessions"
+
+#: templates/base.html:66
+msgid "إعلانات التوظيف"
+msgstr "Offres d'emploi"
+
+#: templates/base.html:67
+msgid "المرشحون والمقابلات"
+msgstr "Candidats et entretiens"
+
+#: templates/base.html:71 templates/core/home.html:99
 #: templates/core/home.html:156
 msgid "التقارير"
 msgstr "Rapports"
 
-#: templates/base.html:39
-#, fuzzy
-#| msgid "التسجيلات"
-msgid "التحليلات"
-msgstr "Inscriptions"
+#: templates/base.html:76
+msgid "لوحة التنبؤات"
+msgstr "Tableau des prédictions"
 
-#: templates/base.html:40 templates/core/home.html:105
+#: templates/base.html:78
+msgid "تحليلات التدريب"
+msgstr "Analyses de formation"
+
+#: templates/base.html:83
+msgid "🔔 الإشعارات"
+msgstr "🔔 Notifications"
+
+#: templates/base.html:89 templates/core/home.html:111
+msgid "الإدارة"
+msgstr "Administration"
+
+#: templates/base.html:92 templates/core/home.html:105
 msgid "الأجهزة"
 msgstr "Appareils"
 
-#: templates/base.html:42
+#: templates/base.html:94
 msgid "النسخ الاحتياطي"
 msgstr "Sauvegarde"
 
-#: templates/base.html:44 templates/employees/employee_list.html:11
+#: templates/base.html:97
+msgid "لوحة Django"
+msgstr "Admin Django"
+
+
+#: templates/base.html:103 templates/employees/employee_list.html:11
 #: templates/training/certificate_list.html:10
 #: templates/training/course_list.html:13
 msgid "بحث"
 msgstr "Rechercher"
 
-#: templates/base.html:45 templates/core/audit_log.html:18
+#: templates/base.html:104 templates/core/audit_log.html:18
 #: templates/core/audit_log.html:19
 #: templates/recruitment/candidate_list.html:11
 #: templates/recruitment/candidate_list.html:12
@@ -5182,15 +5306,11 @@ msgstr "Rechercher"
 msgid "بحث..."
 msgstr "Rechercher..."
 
-#: templates/base.html:47 templates/core/home.html:111
-msgid "الإدارة"
-msgstr "Administration"
-
-#: templates/base.html:51
+#: templates/base.html:110
 msgid "اختر اللغة"
 msgstr "Choisir la langue"
 
-#: templates/base.html:61
+#: templates/base.html:120
 #, python-format
 msgid "تسجيل الخروج (%(user.get_full_name|default:user.username)s)"
 msgstr "Se déconnecter (%(user.get_full_name|default:user.username)s)"
@@ -5240,6 +5360,10 @@ msgstr "Actions rapides"
 #: templates/core/home.html:75
 msgid "إضافة موظف"
 msgstr "Ajouter un employé"
+
+#: templates/core/home.html:87
+msgid "الإجازات"
+msgstr "Congés"
 
 #: templates/core/home.html:121
 msgid "طلبات الإجازة المعلقة"
@@ -5496,7 +5620,9 @@ msgstr "Dossier de l'employé"
 
 #: templates/employees/employee_card.html:35
 msgid "لا يوجد رمز QR نشط لهذا الموظف بعد — اضغط «توليد رمز جديد» لإصداره."
-msgstr "Aucun code QR actif pour cet employé pour l'instant — cliquez sur « Générer un nouveau code » pour en créer un."
+msgstr ""
+"Aucun code QR actif pour cet employé pour l'instant — cliquez sur « Générer "
+"un nouveau code » pour en créer un."
 
 #: templates/employees/employee_card_print.html:7
 msgid "طباعة بطاقات الموظفين"
@@ -5559,7 +5685,8 @@ msgstr "Aucun employé pour l'instant"
 
 #: templates/employees/employee_list.html:57
 msgid "ملاحظة: يتم إرسال التحديد من الصفحة الحالية فقط إلى الطباعة."
-msgstr "Remarque : seule la sélection de la page actuelle est envoyée à l'impression."
+msgstr ""
+"Remarque : seule la sélection de la page actuelle est envoyée à l'impression."
 
 #: templates/employees/employee_list.html:61
 #: templates/training/certificate_list.html:40
@@ -5567,10 +5694,6 @@ msgstr "Remarque : seule la sélection de la page actuelle est envoyée à l'imp
 #, python-format
 msgid "صفحة %(page_obj.number)s من %(page_obj.paginator.num_pages)s"
 msgstr "Page %(page_obj.number)s sur %(page_obj.paginator.num_pages)s"
-
-#: templates/leave/balance_list.html:3
-msgid "الأرصدة"
-msgstr "Soldes"
 
 #: templates/leave/balance_list.html:17 templates/leave/my_leave.html:13
 msgid "الممنوح"
@@ -5638,10 +5761,6 @@ msgstr "Niveaux"
 #: templates/leave/leave_type_list.html:28
 msgid "لا أنواع بعد"
 msgstr "Aucun type pour l'instant"
-
-#: templates/leave/my_leave.html:3 templates/leave/my_leave.html:6
-msgid "إجازاتي"
-msgstr "Mes congés"
 
 #: templates/leave/my_leave.html:7
 msgid "+ طلب إجازة"
@@ -5737,8 +5856,11 @@ msgid "لا موافقات بعد"
 msgstr "Aucune approbation pour le moment"
 
 #: templates/leave/request_form.html:18
-msgid "تُحسب أيام العمل تلقائيًا عند الحفظ (دون عطل نهاية الأسبوع والعطل الرسمية)."
-msgstr "Les jours de travail sont calculés automatiquement à l'enregistrement (hors week-ends et jours fériés)."
+msgid ""
+"تُحسب أيام العمل تلقائيًا عند الحفظ (دون عطل نهاية الأسبوع والعطل الرسمية)."
+msgstr ""
+"Les jours de travail sont calculés automatiquement à l'enregistrement (hors "
+"week-ends et jours fériés)."
 
 #: templates/leave/request_list.html:7
 #, python-format
@@ -5788,8 +5910,12 @@ msgid "تفضيلات البريد (LAN)"
 msgstr "Préférences d'e-mail (LAN)"
 
 #: templates/notif/prefs.html:6
-msgid "فعّل البريد الإلكتروني للأنواع التي تريد استلامها — تُرسل عبر خادم البريد داخل الشبكة."
-msgstr "Activez l'e-mail pour les types que vous souhaitez recevoir — envoyés via le serveur de messagerie du réseau."
+msgid ""
+"فعّل البريد الإلكتروني للأنواع التي تريد استلامها — تُرسل عبر خادم البريد داخل "
+"الشبكة."
+msgstr ""
+"Activez l'e-mail pour les types que vous souhaitez recevoir — envoyés via le "
+"serveur de messagerie du réseau."
 
 #: templates/org/branch_confirm_delete.html:3
 msgid "حذف فرع"
@@ -6233,10 +6359,6 @@ msgstr "Nouveau modèle"
 msgid "قالب تقييم جديد"
 msgstr "Nouveau modèle d'évaluation"
 
-#: templates/perf/template_list.html:8
-msgid "الدورات"
-msgstr "Cycles"
-
 #: templates/perf/template_list.html:22
 msgid "معيار"
 msgstr "Critère"
@@ -6335,16 +6457,33 @@ msgid "استيراد جماعي"
 msgstr "Importer"
 
 #: templates/recruitment/import.html:6
-msgid "الصيغ المدعومة: CSV · XLSX · JSON · SQL (جمل INSERT INTO). ملفات SQL قد تضم جداول الإعلانات والمرشحين معًا."
-msgstr "Formats pris en charge : CSV · XLSX · JSON · SQL (instructions INSERT INTO). Les fichiers SQL peuvent contenir les tables d'offres et de candidats ensemble."
+msgid ""
+"الصيغ المدعومة: CSV · XLSX · JSON · SQL (جمل INSERT INTO). ملفات SQL قد تضم "
+"جداول الإعلانات والمرشحين معًا."
+msgstr ""
+"Formats pris en charge : CSV · XLSX · JSON · SQL (instructions INSERT INTO). "
+"Les fichiers SQL peuvent contenir les tables d'offres et de candidats "
+"ensemble."
 
 #: templates/recruitment/import.html:11
-msgid "أعمدة: code, title_ar, title_fr, title_en, department_code, branch_code, employment_type, openings_count, status, publish_date, close_date, requirements, description"
-msgstr "Colonnes : code, title_ar, title_fr, title_en, department_code, branch_code, employment_type, openings_count, status, publish_date, close_date, requirements, description"
+msgid ""
+"أعمدة: code, title_ar, title_fr, title_en, department_code, branch_code, "
+"employment_type, openings_count, status, publish_date, close_date, "
+"requirements, description"
+msgstr ""
+"Colonnes : code, title_ar, title_fr, title_en, department_code, branch_code, "
+"employment_type, openings_count, status, publish_date, close_date, "
+"requirements, description"
 
 #: templates/recruitment/import.html:26
-msgid "أعمدة: first_name_ar, last_name_ar, email, phone, source, posting_code, status, first_name_fr, last_name_fr, first_name_en, last_name_en, applied_date, notes"
-msgstr "Colonnes : first_name_ar, last_name_ar, email, phone, source, posting_code, status, first_name_fr, last_name_fr, first_name_en, last_name_en, applied_date, notes"
+msgid ""
+"أعمدة: first_name_ar, last_name_ar, email, phone, source, posting_code, "
+"status, first_name_fr, last_name_fr, first_name_en, last_name_en, "
+"applied_date, notes"
+msgstr ""
+"Colonnes : first_name_ar, last_name_ar, email, phone, source, posting_code, "
+"status, first_name_fr, last_name_fr, first_name_en, last_name_en, "
+"applied_date, notes"
 
 #: templates/recruitment/import.html:47
 msgid "مرشحون"
@@ -6424,8 +6563,12 @@ msgid "مركز التقارير"
 msgstr "Centre des rapports"
 
 #: templates/reports/index.html:40
-msgid "تقارير تشغيلية ومالية مع إمكانية التصفية والطباعة والتصدير (Excel / CSV / PDF)."
-msgstr "Rapports opérationnels et financiers avec filtrage, impression et export (Excel / CSV / PDF)."
+msgid ""
+"تقارير تشغيلية ومالية مع إمكانية التصفية والطباعة والتصدير (Excel / CSV / "
+"PDF)."
+msgstr ""
+"Rapports opérationnels et financiers avec filtrage, impression et export "
+"(Excel / CSV / PDF)."
 
 #: templates/reports/index.html:43
 msgid "التقارير التشغيلية"
@@ -6592,11 +6735,6 @@ msgstr "Aucun certificat pour l'instant."
 #: templates/training/course_form.html:5
 msgid "تعديل الدورة"
 msgstr "Modifier le cours"
-
-#: templates/training/course_list.html:8
-#: templates/training/session_detail.html:7
-msgid "الجلسات"
-msgstr "Sessions"
 
 #: templates/training/course_list.html:9
 msgid "الشهادات"

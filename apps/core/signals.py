@@ -28,6 +28,8 @@ def _record(sender, instance, action, snapshot=True):
     if user is not None and not getattr(user, "is_authenticated", False):
         user = None
 
+    SENSITIVE_FIELDS = {"gross_salary", "base_salary", "allowance", "bank_account", "national_id", "net", "amount"}
+    
     detail = ""
     if snapshot and action in (AuditLog.Action.CREATE, AuditLog.Action.UPDATE):
         fields = {}
@@ -35,7 +37,10 @@ def _record(sender, instance, action, snapshot=True):
             if f.primary_key:
                 continue
             try:
-                fields[f.name] = str(getattr(instance, f.name, ""))
+                if f.name in SENSITIVE_FIELDS:
+                    fields[f.name] = "***"
+                else:
+                    fields[f.name] = str(getattr(instance, f.name, ""))
             except Exception:
                 fields[f.name] = ""
         detail = json.dumps(fields, ensure_ascii=False)[:2000]
