@@ -6,6 +6,7 @@
 
 import datetime
 import tempfile
+from unittest import mock
 
 import numpy as np
 import pandas as pd
@@ -139,8 +140,17 @@ class SaveLoadRefreshTests(TestCase):
         self.assertTrue(result["factors"])
 
 
-@override_settings(MEDIA_ROOT=tempfile.mkdtemp(prefix="ai-test-view-media-"))
 class PredictionViewTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._patcher = mock.patch("apps.ai.ml.model_dir", return_value=tempfile.mkdtemp(prefix="ai-test-view-"))
+        cls._patcher.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._patcher.stop()
+        super().tearDownClass()
     def test_page_requires_permission(self):
         user = _user_with_role("plain")
         self.client.force_login(user)
